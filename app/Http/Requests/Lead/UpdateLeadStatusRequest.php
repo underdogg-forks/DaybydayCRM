@@ -14,9 +14,9 @@ class UpdateLeadStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            'status_id' => 'nullable|integer|exists:statuses,id',
-            'closeLead' => 'nullable|boolean',
-            'openLead' => 'nullable|boolean',
+            'status_id' => ['nullable', 'integer', 'exists:statuses,id'],
+            'closeLead' => ['nullable', 'boolean'],
+            'openLead' => ['nullable', 'boolean'],
         ];
     }
 }

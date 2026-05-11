@@ -76,7 +76,9 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
-    $('.dropdown-toggle').dropdown();
+    // Bootstrap's data-api automatically initializes dropdowns via data-toggle="dropdown"
+    // so we don't need to call .dropdown() explicitly
+
     $('.dropdown-toggle').click(function (e) {
         var href = $(this).attr('href');
         if (href && href !== '#' && !href.startsWith('#')) {
@@ -97,7 +99,13 @@ $(document).ready(function () {
     $(".list-group-item[data-toggle='collapse']").click(function (e) {
         var target = $(this).attr('data-target') || $(this).attr('href');
         if (target && target.startsWith('#')) {
-            $(target).collapse('toggle');
+            // Collapse may not be available if Bootstrap JS isn't loaded, so wrap in try-catch
+            try {
+                $(target).collapse('toggle');
+            } catch (err) {
+                // Bootstrap JS not available, but collapse may work via data-api
+                console.warn('Collapse unavailable:', err.message);
+            }
         }
     });
 });

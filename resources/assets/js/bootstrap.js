@@ -1,10 +1,13 @@
 /**
  * jQuery is loaded as a classic blocking script in master.blade.php before this module.
- * We also import it here so bootstrap-sass can use it during module initialization.
- * Both point to the same window.jQuery global.
+ * We import it here so bootstrap-sass can use it during module initialization.
+ * We only set it globally if it isn't already set (to avoid overwriting the classic
+ * jQuery which has all the legacy plugins attached).
  */
 import $ from 'jquery';
-window.jQuery = window.$ = $;
+if (typeof window.jQuery === 'undefined') {
+    window.jQuery = window.$ = $;
+}
 
 import _ from 'lodash';
 window._ = _;

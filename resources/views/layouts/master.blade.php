@@ -205,13 +205,12 @@
     <!-- /#page-content-wrapper -->
 </div>
 {{--
-    jQuery MUST load as a classic (non-module) blocking script before @vite and before
-    any jQuery-dependent plugins. @vite generates <script type="module"> tags which are
-    always deferred by the browser and execute *after* classic scripts — so without this
-    line, window.jQuery would be undefined when dataTables, caret, atwho, etc. run.
+    jQuery MUST load as a classic (non-module) blocking script before all jQuery plugins.
+    All classic jQuery plugins attach to the same window.jQuery instance, and then @vite
+    loads the ES modules (which are deferred). This ensures page inline code uses the
+    classic jQuery with all plugins available.
 --}}
 <script src="{{ URL::asset('js/jquery.min.js') }}"></script>
-@vite(['resources/assets/js/app.js'])
 <script type="text/javascript" src="{{ URL::asset('js/jquery.caret.min.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('js/jquery.dataTables.min.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('js/jasny-bootstrap.min.js') }}"></script>
@@ -221,7 +220,8 @@
 <script type="text/javascript" src="{{ URL::asset('js/dropzone.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('js/summernote.min.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('js/jquery-ui-sortable.min.js') }}"></script>
-@if(App::getLocale() == "dk")
+@vite(['resources/assets/js/app.js'])
+@if(App::getLocale() === "dk")
 <script>
     $(document).ready(function () {
         $.extend( $.fn.pickadate.defaults, {

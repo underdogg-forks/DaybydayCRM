@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Country;
 use App\Enums\InvoiceStatus;
+use App\Enums\PermissionName;
 use App\Events\ClientAction;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
@@ -45,6 +46,7 @@ class ClientsController extends Controller
 
     public function __construct(private ClientService $clientService)
     {
+        $this->middleware('permission:' . PermissionName::CLIENT_VIEW->value, ['only' => ['index', 'show', 'anyData', 'taskDataTable', 'projectDataTable', 'leadDataTable', 'invoiceDataTable']]);
         $this->middleware('client.create', ['only' => ['create']]);
         $this->middleware('client.update', ['only' => ['edit']]);
         $this->middleware('client.delete', ['only' => ['destroy']]);

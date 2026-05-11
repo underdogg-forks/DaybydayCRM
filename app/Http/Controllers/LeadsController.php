@@ -31,21 +31,11 @@ class LeadsController extends Controller
 
     public function __construct(private LeadService $leadService)
     {
+        $this->middleware('permission:' . PermissionName::LEAD_VIEW->value, ['only' => ['index', 'show', 'leadsJson', 'allLeads']]);
         $this->middleware('lead.create', ['only' => ['create']]);
         $this->middleware('lead.assigned', ['only' => ['updateAssign']]);
         $this->middleware('lead.update.status', ['only' => ['updateStatus']]);
-        $this->middleware(function ($request, $next) {
-            if ( ! auth()->check() || ! auth()->user()->can(PermissionName::LEAD_DELETE->value)) {
-                if ($request->expectsJson()) {
-                    abort(403);
-                }
-                session()->flash('flash_message_warning', __('You do not have permission to delete leads'));
-
-                return redirect()->back();
-            }
-
-            return $next($request);
-        }, ['only' => ['destroy', 'destroyJson']]);
+        $this->middleware('permission:' . PermissionName::LEAD_DELETE->value, ['only' => ['destroy', 'destroyJson']]);
     }
 
     public function index()
@@ -105,17 +95,19 @@ class LeadsController extends Controller
 
     public function destroy(Lead $lead, Request $request)
     {
-        if ( ! auth()->user()->can(PermissionName::LEAD_DELETE->value)) {
-            session()->flash('flash_message_warning', __('You do not have permission to delete leads'));
-
-            if ($request->expectsJson()) {
-                return response()->json(['message' => __('You do not have permission to delete leads')], 403);
+        $deleteOffers = $request->delete_offers ? true : false;
+        if ($lead->offers && $deleteOffers) {
+            $lead->offers()->delete();
+        } elseif ($lead->offers) {
+            foreach ($lead->offers as $offer) {
+                $offer->update([
+                    'source_id'   => null,
+                    'source_type' => null,
+                ]);
             }
-
-            return redirect()->back();
         }
 
-        $this->leadService->delete($lead, (bool) $request->boolean('delete_offers'));
+        $lead->delete();
 
         session()->flash('flash_message', __('Lead deleted'));
 
@@ -128,11 +120,19 @@ class LeadsController extends Controller
 
     public function destroyJson(Lead $lead, Request $request)
     {
-        if ( ! auth()->user()->can(PermissionName::LEAD_DELETE->value)) {
-            return response('Access denied', 403);
+        $deleteOffers = $request->delete_offers ? true : false;
+        if ($lead->offers && $deleteOffers) {
+            $lead->offers()->delete();
+        } elseif ($lead->offers) {
+            foreach ($lead->offers as $offer) {
+                $offer->update([
+                    'source_id'   => null,
+                    'source_type' => null,
+                ]);
+            }
         }
 
-        $this->leadService->delete($lead, (bool) $request->boolean('delete_offers'));
+        $lead->delete();
 
         return response('OK');
     }

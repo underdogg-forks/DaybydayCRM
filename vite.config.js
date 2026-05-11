@@ -84,13 +84,7 @@ export default defineConfig({
         manifest: true,
         outDir: 'public/build',
         rollupOptions: {
-            // jQuery is loaded as a classic blocking script in master.blade.php,
-            // so we don't need to bundle it — reference the already-available global.
-            external: ['jquery'],
             output: {
-                globals: {
-                    jquery: 'jQuery',
-                },
                 entryFileNames: 'assets/[name]-[hash].js',
                 chunkFileNames: 'assets/[name]-[hash].js',
                 assetFileNames: 'assets/[name]-[hash][extname]',

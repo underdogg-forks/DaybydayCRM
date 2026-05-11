@@ -1,6 +1,9 @@
-// jQuery is loaded as a classic blocking script in master.blade.php (public/js/jquery.min.js)
-// before this module executes, so window.$ and window.jQuery are already available.
-// The import below resolves to the externalized global (see vite.config.js rollupOptions.external).
+/**
+ * jQuery is loaded as a classic blocking script in master.blade.php (public/js/jquery.min.js)
+ * before this module executes, so window.$ and window.jQuery are already globally available.
+ * We also import it here to ensure bootstrap-sass and inline jQuery code work correctly.
+ * Both versions point to the same window.jQuery global.
+ */
 import $ from 'jquery';
 
 /**

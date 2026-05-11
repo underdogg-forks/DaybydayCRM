@@ -152,6 +152,20 @@ class UpgradeCommandTest extends AbstractTestCase
     }
 
     #[Test]
+    public function command_syncs_permissions_to_admin_role_alias()
+    {
+        Role::factory()->create(['name' => 'owner', 'display_name' => 'Owner']);
+        $adminRole = Role::factory()->create(['name' => 'admin', 'display_name' => 'Administrator']);
+
+        $this->artisan('daybyday:upgrade');
+
+        $adminPermCount = $adminRole->perms()->count();
+        $totalPermCount = Permission::count();
+        $this->assertEquals($totalPermCount, $adminPermCount);
+        $this->assertGreaterThanOrEqual(61, $adminPermCount);
+    }
+
+    #[Test]
     public function all_critical_permissions_are_created()
     {
         Role::factory()->create(['name' => 'owner', 'display_name' => 'Owner']);

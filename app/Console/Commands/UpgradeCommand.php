@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class UpgradeCommand extends Command
@@ -23,6 +24,8 @@ class UpgradeCommand extends Command
 
         $syncedCount = $this->ensureRolesHaveAllPermissions();
         $this->newLine();
+
+        $this->flushEntrustCache();
 
         $this->info('Upgrade complete!');
         $this->table(
@@ -70,7 +73,7 @@ class UpgradeCommand extends Command
     }
 
     /**
-     * Ensure owner and admin roles have all permissions
+     * Ensure owner, admin, and administrator roles have all permissions
      */
     private function ensureRolesHaveAllPermissions(): int
     {
@@ -79,10 +82,11 @@ class UpgradeCommand extends Command
         $allPermissions = Permission::all()->pluck('id')->toArray();
         $syncedCount = 0;
 
-        $roles = Role::whereIn('name', ['owner', 'administrator'])->get();
+        // Include 'admin' which is used in tests alongside 'administrator'
+        $roles = Role::whereIn('name', ['owner', 'administrator', 'admin'])->get();
 
         if ($roles->isEmpty()) {
-            $this->warn('   ⚠ No owner or administrator roles found!');
+            $this->warn('   ⚠ No owner, administrator, or admin roles found!');
             return 0;
         }
 
@@ -381,6 +385,23 @@ class UpgradeCommand extends Command
                 'grouping'     => 'absence',
             ],
         ];
+    }
+
+    /**
+     * Flush Entrust and Laravel caches for roles and permissions
+     */
+    private function flushEntrustCache(): void
+    {
+        $this->info('🧹 Flushing Entrust cache...');
+
+        // Flush both Entrust cache tags
+        Cache::tags('permission_role')->flush();
+        Cache::tags('role_user')->flush();
+
+        // Also flush general cache as backup
+        Cache::flush();
+
+        $this->line('   ✓ Cache flushed successfully');
     }
 }
 

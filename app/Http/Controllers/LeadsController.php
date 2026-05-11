@@ -18,6 +18,8 @@ use App\Services\Invoice\InvoiceCalculator;
 use App\Services\Lead\LeadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
+use Yajra\DataTables\Facades\DataTables;
 
 class LeadsController extends Controller
 {
@@ -51,13 +53,53 @@ class LeadsController extends Controller
      */
     public function leadsJson()
     {
-        $leads = Lead::with(['user', 'creator', 'client.primaryContact', 'status'])->get();
+        $leads = Lead::with(['user', 'client', 'status'])->select(
+            collect(['external_id', 'title', 'created_at', 'deadline', 'user_assigned_id', 'status_id', 'client_id'])
+                ->map(function ($field) {
+                    return (new Lead())->qualifyColumn($field);
+                })
+                ->all()
+        );
 
-        $leads->map(function ($item) {
-            return [$item['visible_deadline_date'] = $item['deadline']->format(carbonDate()), $item['visible_deadline_time'] = $item['deadline']->format(carbonTime())];
-        });
+        return DataTables::of($leads)
+            ->addColumn('titlelink', function ($lead) {
+                return '<a href="' . route('leads.show', [$lead->external_id]) . '">' . e($lead->title) . '</a>';
+            })
+            ->editColumn('client', function ($lead) {
+                return $lead->client ? $lead->client->company_name : '';
+            })
+            ->editColumn('created_at', function ($lead) {
+                return $lead->created_at ? with(new Carbon($lead->created_at))->format(carbonDate()) : '';
+            })
+            ->editColumn('deadline', function ($lead) {
+                return $lead->deadline ? with(new Carbon($lead->deadline))->format(carbonDate()) : '';
+            })
+            ->addColumn('days', function ($lead) {
+                return $lead->created_at ? with(new Carbon($lead->created_at))->diffForHumans() : '';
+            })
+            ->editColumn('user_assigned_id', function ($lead) {
+                return $lead->user ? $lead->user->name : '';
+            })
+            ->editColumn('status_id', function ($lead) {
+                if (! $lead->status) {
+                    return '';
+                }
 
-        return $leads->toJson();
+                return '<span class="label label-success" style="background-color:' . e($lead->status->color) . '"> '
+                    . e($lead->status->title) . '</span>';
+            })
+            ->addColumn('view', function ($lead) {
+                $actions = '<a href="' . route('leads.show', $lead->external_id) . '" class="btn btn-link">' . __('View') . '</a>';
+
+                if (auth()->user() && auth()->user()->can(PermissionName::LEAD_DELETE->value)) {
+                    $actions .= '<a data-toggle="modal" data-id="' . route('leads.destroy', $lead->external_id) . '" data-title="'
+                        . e($lead->title) . '" data-target="#deletion" class="btn btn-link">' . __('Delete') . '</a>';
+                }
+
+                return $actions;
+            })
+            ->rawColumns(['titlelink', 'status_id', 'view'])
+            ->make(true);
     }
 
     /**

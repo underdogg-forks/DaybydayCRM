@@ -6,7 +6,6 @@ use App\Models\Client;
 use App\Models\Lead;
 use App\Models\Status;
 use Illuminate\Support\Carbon;
-use Ramsey\Uuid\Uuid;
 
 class LeadService
 {
@@ -25,19 +24,16 @@ class LeadService
             'deadline' => Carbon::parse($this->buildDeadline($validated['deadline'], $validated['contact_time'] ?? null)),
             'status_id' => $validated['status_id'],
             'user_created_id' => $userId,
-            'external_id' => Uuid::uuid4()->toString(),
             'client_id' => $clientId,
         ]);
     }
 
     public function delete(Lead $lead, bool $deleteOffers): void
     {
-        if ($lead->offers && $deleteOffers) {
+        if ($deleteOffers) {
             $lead->offers()->delete();
-        } elseif ($lead->offers) {
-            foreach ($lead->offers as $offer) {
-                $offer->update(['source_id' => null, 'source_type' => null]);
-            }
+        } else {
+            $lead->offers()->update(['source_id' => null, 'source_type' => null]);
         }
 
         $lead->delete();

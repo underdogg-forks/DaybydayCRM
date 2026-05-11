@@ -6,7 +6,6 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Support\Carbon;
-use Ramsey\Uuid\Uuid;
 
 class TaskService
 {
@@ -29,10 +28,9 @@ class TaskService
             'title' => $validated['title'],
             'description' => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],
-            'deadline' => Carbon::parse($validated['deadline']),
+            'deadline' => Carbon::parse($validated['deadline'])->toDateString(),
             'status_id' => $validated['status_id'],
             'user_created_id' => $userId,
-            'external_id' => Uuid::uuid4()->toString(),
             'client_id' => $clientId,
             'project_id' => $projectId,
         ]);
@@ -46,7 +44,7 @@ class TaskService
 
     public function updateDeadline(Task $task, string $deadline): void
     {
-        $task->deadline = Carbon::parse($deadline);
+        $task->deadline = Carbon::parse($deadline)->toDateString();
         $task->save();
     }
 }

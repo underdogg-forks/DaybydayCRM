@@ -40,6 +40,6 @@ class TaskServiceTest extends AbstractTestCase
         $service->assign($task, $user->id);
         $service->updateDeadline($task, '2026-02-03 13:00:00');
 
-        $this->assertSame('2026-02-03 13:00:00', $task->fresh()->deadline->format('Y-m-d H:i:s'));
+        $this->assertSame('2026-02-03', $task->fresh()->deadline->format('Y-m-d'));
     }
 }

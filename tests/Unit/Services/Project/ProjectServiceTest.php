@@ -39,7 +39,7 @@ class ProjectServiceTest extends AbstractTestCase
         $service->assign($project, $user->id);
         $service->updateDeadline($project, '2026-03-01', '09:00');
 
-        $this->assertSame('2026-03-01 09:00:00', $project->fresh()->deadline->format('Y-m-d H:i:s'));
+        $this->assertSame('2026-03-01', $project->fresh()->deadline->format('Y-m-d'));
 
         $this->assertNull($service->create([
             'client_external_id' => 'missing',

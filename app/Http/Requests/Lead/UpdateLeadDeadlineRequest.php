@@ -14,8 +14,8 @@ class UpdateLeadDeadlineRequest extends FormRequest
     public function rules()
     {
         return [
-            'deadline_date' => 'required|date',
-            'deadline_time' => 'nullable|date_format:H:i',
+            'deadline_date' => ['required', 'date'],
+            'deadline_time' => ['nullable', 'date_format:H:i'],
         ];
     }
 }

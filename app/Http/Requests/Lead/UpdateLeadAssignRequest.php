@@ -14,7 +14,7 @@ class UpdateLeadAssignRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_assigned_id' => 'required|integer|exists:users,id',
+            'user_assigned_id' => ['required', 'integer', 'exists:users,id'],
         ];
     }
 }

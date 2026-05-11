@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\TaskAction;
 use App\Http\Requests\Task\StoreTaskRequest;
+use App\Http\Requests\Task\UpdateTaskAssignRequest;
 use App\Models\Client;
 use App\Models\Document;
 use App\Models\Integration;
@@ -13,6 +14,7 @@ use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\Storage\GetStorageProvider;
+use App\Services\Task\TaskService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -35,7 +37,7 @@ class TasksController extends Controller
 
     protected $invoices;
 
-    public function __construct()
+    public function __construct(private TaskService $taskService)
     {
         $this->middleware('filesystem.is.enabled', ['only' => ['upload']]);
         $this->middleware('task.create', ['only' => ['create']]);
@@ -136,35 +138,8 @@ class TasksController extends Controller
      */
     public function store(StoreTaskRequest $request) // uses __contrust request
     {
-        $client  = null;
-        $project = null;
-
-        if ($request->client_external_id) {
-            $client = Client::whereExternalId($request->client_external_id)->first();
-        }
-
-        if ($request->project_external_id) {
-            $project = Project::whereExternalId($request->project_external_id)->first();
-        }
-
-        $input = array_merge(
-            $request->all(),
-            []
-        );
-
-        $task = Task::create(
-            [
-                'title'            => $request->title,
-                'description'      => clean($request->description),
-                'user_assigned_id' => $request->user_assigned_id,
-                'deadline'         => Carbon::parse($request->deadline),
-                'status_id'        => $request->status_id,
-                'user_created_id'  => auth()->id(),
-                'external_id'      => Uuid::uuid4()->toString(),
-                'client_id'        => optional($client)->id,
-                'project_id'       => optional($project)->id,
-            ]
-        );
+        $validated = $request->validated();
+        $task = $this->taskService->create($validated, auth()->id());
 
         $insertedExternalId = $task->external_id;
 
@@ -178,7 +153,7 @@ class TasksController extends Controller
         }
 
         // Hack to make dropzone js work, as it only called with AJAX and not form submit
-        return response()->json(['task_external_id' => $task->external_id, 'project_external_id' => $project ? $project->external_id : null]);
+        return response()->json(['task_external_id' => $task->external_id, 'project_external_id' => $task->project ? $task->project->external_id : null]);
 
         return redirect()->route('tasks.show', $insertedExternalId);
     }
@@ -312,15 +287,10 @@ class TasksController extends Controller
     /**
      * @return mixed
      */
-    public function updateAssign($external_id, Request $request)
+    public function updateAssign($external_id, UpdateTaskAssignRequest $request)
     {
-        $task             = Task::with('user')->whereExternalId($external_id)->first();
-        $user_assigned_id = $request->input('user_assigned_id');
-        if ( ! $user_assigned_id || ! is_numeric($user_assigned_id)) {
-            return response()->json(['error' => 'Invalid user_assigned_id'], 400);
-        }
-        $task->user_assigned_id = $user_assigned_id;
-        $task->save();
+        $task = Task::with('user')->whereExternalId($external_id)->first();
+        $this->taskService->assign($task, $request->validated('user_assigned_id'));
         $task->refresh();
         event(new TaskAction($task, self::UPDATED_ASSIGN));
         session()->flash('flash_message', __('New user is assigned'));
@@ -335,10 +305,8 @@ class TasksController extends Controller
      */
     public function updateDeadline(\App\Http\Requests\Task\UpdateTaskDeadlineRequest $request, $external_id)
     {
-        $task           = $this->findByExternalId($external_id);
-        $deadline       = $request->validated('deadline');
-        $task->deadline = $deadline;
-        $task->save();
+        $task = $this->findByExternalId($external_id);
+        $this->taskService->updateDeadline($task, $request->validated('deadline'));
         event(new TaskAction($task, self::UPDATED_DEADLINE));
         session()->flash('flash_message', 'New deadline is set');
 

@@ -135,6 +135,10 @@ class ProjectsController extends Controller
         $project = $this->projectService->create($request->validated(), auth()->id());
 
         if (! $project) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['error' => __('Could not find client')], 422);
+            }
+
             session()->flash('flash_message', __('Could not find client'));
 
             return redirect()->back();

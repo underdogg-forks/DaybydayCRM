@@ -117,10 +117,6 @@ class RolesController extends Controller
         if (! $this->roleService->destroy($role)) {
             Session::flash('flash_message_warning', __("Can't delete role with users, please remove users"));
 
-            if ($role->name === Role::ADMIN_ROLE || $role->name === Role::OWNER_ROLE) {
-                Session::flash('flash_message_warning', __('Can not delete role'));
-            }
-
             return redirect()->route('roles.index');
         }
 

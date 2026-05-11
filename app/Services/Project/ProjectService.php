@@ -11,12 +11,12 @@ class ProjectService
 {
     public function create(array $validated, int $userId): ?Project
     {
-        $client = Client::whereExternalId($validated['client_external_id'] ?? '')->first();
+        $client = Client::query()->where('external_id', $validated['client_external_id'] ?? '')->first();
         if (! $client) {
             return null;
         }
 
-        return Project::create([
+        return Project::query()->create([
             'title' => $validated['title'],
             'description' => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],

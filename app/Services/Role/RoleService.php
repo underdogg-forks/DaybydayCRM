@@ -11,7 +11,7 @@ class RoleService
     {
         $name = mb_strtolower($validated['name']);
 
-        return Role::create([
+        return Role::query()->create([
             'external_id'  => Uuid::uuid4()->toString(),
             'name'         => $name,
             'display_name' => ucfirst($name),

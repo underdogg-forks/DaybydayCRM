@@ -14,11 +14,11 @@ class LeadService
     {
         $clientId = null;
         if (!empty($validated['client_external_id'])) {
-            $client = Client::whereExternalId($validated['client_external_id'])->first();
+            $client = Client::query()->where('external_id', $validated['client_external_id'])->first();
             $clientId = $client ? $client->id : null;
         }
 
-        return Lead::create([
+        return Lead::query()->create([
             'title' => $validated['title'],
             'description' => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],
@@ -71,7 +71,7 @@ class LeadService
             return $this->updateStatusByTitle($lead, 'Open');
         }
 
-        if (!empty($validated['status_id']) && Status::typeOfLead()->where('id', $validated['status_id'])->exists()) {
+        if (!empty($validated['status_id']) && Status::query()->where('source_type', Lead::class)->where('id', $validated['status_id'])->exists()) {
             $lead->status_id = $validated['status_id'];
             $lead->save();
 
@@ -83,7 +83,7 @@ class LeadService
 
     private function updateStatusByTitle(Lead $lead, string $title): bool
     {
-        $status = Status::typeOfLead()->where('title', $title)->first();
+        $status = Status::query()->where('source_type', Lead::class)->where('title', $title)->first();
         if (!$status) {
             return false;
         }

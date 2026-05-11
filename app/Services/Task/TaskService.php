@@ -16,16 +16,16 @@ class TaskService
         $projectId = null;
 
         if (!empty($validated['client_external_id'])) {
-            $client = Client::whereExternalId($validated['client_external_id'])->first();
+            $client = Client::query()->where('external_id', $validated['client_external_id'])->first();
             $clientId = $client ? $client->id : null;
         }
 
         if (!empty($validated['project_external_id'])) {
-            $project = Project::whereExternalId($validated['project_external_id'])->first();
+            $project = Project::query()->where('external_id', $validated['project_external_id'])->first();
             $projectId = $project ? $project->id : null;
         }
 
-        return Task::create([
+        return Task::query()->create([
             'title' => $validated['title'],
             'description' => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],

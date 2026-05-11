@@ -28,7 +28,7 @@ class NotificationsController extends Controller
      */
     public function markAll()
     {
-        $user = User::find(Auth::id());
+        $user = User::query()->find(Auth::id());
 
         foreach ($user->unreadNotifications as $notification) {
             $notification->markAsRead();

@@ -27,7 +27,7 @@ class GoogleDrive implements FilesystemIntegration
         $this->client->setRedirectUri(route('googleDrive.callback'));
         $this->client->setAccessType('offline');
         $this->client->setScopes(['https://www.googleapis.com/auth/drive.file']);
-        $this->client->fetchAccessTokenWithRefreshToken(Integration::where(['name' => get_class($this)])->first()->api_key);
+        $this->client->fetchAccessTokenWithRefreshToken(Integration::query()->where(['name' => get_class($this)])->first()->api_key);
 
         $this->driveService = new Google_Service_Drive($this->client);
     }

@@ -40,7 +40,7 @@ class IntegrationsController extends Controller
     {
         $input = $request->all();
 
-        $existing = Integration::where([
+        $existing = Integration::query()->where([
             // 'user_id' => $request->post['user_id'] ? $userId : null,
             'api_type' => $request->api_type,
         ])->get();
@@ -49,7 +49,7 @@ class IntegrationsController extends Controller
         if ($existing) {
             $existing->fill($input)->save();
         } else {
-            Integration::create($input);
+            Integration::query()->create($input);
         }
 
         return $this->index();

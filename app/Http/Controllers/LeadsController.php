@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Enums\PermissionName;
 use App\Events\LeadAction;
 use App\Http\Requests\Lead\StoreLeadRequest;
+use App\Http\Requests\Lead\UpdateLeadAssignRequest;
+use App\Http\Requests\Lead\UpdateLeadDeadlineRequest;
+use App\Http\Requests\Lead\UpdateLeadStatusRequest;
 use App\Http\Requests\Lead\UpdateLeadFollowUpRequest;
 use App\Models\Client;
 use App\Models\Lead;
@@ -12,10 +15,9 @@ use App\Models\Setting;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\Invoice\InvoiceCalculator;
+use App\Services\Lead\LeadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Carbon;
-use Ramsey\Uuid\Uuid;
 
 class LeadsController extends Controller
 {
@@ -27,7 +29,7 @@ class LeadsController extends Controller
 
     public const UPDATED_ASSIGN = 'updated_assign';
 
-    public function __construct()
+    public function __construct(private LeadService $leadService)
     {
         $this->middleware('permission:' . PermissionName::LEAD_VIEW->value, ['only' => ['index', 'show', 'leadsJson', 'allLeads']]);
         $this->middleware('lead.create', ['only' => ['create']]);
@@ -69,7 +71,7 @@ class LeadsController extends Controller
 
         return view('leads.create')
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
-            ->withClients(Client::pluck('company_name', 'external_id'))
+            ->withClients(Client::query()->pluck('company_name', 'external_id'))
             ->withClient($client ?: null)
             ->withStatuses(Status::typeOfLead()->pluck('title', 'id'));
     }
@@ -83,33 +85,7 @@ class LeadsController extends Controller
      */
     public function store(StoreLeadRequest $request)
     {
-        $client = null;
-        if ($request->validated()['client_external_id']) {
-            $client = Client::whereExternalId($request->validated()['client_external_id'])->first();
-        }
-
-        $validated = $request->validated();
-        $deadline  = $validated['deadline'];
-
-        // Only append contact_time if it exists in validated data
-        if (isset($validated['contact_time'])) {
-            $deadline .= ' ' . $validated['contact_time'] . ':00';
-        } else {
-            $deadline .= ' 00:00:00';
-        }
-
-        $lead = Lead::create(
-            [
-                'title'            => $validated['title'],
-                'description'      => clean($validated['description']),
-                'user_assigned_id' => $validated['user_assigned_id'],
-                'deadline'         => \Illuminate\Support\Carbon::parse($deadline),
-                'status_id'        => $validated['status_id'],
-                'user_created_id'  => auth()->id(),
-                'external_id'      => Uuid::uuid4()->toString(),
-                'client_id'        => $client ? $client->id : null,
-            ]
-        );
+        $lead = $this->leadService->create($request->validated(), auth()->id());
 
         event(new LeadAction($lead, self::CREATED));
         session()->flash('flash_message', __('Lead successfully added'));
@@ -161,16 +137,15 @@ class LeadsController extends Controller
         return response('OK');
     }
 
-    public function updateAssign($external_id, Request $request)
+    public function updateAssign($external_id, UpdateLeadAssignRequest $request)
     {
         if ( ! auth()->user()->can(PermissionName::LEAD_ASSIGN->value)) {
             session()->flash('flash_message_warning', __('You do not have permission to assign leads'));
 
             return redirect()->back();
         }
-        $lead  = $this->findByExternalId($external_id);
-        $input = $request->only(['user_assigned_id']);
-        $lead->fill($input)->save();
+        $lead = $this->findByExternalId($external_id);
+        $this->leadService->assign($lead, $request->validated('user_assigned_id'));
 
         event(new LeadAction($lead, self::UPDATED_ASSIGN));
         session()->flash('flash_message', __('New user is assigned'));
@@ -187,16 +162,8 @@ class LeadsController extends Controller
     {
         $lead = $this->findByExternalId($external_id);
 
-        $validated   = $request->validated();
-        $contactTime = $validated['contact_time'];
-        $deadline    = $validated['deadline'];
-        // If deadline is only a date, append the contact time
-        if (mb_strlen($deadline) <= 10) {
-            $deadline = $deadline . ' ' . $contactTime . ':00';
-        }
-        // Always store as Y-m-d H:i:s string
-        $lead->deadline = Carbon::parse($deadline)->format('Y-m-d H:i:s');
-        $lead->save();
+        $validated = $request->validated();
+        $this->leadService->updateFollowup($lead, $validated['deadline'], $validated['contact_time']);
         event(new LeadAction($lead, self::UPDATED_DEADLINE));
         session()->flash('flash_message', __('New follow up date is set'));
 
@@ -208,19 +175,15 @@ class LeadsController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function updateDeadline(Request $request, $external_id)
+    public function updateDeadline(UpdateLeadDeadlineRequest $request, $external_id)
     {
         $lead = $this->findByExternalId($external_id);
 
-        $deadlineTime = $request->input('deadline_time', '00:00');
-        $deadlineDate = $request->input('deadline_date');
-
-        // Combine date and time
-        $deadline = $deadlineDate . ' ' . $deadlineTime . ':00';
-
-        // Always store as Y-m-d H:i:s string
-        $lead->deadline = Carbon::parse($deadline)->format('Y-m-d H:i:s');
-        $lead->save();
+        $this->leadService->updateDeadline(
+            $lead,
+            $request->validated('deadline_date'),
+            $request->validated('deadline_time')
+        );
 
         event(new LeadAction($lead, self::UPDATED_DEADLINE));
 
@@ -264,7 +227,7 @@ class LeadsController extends Controller
      *
      * @return mixed
      */
-    public function updateStatus($external_id, Request $request)
+    public function updateStatus($external_id, UpdateLeadStatusRequest $request)
     {
         if ( ! auth()->user()->can(PermissionName::LEAD_UPDATE_STATUS->value)) {
             session()->flash('flash_message_warning', __('You do not have permission to change lead status'));
@@ -272,30 +235,11 @@ class LeadsController extends Controller
             return redirect()->route('leads.show', $external_id);
         }
         $lead = $this->findByExternalId($external_id);
-        if ($request->has('closeLead') && $request->closeLead === true) {
-            $closedStatus = Status::typeOfLead()->where('title', 'Closed')->first();
-            if ($closedStatus) {
-                $lead->status_id = $closedStatus->id;
-                $lead->save();
-            }
-        } elseif ($request->has('openLead') && $request->openLead === true) {
-            $openStatus = Status::typeOfLead()->where('title', 'Open')->first();
-            if ($openStatus) {
-                $lead->status_id = $openStatus->id;
-                $lead->save();
-            }
-        } elseif ($request->has('status_id')) {
-            $statusId = $request->input('status_id');
-            // Validate that the status_id belongs to lead statuses
-            $validStatus = Status::typeOfLead()->where('id', $statusId)->exists();
-            if ( ! $validStatus) {
-                session()->flash('flash_message_warning', __('Invalid status for lead'));
 
-                return redirect()->back();
-            }
-            // Only update status_id, not other fields
-            $lead->status_id = $statusId;
-            $lead->save();
+        if (! $this->leadService->updateStatus($lead, $request->validated())) {
+            session()->flash('flash_message_warning', __('Invalid status for lead'));
+
+            return redirect()->back();
         }
         event(new LeadAction($lead, self::UPDATED_STATUS));
         session()->flash('flash_message', __('Lead status updated'));

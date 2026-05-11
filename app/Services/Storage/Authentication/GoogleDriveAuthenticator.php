@@ -41,7 +41,7 @@ class GoogleDriveAuthenticator implements StorageAuthenticatorContract
 
     public function revokeAccess()
     {
-        $token = Integration::where(['api_type' => 'file', 'name' => GoogleDrive::class])->first()->api_key;
+        $token = Integration::query()->where(['api_type' => 'file', 'name' => GoogleDrive::class])->first()->api_key;
         $this->client->fetchAccessTokenWithRefreshToken($token);
 
         return $this->client->revokeToken($token);

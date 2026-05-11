@@ -125,7 +125,7 @@ class TasksController extends Controller
 
         return view('tasks.create')
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
-            ->withClients(Client::pluck('company_name', 'external_id'))
+            ->withClients(Client::query()->pluck('company_name', 'external_id'))
             ->withClient($client ?: null)
             ->withProjects($projects ?: null)
             ->withProject($project ?: null)
@@ -362,7 +362,7 @@ class TasksController extends Controller
         $fileSystem = GetStorageProvider::getStorage();
         $fileData   = $fileSystem->upload($folder, $filename, $file);
 
-        Document::create([
+        Document::query()->create([
             'external_id'       => Uuid::uuid4()->toString(),
             'path'              => $fileData['file_path'],
             'size'              => $totaltsize,

@@ -150,7 +150,7 @@ class DocumentsController extends Controller
                 'integration_type'  => get_class($fileSystem),
             ]
         );
-        Document::create($input);
+        Document::query()->create($input);
         Session::flash('flash_message', __('File successfully uploaded'));
     }
 
@@ -195,7 +195,7 @@ class DocumentsController extends Controller
                 $fileSystem = GetStorageProvider::getStorage();
                 $fileData   = $fileSystem->upload($folder, $filename, $file);
 
-                Document::create([
+                Document::query()->create([
                     'external_id'       => Uuid::uuid4()->toString(),
                     'path'              => $fileData['file_path'],
                     'size'              => $totaltsize,
@@ -256,7 +256,7 @@ class DocumentsController extends Controller
 
                 $fileData = $fileSystem->upload($folder, $filename, $file);
 
-                Document::create([
+                Document::query()->create([
                     'external_id'       => Uuid::uuid4()->toString(),
                     'path'              => $fileData['file_path'],
                     'size'              => $totaltsize,

@@ -29,7 +29,7 @@ class RolesController extends Controller
      */
     public function indexData()
     {
-        $roles = Role::select(['id', 'name', 'external_id', 'display_name']);
+        $roles = Role::query()->select(['id', 'name', 'external_id', 'display_name']);
 
         return Datatables::of($roles)
             ->addColumn('namelink', function ($roles) {
@@ -112,7 +112,7 @@ class RolesController extends Controller
      */
     public function destroy($external_id)
     {
-        $role = Role::where('external_id', $external_id)->first();
+        $role = Role::query()->where('external_id', $external_id)->first();
 
         if (! $this->roleService->destroy($role)) {
             Session::flash('flash_message_warning', __("Can't delete role with users, please remove users"));

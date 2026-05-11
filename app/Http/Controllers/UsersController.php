@@ -69,7 +69,7 @@ class UsersController extends Controller
 
     public function anyData()
     {
-        $users = User::select(['id', 'external_id', 'name', 'email', 'primary_number']);
+        $users = User::query()->select(['id', 'external_id', 'name', 'email', 'primary_number']);
 
         return Datatables::of($users)
             ->addColumn('namelink', '<a href="{{ route("users.show",[$external_id]) }}">{{$name}}</a>')
@@ -158,7 +158,7 @@ class UsersController extends Controller
      */
     public function clientData($id)
     {
-        $clients = Client::select(['external_id', 'company_name', 'vat', 'address'])->where('user_id', $id);
+        $clients = Client::query()->select(['external_id', 'company_name', 'vat', 'address'])->where('user_id', $id);
 
         return Datatables::of($clients)
             ->addColumn('clientlink', function ($clients) {
@@ -179,7 +179,7 @@ class UsersController extends Controller
     {
         return view('users.create')
             ->withRoles($this->allRoles()->pluck('display_name', 'id'))
-            ->withDepartments(Department::pluck('name', 'id'));
+            ->withDepartments(Department::query()->pluck('name', 'id'));
     }
 
     /**
@@ -248,7 +248,7 @@ class UsersController extends Controller
         return view('users.edit')
             ->withUser($this->findByExternalId($external_id))
             ->withRoles($this->allRoles()->pluck('display_name', 'id'))
-            ->withDepartments(Department::pluck('name', 'id'));
+            ->withDepartments(Department::query()->pluck('name', 'id'));
     }
 
     /**

@@ -54,7 +54,7 @@ class PaymentsController extends Controller
             return redirect()->route('invoices.show', $invoice->external_id);
         }
 
-        $payment = Payment::create([
+        $payment = Payment::query()->create([
             'external_id'    => Uuid::uuid4()->toString(),
             'amount'         => $request->amount * 100,
             'payment_date'   => Carbon::parse($request->payment_date),

@@ -11,7 +11,11 @@ class ProjectService
 {
     public function create(array $validated, int $userId): ?Project
     {
-        $client = Client::query()->where('external_id', $validated['client_external_id'] ?? '')->first();
+        if (empty($validated['client_external_id'])) {
+            return null;
+        }
+
+        $client = Client::query()->where('external_id', $validated['client_external_id'])->first();
         if (! $client) {
             return null;
         }
@@ -36,7 +40,8 @@ class ProjectService
 
     public function updateDeadline(Project $project, string $deadlineDate, ?string $deadlineTime): void
     {
-        $project->deadline = $deadlineDate . ' ' . ($deadlineTime ?: '00:00') . ':00';
+        $datetime = $deadlineDate . ' ' . ($deadlineTime ?: '00:00') . ':00';
+        $project->deadline = Carbon::parse($datetime);
         $project->save();
     }
 }

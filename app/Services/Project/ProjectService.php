@@ -36,15 +36,9 @@ class ProjectService
         $project->save();
     }
 
-    public function updateDeadline(Project $project, string $deadlineDate, ?string $deadlineTime): void
+    public function updateDeadline(Project $project, string $deadlineDate): void
     {
-        // Deadline is stored as DATE, so optional time is only used for input normalization.
-        $deadline = $deadlineDate;
-        if (! empty($deadlineTime)) {
-            $deadline .= ' ' . $deadlineTime;
-        }
-
-        $project->deadline = Carbon::parse($deadline)->toDateString();
+        $project->deadline = Carbon::parse($deadlineDate)->toDateString();
         $project->save();
     }
 }

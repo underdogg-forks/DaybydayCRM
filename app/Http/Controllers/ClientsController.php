@@ -203,7 +203,7 @@ class ClientsController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
-        $client = Client::create([
+        $client = Client::query()->create([
             'external_id'   => Uuid::uuid4()->toString(),
             'vat'           => $request->vat,
             'company_name'  => $request->company_name,
@@ -216,7 +216,7 @@ class ClientsController extends Controller
             'client_number' => app(ClientNumberService::class)->setNextClientNumber(),
         ]);
 
-        $contact = Contact::create([
+        $contact = Contact::query()->create([
             'external_id'      => Uuid::uuid4()->toString(),
             'name'             => $request->name,
             'email'            => $request->email,
@@ -390,9 +390,9 @@ class ClientsController extends Controller
         }
 
         $userExternalId = $request->user_external_id ?: $request->user_assigned_id;
-        $user           = User::where('external_id', $userExternalId)->first();
+        $user           = User::query()->where('external_id', $userExternalId)->first();
         if ( ! $user && is_numeric($userExternalId)) {
-            $user = User::find($userExternalId);
+            $user = User::query()->find($userExternalId);
         }
         $client = Client::with('user')->where('external_id', $external_id)->first();
         $client->updateAssignee($user);
@@ -420,7 +420,7 @@ class ClientsController extends Controller
      */
     public function listAllClients()
     {
-        return Client::pluck('company_name', 'id');
+        return Client::query()->pluck('company_name', 'id');
     }
 
     /**
@@ -436,6 +436,6 @@ class ClientsController extends Controller
      */
     public function listAllIndustries()
     {
-        return Industry::pluck('name', 'id');
+        return Industry::query()->pluck('name', 'id');
     }
 }

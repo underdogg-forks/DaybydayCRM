@@ -19,7 +19,7 @@ class Integration extends Model
      */
     public static function getApi($type)
     {
-        $integration = self::where([
+        $integration = self::query()->where([
             'api_type' => $type,
         ])->first();
         if ($integration) {

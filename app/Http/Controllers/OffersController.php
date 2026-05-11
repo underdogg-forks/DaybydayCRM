@@ -50,7 +50,7 @@ class OffersController extends Controller
 
     public function create(Request $request, Lead $lead)
     {
-        $offer = Offer::create([
+        $offer = Offer::query()->create([
             'status'      => OfferStatus::inProgress()->getStatus(),
             'client_id'   => $lead->client_id,
             'external_id' => Uuid::uuid4()->toString(),
@@ -86,7 +86,7 @@ class OffersController extends Controller
         $offer = Offer::whereExternalId($request->get('offer_external_id'))->with('invoiceLines')->firstOrFail();
         $offer->setAsWon();
 
-        $invoice                 = Invoice::create($offer->toArray());
+        $invoice                 = Invoice::query()->create($offer->toArray());
         $invoice->offer_id       = $offer->id;
         $invoice->invoice_number = app(InvoiceNumberService::class)->setNextInvoiceNumber();
         $invoice->status         = InvoiceStatus::draft()->getStatus();

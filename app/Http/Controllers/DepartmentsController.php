@@ -30,7 +30,7 @@ class DepartmentsController extends Controller
      */
     public function indexData()
     {
-        $departments = Department::select(['external_id', 'name', 'description']);
+        $departments = Department::query()->select(['external_id', 'name', 'description']);
 
         return Datatables::of($departments)
             ->editColumn('name', function ($departments) {
@@ -62,7 +62,7 @@ class DepartmentsController extends Controller
      */
     public function store(StoreDepartmentRequest $request)
     {
-        Department::create([
+        Department::query()->create([
             'external_id' => Uuid::uuid4(),
             'name'        => $request->name,
             'description' => $request->description,

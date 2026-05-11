@@ -35,7 +35,7 @@ class SettingsController extends Controller
     {
         $setting = Setting::first();
         if ( ! $setting) {
-            $setting = Setting::create([
+            $setting = Setting::query()->create([
                 'company'        => 'Default Company',
                 'currency'       => 'USD',
                 'country'        => 'US',
@@ -63,7 +63,7 @@ class SettingsController extends Controller
         $end_time   = Carbon::parse('2020-01-01 ' . $request->end_time . ':00');
         $settings   = Setting::first();
         if ( ! $settings) {
-            $settings = Setting::create([
+            $settings = Setting::query()->create([
                 'company'        => 'Default Company',
                 'currency'       => 'USD',
                 'country'        => 'US',
@@ -92,7 +92,7 @@ class SettingsController extends Controller
             }
         } else {
             for ($i = 1; $i < 8; $i++) {
-                BusinessHour::create([
+                BusinessHour::query()->create([
                     'day'         => $this->integerToDay()[$i],
                     'open_time'   => '09:00',
                     'close_time'  => '18:00',
@@ -134,7 +134,7 @@ class SettingsController extends Controller
     {
         $setting = Setting::first();
         if ( ! $setting) {
-            $setting = Setting::create([
+            $setting = Setting::query()->create([
                 'company'        => 'Default Company',
                 'currency'       => 'USD',
                 'country'        => 'US',

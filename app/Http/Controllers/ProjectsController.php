@@ -166,7 +166,7 @@ class ProjectsController extends Controller
 
         return view('projects.create')
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
-            ->withClients(Client::pluck('company_name', 'external_id'))
+            ->withClients(Client::query()->pluck('company_name', 'external_id'))
             ->withClient($client ?: null)
             ->withStatuses(Status::typeOfProject()->pluck('title', 'id'))
             ->with('filesystem_integration', Integration::whereApiType('file')->first());
@@ -328,7 +328,7 @@ class ProjectsController extends Controller
         $fileSystem = GetStorageProvider::getStorage();
         $fileData   = $fileSystem->upload($folder, $filename, $file);
 
-        Document::create([
+        Document::query()->create([
             'external_id'       => Uuid::uuid4()->toString(),
             'path'              => $fileData['file_path'],
             'size'              => $totaltsize,

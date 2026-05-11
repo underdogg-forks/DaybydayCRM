@@ -63,7 +63,7 @@ class Task extends Model implements Commentable
      */
     public static function findByExternalId(string $externalId)
     {
-        return static::where('external_id', $externalId)->first();
+        return static::query()->where('external_id', $externalId)->first();
     }
 
     // getRouteKeyName() is provided by HasExternalId trait
@@ -144,12 +144,12 @@ class Task extends Model implements Commentable
             return $this->user;
         }
         
-        return User::findOrFail($this->user_assigned_id);
+        return User::query()->findOrFail($this->user_assigned_id);
     }
 
     public function getCreatorUserAttribute()
     {
-        return User::findOrFail($this->user_created_id);
+        return User::query()->findOrFail($this->user_created_id);
     }
 
     public function canUpdateInvoice()

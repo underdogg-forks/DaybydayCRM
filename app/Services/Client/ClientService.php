@@ -16,7 +16,7 @@ class ClientService
     {
         // For the main client list, we only need specific columns
         // No relationships needed as the datatable only shows basic client info
-        return Client::select(['external_id', 'company_name', 'vat', 'address']);
+        return Client::query()->select(['external_id', 'company_name', 'vat', 'address']);
     }
 
     /**
@@ -156,6 +156,6 @@ class ClientService
      */
     public function findByExternalId(string $external_id): Client
     {
-        return Client::where('external_id', $external_id)->firstOrFail();
+        return Client::query()->where('external_id', $external_id)->firstOrFail();
     }
 }

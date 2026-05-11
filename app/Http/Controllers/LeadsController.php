@@ -81,7 +81,7 @@ class LeadsController extends Controller
 
         return view('leads.create')
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
-            ->withClients(Client::pluck('company_name', 'external_id'))
+            ->withClients(Client::query()->pluck('company_name', 'external_id'))
             ->withClient($client ?: null)
             ->withStatuses(Status::typeOfLead()->pluck('title', 'id'));
     }

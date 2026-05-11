@@ -22,7 +22,7 @@ class PagesController extends Controller
     {
         $today     = today();
         $startDate = today()->subdays(14);
-        $period    = CarbonPeriod::create($startDate, $today);
+        $period    = CarbonPeriod::query()->create($startDate, $today);
         $datasheet = [];
 
         // Iterate over the period

@@ -34,7 +34,7 @@ class AppointmentsController extends Controller
         // Don't convert timezone as that would shift the time
         $appointment->start_at = Carbon::parse($request->start);
         $appointment->end_at   = Carbon::parse($request->end);
-        $appointment->user()->associate(User::where('external_id', $request->group)->first());
+        $appointment->user()->associate(User::query()->where('external_id', $request->group)->first());
         $appointment->save();
 
         return response($appointment);

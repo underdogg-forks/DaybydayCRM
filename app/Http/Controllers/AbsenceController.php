@@ -19,7 +19,7 @@ class AbsenceController extends Controller
 
             return redirect()->back();
         }
-        $absences = Absence::select(['external_id', 'reason', 'start_at', 'end_at', 'user_id'])->with('user');
+        $absences = Absence::query()->select(['external_id', 'reason', 'start_at', 'end_at', 'user_id'])->with('user');
 
         return DataTables::of($absences)
             ->editColumn('user_id', function ($absences) {

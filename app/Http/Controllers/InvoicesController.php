@@ -154,7 +154,7 @@ class InvoicesController extends Controller
             $product = Product::whereExternalId($request->product)->first()->id;
         }
 
-        InvoiceLine::create([
+        InvoiceLine::query()->create([
             'external_id' => Uuid::uuid4()->toString(),
             'title'       => $request->title,
             'comment'     => $request->comment,
@@ -214,7 +214,7 @@ class InvoicesController extends Controller
     public function moneyFormat()
     {
         $formats                  = [];
-        $currency                 = app(Currency::class, ['code' => Setting::select('currency')->first()->currency]);
+        $currency                 = app(Currency::class, ['code' => Setting::query()->select('currency')->first()->currency]);
         $formats                  = array_merge($formats, $currency->toArray());
         $formats['vatPercentage'] = app(Tax::class)->multipleVatRate();
         $formats['vatRate']       = app(Tax::class)->vatRate();

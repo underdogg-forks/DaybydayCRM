@@ -14,7 +14,7 @@ class GetStorageProvider
 
     public static function getStorage()
     {
-        $integration = Integration::where('api_type', 'file')->first();
+        $integration = Integration::query()->where('api_type', 'file')->first();
         if ($integration) {
             $providerName = mb_strtolower($integration->name);
             $className    = self::$storageProviders[$providerName] ?? Local::class;

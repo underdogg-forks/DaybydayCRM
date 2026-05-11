@@ -38,7 +38,12 @@ class ProjectService
 
     public function updateDeadline(Project $project, string $deadlineDate, ?string $deadlineTime): void
     {
-        $project->deadline = Carbon::parse($deadlineDate)->toDateString();
+        $deadline = $deadlineDate;
+        if (! empty($deadlineTime)) {
+            $deadline .= ' ' . $deadlineTime;
+        }
+
+        $project->deadline = Carbon::parse($deadline)->toDateString();
         $project->save();
     }
 }

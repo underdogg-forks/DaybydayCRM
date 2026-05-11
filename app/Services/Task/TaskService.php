@@ -46,7 +46,7 @@ class TaskService
 
     public function updateDeadline(Task $task, string $deadline): void
     {
-        $task->deadline = $deadline;
+        $task->deadline = Carbon::parse($deadline);
         $task->save();
     }
 }

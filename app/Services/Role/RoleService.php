@@ -3,18 +3,14 @@
 namespace App\Services\Role;
 
 use App\Models\Role;
-use Ramsey\Uuid\Uuid;
 
 class RoleService
 {
     public function create(array $validated): Role
     {
-        $name = mb_strtolower($validated['name']);
-
         return Role::query()->create([
-            'external_id'  => Uuid::uuid4()->toString(),
-            'name'         => $name,
-            'display_name' => ucfirst($name),
+            'name'         => mb_strtolower($validated['name']),
+            'display_name' => ucfirst($validated['name']),
             'description'  => $validated['description'],
         ]);
     }
@@ -35,7 +31,7 @@ class RoleService
 
     public function destroy(Role $role): bool
     {
-        if (! $role->users->isEmpty()) {
+        if ($role->users()->exists()) {
             return false;
         }
 

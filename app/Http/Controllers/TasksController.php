@@ -289,9 +289,8 @@ class TasksController extends Controller
      */
     public function updateAssign($external_id, UpdateTaskAssignRequest $request)
     {
-        $task = Task::with('user')->whereExternalId($external_id)->first();
+        $task = Task::whereExternalId($external_id)->first();
         $this->taskService->assign($task, $request->validated('user_assigned_id'));
-        $task->refresh();
         event(new TaskAction($task, self::UPDATED_ASSIGN));
         session()->flash('flash_message', __('New user is assigned'));
 

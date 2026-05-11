@@ -1,7 +1,6 @@
-// ===== CRITICAL: Set up jQuery globally FIRST before any other code uses it =====
-// Import jQuery and immediately make it global
+// jQuery is loaded as a classic blocking script in master.blade.php before this module.
+// The import resolves to the externalized global (window.jQuery / window.$).
 import $ from 'jquery';
-window.jQuery = window.$ = $;
 
 import _ from 'lodash';
 window._ = _;

@@ -204,6 +204,13 @@
 
     <!-- /#page-content-wrapper -->
 </div>
+{{--
+    jQuery MUST load as a classic (non-module) blocking script before @vite and before
+    any jQuery-dependent plugins. @vite generates <script type="module"> tags which are
+    always deferred by the browser and execute *after* classic scripts — so without this
+    line, window.jQuery would be undefined when dataTables, caret, atwho, etc. run.
+--}}
+<script src="{{ URL::asset('js/jquery.min.js') }}"></script>
 @vite(['resources/assets/js/app.js'])
 <script type="text/javascript" src="{{ URL::asset('js/jquery.caret.min.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('js/jquery.dataTables.min.js') }}"></script>

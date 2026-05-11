@@ -1,7 +1,7 @@
-// ===== CRITICAL: jQuery MUST load first before anything else =====
+// jQuery is loaded as a classic blocking script in master.blade.php (public/js/jquery.min.js)
+// before this module executes, so window.$ and window.jQuery are already available.
+// The import below resolves to the externalized global (see vite.config.js rollupOptions.external).
 import $ from 'jquery';
-window.$ = window.jQuery = $;
-console.log('jQuery is now globally available');
 
 /**
  * First we will load all of this project's JavaScript dependencies which

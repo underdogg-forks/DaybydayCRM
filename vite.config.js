@@ -16,6 +16,32 @@ export default defineConfig({
         }),
         vue(),
         {
+            // Copy jQuery to public/js so it can be loaded as a classic (non-module)
+            // script before @vite. This ensures window.jQuery is available for legacy
+            // plugins (dataTables, caret, etc.) which run before ES module scripts.
+            name: 'copy-jquery',
+            buildStart() {
+                try {
+                    copyFileSync(
+                        resolve('node_modules/jquery/dist/jquery.min.js'),
+                        resolve('public/js/jquery.min.js')
+                    )
+                } catch (err) {
+                    console.warn('Failed to copy jquery.min.js:', err.message)
+                }
+            },
+            writeBundle() {
+                try {
+                    copyFileSync(
+                        resolve('node_modules/jquery/dist/jquery.min.js'),
+                        resolve('public/js/jquery.min.js')
+                    )
+                } catch (err) {
+                    console.warn('Failed to copy jquery.min.js on writeBundle:', err.message)
+                }
+            }
+        },
+        {
             name: 'copy-bootstrap-fonts',
             apply: 'build',
             writeBundle() {
@@ -58,7 +84,13 @@ export default defineConfig({
         manifest: true,
         outDir: 'public/build',
         rollupOptions: {
+            // jQuery is loaded as a classic blocking script in master.blade.php,
+            // so we don't need to bundle it — reference the already-available global.
+            external: ['jquery'],
             output: {
+                globals: {
+                    jquery: 'jQuery',
+                },
                 entryFileNames: 'assets/[name]-[hash].js',
                 chunkFileNames: 'assets/[name]-[hash].js',
                 assetFileNames: 'assets/[name]-[hash][extname]',

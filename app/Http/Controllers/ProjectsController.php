@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Events\ProjectAction;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectAssignRequest;
+use App\Http\Requests\Project\UpdateProjectDeadlineRequest;
 use App\Models\Client;
 use App\Models\Document;
 use App\Models\Integration;
 use App\Models\Project;
 use App\Models\Status;
 use App\Models\User;
+use App\Services\Project\ProjectService;
 use App\Services\Storage\GetStorageProvider;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -30,7 +32,7 @@ class ProjectsController extends Controller
 
     public const UPDATED_DEADLINE = 'updated_deadline';
 
-    public function __construct()
+    public function __construct(private ProjectService $projectService)
     {
         $this->middleware(function ($request, $next) {
             if ( ! auth()->check() || ! auth()->user()->can('project-delete')) {
@@ -130,28 +132,13 @@ class ProjectsController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        if ($request->client_external_id) {
-            $client = Client::whereExternalId($request->client_external_id);
-        }
+        $project = $this->projectService->create($request->validated(), auth()->id());
 
-        if ( ! $client) {
+        if (! $project) {
             session()->flash('flash_message', __('Could not find client'));
 
             return redirect()->back();
         }
-
-        $project = Project::create(
-            [
-                'title'            => $request->title,
-                'description'      => clean($request->description),
-                'user_assigned_id' => $request->user_assigned_id,
-                'deadline'         => Carbon::parse($request->deadline),
-                'status_id'        => $request->status_id,
-                'user_created_id'  => auth()->id(),
-                'external_id'      => Uuid::uuid4()->toString(),
-                'client_id'        => $client ? $client->id : null,
-            ]
-        );
 
         $insertedExternalId = $project->external_id;
 
@@ -270,11 +257,7 @@ class ProjectsController extends Controller
     public function updateAssign($external_id, UpdateProjectAssignRequest $request)
     {
         $project = Project::with('assignee')->whereExternalId($external_id)->first();
-
-        $user_assigned_id = $request->validated('user_assigned_id');
-
-        $project->user_assigned_id = $user_assigned_id;
-        $project->save();
+        $this->projectService->assign($project, $request->validated('user_assigned_id'));
 
         event(new ProjectAction($project, self::UPDATED_ASSIGN));
 
@@ -290,7 +273,7 @@ class ProjectsController extends Controller
      *
      * @return mixed
      */
-    public function updateDeadline(Request $request, $external_id)
+    public function updateDeadline(UpdateProjectDeadlineRequest $request, $external_id)
     {
         if ( ! auth()->user()->can('project-update-deadline')) {
             session()->flash('flash_message_warning', __('You do not have permission to change project deadline'));
@@ -299,12 +282,11 @@ class ProjectsController extends Controller
         }
 
         $project = $this->findByExternalId($external_id);
-        $input   = $request->all();
-        if (isset($request->deadline_date)) {
-            $deadlineTime      = $request->deadline_time ?: '00:00';
-            $input['deadline'] = $request->deadline_date . ' ' . $deadlineTime . ':00';
-        }
-        $project->fill($input)->save();
+        $this->projectService->updateDeadline(
+            $project,
+            $request->validated('deadline_date'),
+            $request->validated('deadline_time')
+        );
         event(new ProjectAction($project, self::UPDATED_DEADLINE));
         session()->flash('flash_message', __('New deadline is set'));
 

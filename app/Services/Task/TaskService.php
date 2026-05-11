@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Services\Task;
+
+use App\Models\Client;
+use App\Models\Project;
+use App\Models\Task;
+use Illuminate\Support\Carbon;
+use Ramsey\Uuid\Uuid;
+
+class TaskService
+{
+    public function create(array $validated, int $userId): Task
+    {
+        $clientId = null;
+        $projectId = null;
+
+        if (!empty($validated['client_external_id'])) {
+            $client = Client::whereExternalId($validated['client_external_id'])->first();
+            $clientId = $client ? $client->id : null;
+        }
+
+        if (!empty($validated['project_external_id'])) {
+            $project = Project::whereExternalId($validated['project_external_id'])->first();
+            $projectId = $project ? $project->id : null;
+        }
+
+        return Task::create([
+            'title' => $validated['title'],
+            'description' => clean($validated['description']),
+            'user_assigned_id' => $validated['user_assigned_id'],
+            'deadline' => Carbon::parse($validated['deadline']),
+            'status_id' => $validated['status_id'],
+            'user_created_id' => $userId,
+            'external_id' => Uuid::uuid4()->toString(),
+            'client_id' => $clientId,
+            'project_id' => $projectId,
+        ]);
+    }
+
+    public function assign(Task $task, int $userAssignedId): void
+    {
+        $task->user_assigned_id = $userAssignedId;
+        $task->save();
+    }
+
+    public function updateDeadline(Task $task, string $deadline): void
+    {
+        $task->deadline = $deadline;
+        $task->save();
+    }
+}

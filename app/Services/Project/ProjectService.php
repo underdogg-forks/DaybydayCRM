@@ -38,6 +38,7 @@ class ProjectService
 
     public function updateDeadline(Project $project, string $deadlineDate, ?string $deadlineTime): void
     {
+        // Deadline is stored as DATE, so optional time is only used for input normalization.
         $deadline = $deadlineDate;
         if (! empty($deadlineTime)) {
             $deadline .= ' ' . $deadlineTime;

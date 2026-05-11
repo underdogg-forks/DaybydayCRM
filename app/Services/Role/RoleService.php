@@ -26,7 +26,6 @@ class RoleService
         }
 
         $role->permissions()->sync($allowedPermissions);
-        $role->save();
     }
 
     public function destroy(Role $role): bool

@@ -288,8 +288,7 @@ class ProjectsController extends Controller
         $project = $this->findByExternalId($external_id);
         $this->projectService->updateDeadline(
             $project,
-            $request->validated('deadline_date'),
-            $request->validated('deadline_time')
+            $request->validated('deadline_date')
         );
         event(new ProjectAction($project, self::UPDATED_DEADLINE));
         session()->flash('flash_message', __('New deadline is set'));

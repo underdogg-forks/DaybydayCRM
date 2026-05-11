@@ -10,7 +10,7 @@ class RoleService
     {
         return Role::query()->create([
             'name'         => mb_strtolower($validated['name']),
-            'display_name' => ucfirst($validated['name']),
+            'display_name' => ucwords($validated['name']),
             'description'  => $validated['description'],
         ]);
     }

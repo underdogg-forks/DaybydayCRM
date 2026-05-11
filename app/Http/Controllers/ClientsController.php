@@ -46,7 +46,6 @@ class ClientsController extends Controller
 
     public function __construct(private ClientService $clientService)
     {
-        $this->middleware('permission:' . PermissionName::CLIENT_VIEW->value, ['only' => ['index', 'show', 'anyData', 'taskDataTable', 'projectDataTable', 'leadDataTable', 'invoiceDataTable']]);
         $this->middleware('client.create', ['only' => ['create']]);
         $this->middleware('client.update', ['only' => ['edit']]);
         $this->middleware('client.delete', ['only' => ['destroy']]);

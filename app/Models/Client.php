@@ -81,6 +81,11 @@ class Client extends Model
         return $this->morphMany(Document::class, 'source');
     }
 
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class, 'industry_id', 'id');
+    }
+
     public function invoices()
     {
         return $this->hasMany(Invoice::class);

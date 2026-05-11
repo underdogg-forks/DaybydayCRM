@@ -17,5 +17,8 @@ class DummyDatabaseSeeder extends Seeder
         $this->call(ClientsDummyTableSeeder::class);
         $this->call(TasksDummyTableSeeder::class);
         $this->call(LeadsDummyTableSeeder::class);
+        $this->call(ProjectsDummyTableSeeder::class);
+        $this->call(OfferSeeder::class);
+        $this->call(ProductSeeder::class);
     }
 }

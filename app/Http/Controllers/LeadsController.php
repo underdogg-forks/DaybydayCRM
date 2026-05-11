@@ -31,11 +31,11 @@ class LeadsController extends Controller
 
     public function __construct(private LeadService $leadService)
     {
-        $this->middleware('permission:' . PermissionName::LEAD_VIEW->value, ['only' => ['index', 'show', 'leadsJson', 'allLeads']]);
+        //$this->middleware('permission:' . PermissionName::LEAD_VIEW->value, ['only' => ['index', 'show', 'leadsJson', 'allLeads']]);
         $this->middleware('lead.create', ['only' => ['create']]);
         $this->middleware('lead.assigned', ['only' => ['updateAssign']]);
         $this->middleware('lead.update.status', ['only' => ['updateStatus']]);
-        $this->middleware('permission:' . PermissionName::LEAD_DELETE->value, ['only' => ['destroy', 'destroyJson']]);
+        //$this->middleware('permission:' . PermissionName::LEAD_DELETE->value, ['only' => ['destroy', 'destroyJson']]);
     }
 
     public function index()

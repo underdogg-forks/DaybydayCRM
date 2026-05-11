@@ -56,7 +56,7 @@ class CreatePaymentsTable extends Migration
             'grouping'     => 'payment',
         ]);
 
-        $roles = Role::where('name', 'owner')->get();
+        $roles = Role::qyery()->whereIn('name', ['owner', 'administrator'])->get();
         foreach ($roles as $role) {
             $role->permissions()->attach([$cpp->id, $dpp->id]);
         }
@@ -74,7 +74,7 @@ class CreatePaymentsTable extends Migration
         });
         $cpp   = Permission::where('name', 'payment-create')->first();
         $dpp   = Permission::where('name', 'payment-delete')->first();
-        $roles = Role::where('name', 'owner')->get();
+        $roles = Role::whereIn('name', ['owner', 'administrator'])->get();
         foreach ($roles as $role) {
             $role->permissions()->detach([$cpp->id, $dpp->id]);
         }

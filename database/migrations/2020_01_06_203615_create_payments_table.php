@@ -56,7 +56,7 @@ class CreatePaymentsTable extends Migration
             'grouping'     => 'payment',
         ]);
 
-        $roles = Role::qyery()->whereIn('name', ['owner', 'administrator'])->get();
+        $roles = Role::query()->whereIn('name', ['owner', 'administrator'])->get();
         foreach ($roles as $role) {
             $role->permissions()->attach([$cpp->id, $dpp->id]);
         }

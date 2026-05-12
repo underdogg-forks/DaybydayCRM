@@ -8,45 +8,35 @@ import { interpolateRoutePath, loadWebRouteCases } from '../helpers/route-covera
 const clientRoutes = loadWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/clients'));
 
 for (const routeCase of clientRoutes) {
-  guestTest(`clients guest behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {
-    /* Arrange */
-    const routePath = interpolateRoutePath(routeCase.path);
+  const routePath = interpolateRoutePath(routeCase.path);
 
-    /* Act */
-    if (routeCase.method === 'GET') {
-      const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
+  guestTest.describe(`${routeCase.method} ${routeCase.path}`, () => {
+    guestTest('guest: does not produce a server error', async ({ page, request }) => {
+      if (routeCase.method === 'GET') {
+        const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
+        guestExpect(response).not.toBeNull();
+        guestExpect(response!.status()).toBeLessThan(500);
+        return;
+      }
 
-      /* Assert */
-      guestExpect(response).not.toBeNull();
-      guestExpect(response!.status()).toBeLessThan(500);
-      return;
-    }
-
-    const csrfToken = await fetchCsrfToken(page);
-    const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
-
-    /* Assert */
-    guestExpect(response.status()).toBeLessThan(500);
+      const csrfToken = await fetchCsrfToken(page);
+      const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
+      guestExpect(response.status()).toBeLessThan(500);
+    });
   });
 
-  authTest(`clients auth behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {
-    /* Arrange */
-    const routePath = interpolateRoutePath(routeCase.path);
+  authTest.describe(`${routeCase.method} ${routeCase.path}`, () => {
+    authTest('authenticated: does not produce a server error', async ({ page, request }) => {
+      if (routeCase.method === 'GET') {
+        const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
+        authExpect(response).not.toBeNull();
+        authExpect(response!.status()).toBeLessThan(500);
+        return;
+      }
 
-    /* Act */
-    if (routeCase.method === 'GET') {
-      const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
-
-      /* Assert */
-      authExpect(response).not.toBeNull();
-      authExpect(response!.status()).toBeLessThan(500);
-      return;
-    }
-
-    const csrfToken = await fetchCsrfToken(page);
-    const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
-
-    /* Assert */
-    authExpect(response.status()).toBeLessThan(500);
+      const csrfToken = await fetchCsrfToken(page);
+      const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
+      authExpect(response.status()).toBeLessThan(500);
+    });
   });
 }

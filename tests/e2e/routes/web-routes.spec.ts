@@ -1,6 +1,8 @@
-import { test as guestTest, expect as guestExpect, type Page } from '@playwright/test';
+import { test as guestTest, expect as guestExpect } from '@playwright/test';
 import { test as authTest, expect as authExpect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
+import { fetchCsrfToken } from '../helpers/csrf';
+import { callRouteSmoke } from '../helpers/request-smoke';
 import {
   interpolateRoutePath,
   loadWebRouteCases,
@@ -27,11 +29,6 @@ function isPublicRoute(method: HttpMethod, routePath: string): boolean {
   return false;
 }
 
-async function fetchCsrfToken(page: Page): Promise<string> {
-  await page.goto(`${PLAYWRIGHT_BASE_URL}/login`);
-  return (await page.locator('meta[name="csrf-token"]').first().getAttribute('content')) ?? '';
-}
-
 guestTest.describe('web.php route coverage - guest', () => {
   for (const routePath of guestAccessible) {
     guestTest(`guest can load ${routePath}`, async ({ page }) => {
@@ -55,17 +52,7 @@ authTest.describe('web.php route coverage - non-GET routes', () => {
   for (const routeCase of nonGetRoutes) {
     authTest(`authenticated route smoke: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {
       const csrfToken = await fetchCsrfToken(page);
-      const response = await request.fetch(`${PLAYWRIGHT_BASE_URL}${interpolateRoutePath(routeCase.path)}`, {
-        method: routeCase.method,
-        failOnStatusCode: false,
-        headers: {
-          Accept: 'application/json, text/plain, */*',
-          'X-CSRF-TOKEN': csrfToken,
-        },
-        data: {
-          _token: csrfToken,
-        },
-      });
+      const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
       authExpect(response.status(), `Unexpected status for ${routeCase.method} ${routeCase.path}`).toBeLessThan(500);
     });

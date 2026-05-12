@@ -27,6 +27,23 @@ function isStaticLiteralPath(rawPath: string): boolean {
   return !rawPath.includes('$') && !rawPath.includes('->') && !rawPath.includes('::');
 }
 
+function shouldSkipPath(rawPath: string): boolean {
+  return !rawPath.startsWith('/') || !isStaticLiteralPath(rawPath);
+}
+
+function inferMiddlewareFromPath(normalizedPath: string): string[] {
+  if (
+    normalizedPath === '/login' ||
+    normalizedPath === '/register' ||
+    normalizedPath === '/password/reset' ||
+    normalizedPath === '/password/email'
+  ) {
+    return ['web'];
+  }
+
+  return ['auth', 'web'];
+}
+
 function normalizeMiddleware(raw: unknown): string[] {
   if (Array.isArray(raw)) {
     return raw.map((item) => String(item));
@@ -46,20 +63,26 @@ function expandResource(resource: string): RouteCase[] {
   const base = normalizePath(resource);
 
   return [
-    { method: 'GET', path: base, dynamic: false, middleware: ['auth', 'web'] },
-    { method: 'GET', path: `${base}/create`, dynamic: false, middleware: ['auth', 'web'] },
-    { method: 'POST', path: base, dynamic: false, middleware: ['auth', 'web'] },
-    { method: 'GET', path: `${base}/{resource}`, dynamic: true, middleware: ['auth', 'web'] },
-    { method: 'GET', path: `${base}/{resource}/edit`, dynamic: true, middleware: ['auth', 'web'] },
-    { method: 'PUT', path: `${base}/{resource}`, dynamic: true, middleware: ['auth', 'web'] },
-    { method: 'PATCH', path: `${base}/{resource}`, dynamic: true, middleware: ['auth', 'web'] },
-    { method: 'DELETE', path: `${base}/{resource}`, dynamic: true, middleware: ['auth', 'web'] },
+    { method: 'GET', path: base, dynamic: false, middleware: ['web'] },
+    { method: 'GET', path: `${base}/create`, dynamic: false, middleware: ['web'] },
+    { method: 'POST', path: base, dynamic: false, middleware: ['web'] },
+    { method: 'GET', path: `${base}/{resource}`, dynamic: true, middleware: ['web'] },
+    { method: 'GET', path: `${base}/{resource}/edit`, dynamic: true, middleware: ['web'] },
+    { method: 'PUT', path: `${base}/{resource}`, dynamic: true, middleware: ['web'] },
+    { method: 'PATCH', path: `${base}/{resource}`, dynamic: true, middleware: ['web'] },
+    { method: 'DELETE', path: `${base}/{resource}`, dynamic: true, middleware: ['web'] },
   ];
 }
 
 function fromArtisanRouteList(): RouteCase[] {
-  const json = execSync('php artisan route:list --json', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-  const parsed = JSON.parse(json) as Array<Record<string, unknown>>;
+  const json = execSync('php artisan route:list --json', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
+  let parsed: Array<Record<string, unknown>>;
+  try {
+    parsed = JSON.parse(json) as Array<Record<string, unknown>>;
+  } catch (error) {
+    const parseError = error instanceof Error ? error.message : String(error);
+    throw new Error(`Unable to parse php artisan route:list JSON output (${parseError}): ${json.slice(0, 500)}`);
+  }
 
   const routeCases: RouteCase[] = [];
 
@@ -157,17 +180,17 @@ export function loadWebRouteCases(): RouteCase[] {
 }
 
 export function interpolateRoutePath(rawPath: string): string {
-  return rawPath.replace(/\{([^}]+)\??\}/g, (_match, token: string) => {
+  return rawPath.replace(/\{([^}]+)\??\}/g, (_fullMatch, token: string) => {
     const key = token.toLowerCase();
-    if (key.includes('external') || key.includes('uuid')) {
+    if (key === 'external_id' || key.endsWith('_external_id') || key === 'uuid' || key.endsWith('_uuid')) {
       return '00000000-0000-0000-0000-000000000001';
     }
 
-    if (key.includes('query')) {
+    if (key === 'query' || key.endsWith('_query')) {
       return 'search-term';
     }
 
-    if (key.includes('type')) {
+    if (key === 'type' || key.endsWith('_type')) {
       return 'task';
     }
 
@@ -185,7 +208,10 @@ export function loadPhpUnitHttpCalls(): RouteCase[] {
   const stack = [testsRoot];
 
   while (stack.length > 0) {
-    const current = stack.pop()!;
+    const current = stack.pop();
+    if (!current) {
+      continue;
+    }
     const entries = fs.readdirSync(current, { withFileTypes: true });
     for (const entry of entries) {
       const fullPath = path.join(current, entry.name);
@@ -215,7 +241,7 @@ export function loadPhpUnitHttpCalls(): RouteCase[] {
       }
 
       const rawPath = match[2];
-      if (!rawPath.startsWith('/') || !isStaticLiteralPath(rawPath)) {
+      if (shouldSkipPath(rawPath)) {
         continue;
       }
 
@@ -224,7 +250,7 @@ export function loadPhpUnitHttpCalls(): RouteCase[] {
         method,
         path: normalizedPath,
         dynamic: normalizedPath.includes('{'),
-        middleware: normalizedPath === '/login' || normalizedPath === '/register' ? ['web'] : ['auth', 'web'],
+        middleware: inferMiddlewareFromPath(normalizedPath),
       });
     }
 
@@ -236,7 +262,7 @@ export function loadPhpUnitHttpCalls(): RouteCase[] {
       }
 
       const rawPath = match[2];
-      if (!rawPath.startsWith('/') || !isStaticLiteralPath(rawPath)) {
+      if (shouldSkipPath(rawPath)) {
         continue;
       }
 
@@ -245,7 +271,7 @@ export function loadPhpUnitHttpCalls(): RouteCase[] {
         method,
         path: normalizedPath,
         dynamic: normalizedPath.includes('{'),
-        middleware: normalizedPath === '/login' || normalizedPath === '/register' ? ['web'] : ['auth', 'web'],
+        middleware: inferMiddlewareFromPath(normalizedPath),
       });
     }
   }

@@ -131,9 +131,9 @@ class TaskTest extends DuskTestCase
             $browser->loginAs(User::whereEmail('admin@admin.com')->first())
                 ->visit('/tasks/' . $task->external_id)
                 ->type('.note-editable', 'This is a test comment')
-                ->press('Add Comment')
+                ->press('Add Comments')
                 ->assertSee('This is a test comment')
-                ->assertSee('Comment by: Admin');
+                ->assertSee('Comments by: Admin');
         });
     }
 
@@ -187,7 +187,7 @@ class TaskTest extends DuskTestCase
                 ->select('user_assigned_id', $user->id)
                 ->select('client_external_id', $client->external_id)
                 ->press('Create task')
-                ->waitForText('Task successfully added')
+                ->waitForText('Tasks successfully added')
                 ->assertSee($user->name)
                 ->assertSee($contact->name)
                 ->assertSee('This is a test task title');

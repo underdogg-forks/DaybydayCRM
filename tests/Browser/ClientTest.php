@@ -131,7 +131,7 @@ class ClientTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($faker) {
             $browser->loginAs(User::whereEmail('admin@admin.com')->first())
                 ->visit('/clients/create')
-                ->waitForText('Create Client')
+                ->waitForText('Create Clients')
                 ->type('name', $faker->name)
                 ->type('email', $faker->email)
                 ->type('primary_number', $faker->randomNumber(8))
@@ -142,8 +142,8 @@ class ClientTest extends DuskTestCase
                 ->type('city', $faker->city)
                 ->type('company_type', 'ApS')
                 ->select('industry_id')
-                ->press('Create New Client')
-                ->assertSee('Client successfully added');
+                ->press('Create New Clients')
+                ->assertSee('Clients successfully added');
         });
     }
 
@@ -160,12 +160,12 @@ class ClientTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($faker) {
             $browser->loginAs(User::whereEmail('admin@admin.com')->first())
                 ->visit('/clients/create')
-                ->waitForText('Create Client')
+                ->waitForText('Create Clients')
                 ->type('primary_number', $faker->randomNumber(8))
                 ->type('address', $faker->secondaryAddress)
                 ->type('zipcode', $faker->randomNumber(4))
                 ->type('company_type', 'ApS')
-                ->press('Create New Client')
+                ->press('Create New Clients')
                 ->assertSee('The name field is required.')
                 ->assertSee('The company name field is required.')
                 ->assertSee('The email field is required.');

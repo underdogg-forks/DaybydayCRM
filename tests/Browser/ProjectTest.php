@@ -87,9 +87,9 @@ class ProjectTest extends DuskTestCase
             $browser->loginAs(User::whereEmail('admin@admin.com')->first())
                 ->visit('/projects/' . $project->external_id)
                 ->type('.note-editable', 'This is a test comment')
-                ->press('Add Comment')
+                ->press('Add Comments')
                 ->assertSee('This is a test comment')
-                ->assertSee('Comment by: Admin');
+                ->assertSee('Comments by: Admin');
         });
     }
 

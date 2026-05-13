@@ -16,8 +16,10 @@
 #   dfail      Run all tests, stop on first failure
 #   dsh        Open a shell in the workspace container
 #   dmfs       Fresh migrate and seed database inside Docker
+#   dseed      Fresh migrate and seed with demo + dummy data inside Docker
 #   install    Composer install (inside container)
 #   mfs        Fresh migrate/seed (inside container)
+#   seed       Fresh migrate/seed with demo + dummy data (inside container)
 #   yarn-setup Install JS deps and build (inside container)
 #   setup      Full setup: composer, migrate, yarn
 #   clear      Clear Laravel caches (inside container)
@@ -59,6 +61,10 @@ dsh:
 dmfs:
 	@$(DOCKER_EXEC) php artisan migrate:fresh --seed
 
+# Seed database with demo and dummy data from host: make dseed
+dseed:
+	@$(DOCKER_EXEC) php artisan migrate:fresh --seed && $(DOCKER_EXEC) php artisan db:seed --class=DemoTableSeeder && $(DOCKER_EXEC) php artisan db:seed --class=DummyDatabaseSeeder
+
 # --- Inside-Container Targets (Local PHP) ---
 
 install:
@@ -66,6 +72,9 @@ install:
 
 mfs:
 	php artisan migrate:fresh --seed
+
+seed:
+	php artisan migrate:fresh --seed && php artisan db:seed --class=DemoTableSeeder && php artisan db:seed --class=DummyDatabaseSeeder
 
 yarn-setup:
 	yarn install && yarn run build
@@ -118,10 +127,12 @@ help:
 	@echo "  make dfail           : Run all tests, stop on first error"
 	@echo "  make dsh             : Enter the workspace container as $(DOCKER_USER)"
 	@echo "  make dmfs            : Fresh migrate/seed inside container"
+	@echo "  make dseed           : Fresh migrate + demo + dummy seed inside container"
 	@echo "  make up / make down  : Manage docker-compose"
 	@echo ""
 	@echo "CONTAINER COMMANDS (Run these inside 'make dsh'):"
 	@echo "  make setup           : Install composer/yarn and migrate"
+	@echo "  make seed            : Fresh migrate + demo + dummy seed"
 	@echo "  make test-fail       : Run phpunit until failure"
 	@echo "  make paratest        : Run tests in parallel"
 	@echo "======================================================================"

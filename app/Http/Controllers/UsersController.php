@@ -12,12 +12,12 @@ use App\Models\Setting;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\User\UserUpdateService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -254,51 +254,25 @@ class UsersController extends Controller
     /**
      * @return mixed
      */
-    public function update($external_id, UpdateUserRequest $request)
+    public function update($external_id, UpdateUserRequest $request, UserUpdateService $userUpdateService)
     {
-        $user       = $this->findByExternalId($external_id);
-        $password   = bcrypt($request->password);
-        $role       = $request->roles;
-        $department = $request->departments;
+        $user = $this->findByExternalId($external_id);
+        $validated = $request->validated();
+        $role       = $validated['role'];
+        $department = $validated['department'];
 
-        if ( ! auth()->user()->canChangePasswordOn($user)) {
-            unset($request['password']);
-        }
-
-        if ($request->hasFile('image_path')) {
-            $companyname = Setting::first()->external_id;
-            $file        = $request->file('image_path');
-
-            $filename = str_random(8) . '_' . $file->getClientOriginalName();
-
-            $path = Storage::put($companyname, $file);
-            if ($request->password == '') {
-                $input = array_replace($request->except('password'), ['image_path' => "{$path}"]);
-            } else {
-                $input = array_replace($request->all(), ['image_path' => "{$path}", 'password' => "{$password}"]);
-            }
-        } else {
-            if ($request->password == '') {
-                $input = array_replace($request->except('password'));
-            } else {
-                $input = array_replace($request->all(), ['password' => "{$password}"]);
-            }
-        }
-
-        $owners = User::whereHas('roles', function ($q) {
-            $q->where('name', Role::OWNER_ROLE);
-        })->get();
+        $input = $userUpdateService->prepareValidatedInput(
+            auth()->user(),
+            $user,
+            $validated,
+            $request->file('image_path')
+        );
 
         $user->fill($input)->save();
-        $role = $user->roles->first();
-        if ($role && $role->name == Role::OWNER_ROLE && $owners->count() <= 1) {
+
+        if ( ! $userUpdateService->syncRoleAndDepartment(auth()->user(), $user, (int) $role, (int) $department)) {
             session()->flash('flash_message_warning', __('Not able to change owner role, please choose a new owner first'));
-        } else {
-            if (auth()->user()->canChangeRole()) {
-                $user->roles()->sync([$request->roles]);
-            }
         }
-        $user->department()->sync([$department]);
 
         session()->flash('flash_message', __('User successfully updated'));
 

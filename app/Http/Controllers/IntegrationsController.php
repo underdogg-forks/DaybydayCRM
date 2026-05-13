@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Integration\StoreIntegrationRequest;
 use App\Models\Integration;
-use Illuminate\Http\Request;
+use App\Services\Integration\IntegrationService;
 use Illuminate\Http\Response;
 
 class IntegrationsController extends Controller
@@ -36,20 +37,12 @@ class IntegrationsController extends Controller
      *
      * @return Response
      */
-    public function store(Request $request)
+    public function store(StoreIntegrationRequest $request, IntegrationService $integrationService)
     {
-        $input = $request->all();
+        $integrationService->storeOrUpdateByApiType($request->validated());
 
-        $existing = Integration::query()->where([
-            // 'user_id' => $request->post['user_id'] ? $userId : null,
-            'api_type' => $request->api_type,
-        ])->get();
-        $existing = $existing[0] ?? null;
-
-        if ($existing) {
-            $existing->fill($input)->save();
-        } else {
-            Integration::query()->create($input);
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Integration saved successfully'], 201);
         }
 
         return $this->index();

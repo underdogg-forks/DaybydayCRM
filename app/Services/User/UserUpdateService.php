@@ -26,7 +26,7 @@ class UserUpdateService
         if ($imageFile !== null) {
             $setting = Setting::query()->first();
             if ( ! $setting) {
-                throw new \RuntimeException('Company settings must be configured before uploading user images');
+                throw new \RuntimeException('No company settings found. Please configure company settings or contact support if this persists.');
             }
 
             $companyExternalId = $setting->external_id;

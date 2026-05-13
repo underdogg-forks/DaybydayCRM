@@ -22,8 +22,8 @@ class UserUpdateServiceTest extends AbstractTestCase
     {
         // Arrange
         $service = new UserUpdateService();
-        $unauthorizedUser = User::factory()->withRole('employee')->create();
-        $targetUser = User::factory()->withRole('employee')->create();
+        $unauthorizedUser = User::factory()->withRole(RoleType::USER->value)->create();
+        $targetUser = User::factory()->withRole(RoleType::USER->value)->create();
 
         // Act
         $payload = $service->prepareValidatedInput($unauthorizedUser, $targetUser, [
@@ -44,7 +44,7 @@ class UserUpdateServiceTest extends AbstractTestCase
         // Arrange
         $service = new UserUpdateService();
         $authorizedUser = User::factory()->withRole(RoleType::OWNER->value)->create();
-        $targetUser = User::factory()->withRole('employee')->create();
+        $targetUser = User::factory()->withRole(RoleType::USER->value)->create();
 
         // Act
         $payload = $service->prepareValidatedInput($authorizedUser, $targetUser, [
@@ -62,7 +62,7 @@ class UserUpdateServiceTest extends AbstractTestCase
         // Arrange
         $service = new UserUpdateService();
         $owner = User::factory()->withRole(RoleType::OWNER->value)->create();
-        $newRole = Role::factory()->create(['name' => 'employee', 'display_name' => 'Employee']);
+        $newRole = Role::factory()->create(['name' => RoleType::USER->value, 'display_name' => 'User']);
         $department = Department::factory()->create();
 
         // Act

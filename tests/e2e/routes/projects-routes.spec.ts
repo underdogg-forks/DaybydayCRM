@@ -5,7 +5,20 @@ import { fetchCsrfToken } from '../helpers/csrf';
 import { callRouteSmoke } from '../helpers/request-smoke';
 import { interpolateRoutePath, loadWebRouteCases } from '../helpers/route-coverage';
 
-const projectRoutes = loadWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/projects'));
+type WebRouteCase = ReturnType<typeof loadWebRouteCases>[number];
+
+type RouteCoverageCache = typeof globalThis & {
+  __daybydaycrmWebRouteCases?: WebRouteCase[];
+};
+
+function getCachedWebRouteCases(): WebRouteCase[] {
+  const cache = globalThis as RouteCoverageCache;
+  cache.__daybydaycrmWebRouteCases ??= loadWebRouteCases();
+
+  return cache.__daybydaycrmWebRouteCases;
+}
+
+const projectRoutes = getCachedWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/projects'));
 
 for (const routeCase of projectRoutes) {
   const routePath = interpolateRoutePath(routeCase.path);

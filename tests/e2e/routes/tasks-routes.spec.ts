@@ -5,38 +5,50 @@ import { fetchCsrfToken } from '../helpers/csrf';
 import { callRouteSmoke } from '../helpers/request-smoke';
 import { interpolateRoutePath, loadWebRouteCases } from '../helpers/route-coverage';
 
-const taskRoutes = loadWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/tasks'));
+let cachedTaskRoutes: ReturnType<typeof loadWebRouteCases> | null = null;
 
-for (const routeCase of taskRoutes) {
-  const routePath = interpolateRoutePath(routeCase.path);
+function getTaskRoutes() {
+  if (cachedTaskRoutes === null) {
+    cachedTaskRoutes = loadWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/tasks'));
+  }
 
-  guestTest.describe(`${routeCase.method} ${routeCase.path}`, () => {
-    guestTest('guest: does not produce a server error', async ({ page, request }) => {
-      if (routeCase.method === 'GET') {
-        const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
-        guestExpect(response).not.toBeNull();
-        guestExpect(response!.status()).toBeLessThan(500);
-        return;
-      }
-
-      const csrfToken = await fetchCsrfToken(page);
-      const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
-      guestExpect(response.status()).toBeLessThan(500);
-    });
-  });
-
-  authTest.describe(`${routeCase.method} ${routeCase.path}`, () => {
-    authTest('authenticated: does not produce a server error', async ({ page, request }) => {
-      if (routeCase.method === 'GET') {
-        const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
-        authExpect(response).not.toBeNull();
-        authExpect(response!.status()).toBeLessThan(500);
-        return;
-      }
-
-      const csrfToken = await fetchCsrfToken(page);
-      const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
-      authExpect(response.status()).toBeLessThan(500);
-    });
-  });
+  return cachedTaskRoutes;
 }
+
+guestTest.describe('tasks routes', () => {
+  guestTest('guest: does not produce a server error', async ({ page, request }) => {
+    for (const routeCase of getTaskRoutes()) {
+      const routePath = interpolateRoutePath(routeCase.path);
+
+      if (routeCase.method === 'GET') {
+        const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
+        guestExpect(response, `${routeCase.method} ${routeCase.path}`).not.toBeNull();
+        guestExpect(response!.status(), `${routeCase.method} ${routeCase.path}`).toBeLessThan(500);
+        continue;
+      }
+
+      const csrfToken = await fetchCsrfToken(page);
+      const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
+      guestExpect(response.status(), `${routeCase.method} ${routeCase.path}`).toBeLessThan(500);
+    }
+  });
+});
+
+authTest.describe('tasks routes', () => {
+  authTest('authenticated: does not produce a server error', async ({ page, request }) => {
+    for (const routeCase of getTaskRoutes()) {
+      const routePath = interpolateRoutePath(routeCase.path);
+
+      if (routeCase.method === 'GET') {
+        const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
+        authExpect(response, `${routeCase.method} ${routeCase.path}`).not.toBeNull();
+        authExpect(response!.status(), `${routeCase.method} ${routeCase.path}`).toBeLessThan(500);
+        continue;
+      }
+
+      const csrfToken = await fetchCsrfToken(page);
+      const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
+      authExpect(response.status(), `${routeCase.method} ${routeCase.path}`).toBeLessThan(500);
+    }
+  });
+});

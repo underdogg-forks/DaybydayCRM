@@ -5,7 +5,19 @@ import { fetchCsrfToken } from '../helpers/csrf';
 import { callRouteSmoke } from '../helpers/request-smoke';
 import { interpolateRoutePath, loadWebRouteCases } from '../helpers/route-coverage';
 
-const clientRoutes = loadWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/clients'));
+function getCachedWebRouteCases() {
+  const routeCoverageCache = globalThis as typeof globalThis & {
+    __daybydaycrmWebRouteCases?: ReturnType<typeof loadWebRouteCases>;
+  };
+
+  if (!routeCoverageCache.__daybydaycrmWebRouteCases) {
+    routeCoverageCache.__daybydaycrmWebRouteCases = loadWebRouteCases();
+  }
+
+  return routeCoverageCache.__daybydaycrmWebRouteCases;
+}
+
+const clientRoutes = getCachedWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/clients'));
 
 for (const routeCase of clientRoutes) {
   guestTest(`clients guest behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {

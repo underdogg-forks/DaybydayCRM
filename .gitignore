@@ -51,6 +51,7 @@ phpu_failures_bckp2.txt
 phpunit_bckp1.txt
 phpunit_bckp2.txt
 stan.txt
+temp.txt
 todo.txt
 
 # === Database & Docker ===

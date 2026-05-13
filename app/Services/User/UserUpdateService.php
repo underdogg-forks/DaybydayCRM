@@ -19,8 +19,8 @@ class UserUpdateService
         }
 
         if (isset($input['password']) && $input['password'] !== '') {
+        if (isset($input['password']) && $input['password'] !== '') {
             $input['password'] = Hash::make($input['password']);
-            unset($input['password_confirmation']);
         } else {
             unset($input['password'], $input['password_confirmation']);
         }

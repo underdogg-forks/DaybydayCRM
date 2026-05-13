@@ -42,7 +42,7 @@ class UserUpdateServiceTest extends AbstractTestCase
     {
         // Arrange
         $service = new UserUpdateService();
-        $authorizedUser = User::factory()->withRole('owner')->create();
+        $authorizedUser = User::factory()->withRole(RoleType::OWNER->value)->create();
         $targetUser = User::factory()->withRole('employee')->create();
 
         // Act
@@ -60,7 +60,7 @@ class UserUpdateServiceTest extends AbstractTestCase
     {
         // Arrange
         $service = new UserUpdateService();
-        $owner = User::factory()->withRole('owner')->create();
+        $owner = User::factory()->withRole(RoleType::OWNER->value)->create();
         $newRole = Role::factory()->create(['name' => 'employee', 'display_name' => 'Employee']);
         $department = Department::factory()->create();
 

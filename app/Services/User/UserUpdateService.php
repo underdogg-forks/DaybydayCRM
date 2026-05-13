@@ -43,7 +43,7 @@ class UserUpdateService
             })->count();
 
             $currentRole = $user->roles->first();
-            if ($currentRole && $currentRole->name == RoleType::OWNER->value && $owners <= 1) {
+            if ($currentRole && $currentRole->name === RoleType::OWNER->value && $owners <= 1) {
                 return false;
             }
 

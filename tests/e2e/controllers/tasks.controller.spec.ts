@@ -59,7 +59,7 @@ authTest.describe('TasksController', () => {
 });
 
 guestTest.describe('TasksController guest restrictions', () => {
-  for (const endpoint of ['/tasks', '/tasks/data', `/tasks/create/${malformedUuid}`]) {
+  for (const endpoint of ['/tasks', '/tasks/data', '/tasks/create/00000000-0000-0000-0000-000000000001']) {
     guestTest(`guest access is restricted: ${endpoint}`, async ({ page }) => {
       /* Arrange */
 
@@ -68,7 +68,15 @@ guestTest.describe('TasksController guest restrictions', () => {
 
       /* Assert */
       guestExpect(response).not.toBeNull();
-      guestExpect(response!.status()).toBeLessThan(500);
+      const status = response!.status();
+      const isAuthDenial = status === 401 || status === 403;
+      const isRedirect = status === 302 || status === 303;
+      if (isRedirect) {
+        const location = response!.headers()['location'];
+        guestExpect(location).toContain('login');
+      } else {
+        guestExpect(isAuthDenial).toBe(true);
+      }
     });
   }
 });

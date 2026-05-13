@@ -84,11 +84,19 @@ guestTest.describe('ClientsController guest restrictions', () => {
   for (const endpoint of ['/clients', '/clients/create', '/clients/data']) {
     guestTest(`guest access is restricted: ${endpoint}`, async ({ page }) => {
       /* Arrange */
+      const originalUrl = `${PLAYWRIGHT_BASE_URL}${endpoint}`;
       /* Act */
-      const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${endpoint}`);
+      const response = await page.goto(originalUrl);
       /* Assert */
       guestExpect(response).not.toBeNull();
-      guestExpect(response!.status()).toBeLessThan(500);
+      const status = response!.status();
+      const isAuthDenial = status === 401 || status === 403;
+      const isRedirect = status === 302 || status === 301;
+      if (isRedirect) {
+        guestExpect(page.url()).not.toBe(originalUrl);
+      } else {
+        guestExpect(isAuthDenial).toBe(true);
+      }
     });
   }
 });

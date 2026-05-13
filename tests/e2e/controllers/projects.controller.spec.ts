@@ -41,7 +41,7 @@ authTest.describe('ProjectsController', () => {
 });
 
 guestTest.describe('ProjectsController guest restrictions', () => {
-  for (const endpoint of ['/projects', '/projects/data', '/projects/create/invalid-@@@']) {
+  for (const endpoint of ['/projects', '/projects/data', '/projects/create']) {
     guestTest(`guest access is restricted: ${endpoint}`, async ({ page }) => {
       /* Arrange */
 
@@ -50,7 +50,15 @@ guestTest.describe('ProjectsController guest restrictions', () => {
 
       /* Assert */
       guestExpect(response).not.toBeNull();
-      guestExpect(response!.status()).toBeLessThan(500);
+      const status = response!.status();
+      const isAuthDenial = status === 401 || status === 403;
+      const isRedirect = status === 302 || status === 303;
+      if (isRedirect) {
+        const finalUrl = page.url();
+        guestExpect(finalUrl).toContain('login');
+      } else {
+        guestExpect(isAuthDenial).toBe(true);
+      }
     });
   }
 });

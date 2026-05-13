@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\User\UserUpdateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
@@ -53,7 +54,7 @@ class UserUpdateServiceTest extends AbstractTestCase
         ], null);
 
         // Assert
-        $this->assertTrue(password_verify('secret123', $payload['password']));
+        $this->assertTrue(Hash::check('secret123', $payload['password']));
     }
 
     #[Test]
@@ -70,6 +71,8 @@ class UserUpdateServiceTest extends AbstractTestCase
 
         // Assert
         $this->assertFalse($result);
-        $this->assertSame(RoleType::OWNER->value, $owner->fresh()->roles->first()->name);
+        $freshOwnerRole = $owner->fresh()->roles->first();
+        $this->assertNotNull($freshOwnerRole);
+        $this->assertSame(RoleType::OWNER->value, $freshOwnerRole->name);
     }
 }

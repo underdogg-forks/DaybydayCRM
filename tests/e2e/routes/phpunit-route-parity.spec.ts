@@ -8,6 +8,7 @@ import { callRouteSmoke } from '../helpers/request-smoke';
 const allPhpUnitHttpCalls = loadPhpUnitHttpCalls();
 const publicPaths = new Set(['/login', '/register', '/password/reset']);
 const controllerPrefixes = ['/clients', '/leads', '/projects', '/roles', '/tasks', '/users'];
+const jsonPathMatchers = ['/data', '/users/users', '/calendar-users'];
 
 function isGuestCase(method: string, path: string): boolean {
   if (method === 'GET' && publicPaths.has(path)) {
@@ -18,7 +19,7 @@ function isGuestCase(method: string, path: string): boolean {
 }
 
 function isLikelyJsonPath(path: string): boolean {
-  return path.includes('/data') || path.endsWith('/users/users') || path.endsWith('/calendar-users');
+  return jsonPathMatchers.some((matcher) => path.includes(matcher) || path.endsWith(matcher));
 }
 
 guestTest.describe('PHPUnit route extraction', () => {
@@ -61,7 +62,7 @@ guestTest.describe('PHPUnit endpoint parity - guest reachable cases', () => {
 
       const csrfToken = await fetchCsrfToken(page);
       const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
-      guestExpect([200, 302, 303, 419, 422], `${routeCase.method} ${routeCase.path}`).toContain(response.status());
+      guestExpect([200, 302, 303, 422], `${routeCase.method} ${routeCase.path}`).toContain(response.status());
     });
   }
 });

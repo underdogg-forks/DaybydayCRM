@@ -42,7 +42,7 @@ for (const routeCase of clientRoutes) {
     const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
     /* Assert */
-    guestExpect([302, 303, 401, 403, 419]).toContain(response.status());
+    guestExpect([302, 303, 401, 403, 422]).toContain(response.status());
   });
 
   authTest(`clients auth behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {

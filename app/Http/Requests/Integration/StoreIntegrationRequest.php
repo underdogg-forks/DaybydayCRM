@@ -14,14 +14,13 @@ class StoreIntegrationRequest extends FormRequest
     public function rules()
     {
         return [
-            'api_type' => 'required|string|in:billing,file',
-            'name' => 'nullable|string|max:255',
-            'client_id' => 'nullable|string|max:255',
-            'client_secret' => 'nullable|string|max:1000',
-            'username' => 'nullable|string|max:255',
-            'password' => 'nullable|string|max:255',
-            'api_key' => 'nullable|string|max:1000',
-            'is_active' => 'nullable|boolean',
+            'api_type' => ['required', 'string', 'in:billing,file'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'client_id' => ['nullable', 'string', 'max:255'],
+            'client_secret' => ['nullable', 'string', 'max:1000'],
+            'api_key' => ['nullable', 'string', 'max:1000'],
+            'org_id' => ['nullable', 'string', 'max:255'],
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }
 }

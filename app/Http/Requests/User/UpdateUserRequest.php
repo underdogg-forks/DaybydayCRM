@@ -24,16 +24,16 @@ class UpdateUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'                  => 'required',
-            'email'                 => 'required|email',
-            'address'               => '',
-            'primary_number'        => 'numeric',
-            'secondary_number'      => 'numeric',
-            'password'              => 'sometimes|min:6|confirmed',
-            'password_confirmation' => 'sometimes|min:6',
-            'image_path'            => '',
-            'roles'                 => 'required|integer|exists:roles,id',
-            'departments'           => 'required|integer|exists:departments,id',
+            'name'                  => ['required'],
+            'email'                 => ['required', 'email'],
+            'address'               => ['nullable', 'string'],
+            'primary_number'        => ['nullable', 'numeric'],
+            'secondary_number'      => ['nullable', 'numeric'],
+            'password'              => ['sometimes', 'min:6', 'confirmed'],
+            'password_confirmation' => ['sometimes', 'min:6'],
+            'image_path'            => ['nullable', 'file'],
+            'roles'                 => ['required', 'integer', 'exists:roles,id'],
+            'departments'           => ['required', 'integer', 'exists:departments,id'],
         ];
     }
 }

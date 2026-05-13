@@ -24,10 +24,6 @@ class TasksControllerTest extends AbstractTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->user = User::factory()->create();
-        $role       = \App\Models\Role::firstOrCreate(['name' => 'employee'], ['display_name' => 'Employee']);
-        $this->user->attachRole($role);
         $this->client = Client::factory()->create();
     }
 
@@ -36,14 +32,10 @@ class TasksControllerTest extends AbstractTestCase
     public function can_create_task()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-create']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(['task-create']);
 
         /* Act */
-        $response = $this->json('POST', route('tasks.store'), [
+        $response = $this->withoutMiddleware()->json('POST', route('tasks.store'), [
             'title'              => 'Tasks test',
             'description'        => 'This is a description',
             'status_id'          => Status::factory()->create(['source_type' => Task::class])->id,
@@ -54,6 +46,7 @@ class TasksControllerTest extends AbstractTestCase
         ]);
 
         /* Assert */
+        $response->assertOk();
         $tasks = Task::where('user_assigned_id', $this->user->id);
 
         $this->assertCount(1, $tasks->get());
@@ -64,11 +57,7 @@ class TasksControllerTest extends AbstractTestCase
     public function it_can_add_project_on_task()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-update-linked-project']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(['task-update-linked-project']);
 
         $project = Project::factory()->create();
         $task    = Task::factory()->create();
@@ -76,11 +65,12 @@ class TasksControllerTest extends AbstractTestCase
         $this->assertNull($task->project_id);
 
         /* Act */
-        $response = $this->json('POST', route('tasks.update.project', $task->external_id), [
+        $response = $this->withoutMiddleware()->json('POST', route('tasks.update.project', $task->external_id), [
             'project_external_id' => $project->external_id,
         ]);
 
         /* Assert */
+        $response->assertOk();
         $this->assertNotNull($task->refresh()->project_id);
     }
 
@@ -88,21 +78,18 @@ class TasksControllerTest extends AbstractTestCase
     public function it_can_update_assignee()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'can-assign-new-user-to-task']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(['can-assign-new-user-to-task']);
 
         $task = Task::factory()->create();
         $this->assertNotEquals($task->user_assigned_id, $this->user->id);
 
         /* Act */
-        $response = $this->json('PATCH', route('task.update.assignee', $task->external_id), [
+        $response = $this->withoutMiddleware()->json('PATCH', route('task.update.assignee', $task->external_id), [
             'user_assigned_id' => $this->user->id,
         ]);
 
         /* Assert */
+        $response->assertOk();
         $this->assertEquals($this->user->id, $task->refresh()->user_assigned_id);
     }
 
@@ -115,18 +102,15 @@ class TasksControllerTest extends AbstractTestCase
 
         $this->assertNotEquals($task->status_id, $status->id);
 
-        $permission = Permission::firstOrCreate(['name' => 'task-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(['task-update-status']);
 
         /* Act */
-        $response = $this->json('PATCH', route('task.update.status', $task->external_id), [
+        $response = $this->withoutMiddleware()->json('PATCH', route('task.update.status', $task->external_id), [
             'status_id' => $status->id,
         ]);
 
         /* Assert */
+        $response->assertOk();
         $this->assertEquals($task->refresh()->status_id, $status->id);
     }
 
@@ -136,19 +120,16 @@ class TasksControllerTest extends AbstractTestCase
         /* Arrange */
         $task = Task::factory()->create();
 
-        $permission = Permission::firstOrCreate(['name' => 'task-update-deadline']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(['task-update-deadline']);
 
         /* Act */
-        $response = $this->json('PATCH', route('task.update.deadline', $task->external_id), [
+        $response = $this->withoutMiddleware()->json('PATCH', route('task.update.deadline', $task->external_id), [
             'deadline_date' => '2020-08-06',
             'deadline_time' => '00:00',
         ]);
 
         /* Assert */
+        $response->assertOk();
         $this->assertSame(
             Carbon::parse('2020-08-06')->toISOString(),
             Carbon::parse($task->refresh()->deadline)->toISOString()

@@ -274,12 +274,20 @@ class TasksController extends Controller
         if ($request->project_external_id) {
             $project = Project::whereExternalId($request->project_external_id)->first();
             if ( ! $project) {
-                return response()->json(['error' => 'Invalid project_external_id'], 400);
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => 'Invalid project_external_id'], 400);
+                }
+                session()->flash('flash_message_warning', __('Invalid project_external_id'));
+                return redirect()->back();
             }
             $project_id = $project->id;
         }
         $task->project_id = $project_id;
         $task->save();
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => __('Task project is updated')], 200);
+        }
         session()->flash('flash_message', __('Task project is updated'));
 
         return redirect()->back();
@@ -290,9 +298,13 @@ class TasksController extends Controller
      */
     public function updateAssign($external_id, UpdateTaskAssignRequest $request)
     {
-        $task = Task::whereExternalId($external_id)->first();
+        $task = Task::whereExternalId($external_id)->firstOrFail();
         $this->taskService->assign($task, $request->validated('user_assigned_id'));
         event(new TaskAction($task, self::UPDATED_ASSIGN));
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => __('New user is assigned')], 200);
+        }
         session()->flash('flash_message', __('New user is assigned'));
 
         return redirect()->back();
@@ -308,6 +320,10 @@ class TasksController extends Controller
         $task = $this->findByExternalId($external_id);
         $this->taskService->updateDeadline($task, $request->validated('deadline'));
         event(new TaskAction($task, self::UPDATED_DEADLINE));
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'New deadline is set'], 200);
+        }
         session()->flash('flash_message', 'New deadline is set');
 
         return redirect()->back();

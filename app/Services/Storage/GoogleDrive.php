@@ -8,6 +8,7 @@ use App\Services\Storage\Authentication\GoogleDriveAuthenticator;
 use Exception;
 use Google_Client;
 use Google_Exception;
+use Google_Service_Drive;
 use Google_Service_Drive_DriveFile;
 
 class GoogleDrive implements FilesystemIntegration

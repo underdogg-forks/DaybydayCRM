@@ -183,7 +183,8 @@ trait EntrustRoleTrait
         }
 
         if (is_array($permission)) {
-            return $this->attachPermissions($permission);
+            $this->attachPermissions($permission);
+            return;
         }
 
         // Validate that we have a valid permission ID (must be numeric and > 0)
@@ -193,6 +194,11 @@ trait EntrustRoleTrait
 
         // Use syncWithoutDetaching to prevent duplicate key errors
         $this->perms()->syncWithoutDetaching([$permission]);
+
+        // Clear cache after attaching permission
+        if (Cache::getStore() instanceof TaggableStore) {
+            Cache::tags(Config::get('entrust.permission_role_table'))->flush();
+        }
     }
 
     /**
@@ -209,10 +215,16 @@ trait EntrustRoleTrait
         }
 
         if (is_array($permission)) {
-            return $this->detachPermissions($permission);
+            $this->detachPermissions($permission);
+            return;
         }
 
         $this->perms()->detach($permission);
+
+        // Clear cache after detaching permission
+        if (Cache::getStore() instanceof TaggableStore) {
+            Cache::tags(Config::get('entrust.permission_role_table'))->flush();
+        }
     }
 
     /**
@@ -267,12 +279,21 @@ trait EntrustRoleTrait
      */
     public function detachPermissions($permissions = null)
     {
-        if ( ! $permissions) {
+        if (!$permissions) {
             $permissions = $this->perms()->get();
         }
 
         foreach ($permissions as $permission) {
-            $this->detachPermission($permission);
+            if (is_object($permission)) {
+                $this->perms()->detach($permission->getKey());
+            } else {
+                $this->perms()->detach($permission);
+            }
+        }
+
+        // Clear cache once after detaching all permissions
+        if (Cache::getStore() instanceof TaggableStore) {
+            Cache::tags(Config::get('entrust.permission_role_table'))->flush();
         }
     }
 }

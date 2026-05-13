@@ -2,6 +2,11 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Dummy\ClientsDummyTableSeeder;
+use Database\Seeders\Dummy\LeadsDummyTableSeeder;
+use Database\Seeders\Dummy\ProjectsDummyTableSeeder;
+use Database\Seeders\Dummy\TasksDummyTableSeeder;
+use Database\Seeders\Dummy\UsersDummyTableSeeder;
 use Illuminate\Database\Seeder;
 
 class DummyDatabaseSeeder extends Seeder

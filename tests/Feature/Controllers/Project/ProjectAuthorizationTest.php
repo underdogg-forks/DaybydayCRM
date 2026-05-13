@@ -2,14 +2,12 @@
 
 namespace Tests\Feature\Controllers\Project;
 
+use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;
-use App\Models\Permission;
 use App\Models\Project;
-use App\Models\Role;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
@@ -21,41 +19,15 @@ class ProjectAuthorizationTest extends AbstractTestCase
 
     private Project $project;
 
-    private User $userWithPermission;
-
     private User $userWithoutPermission;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        /* Arrange */
-        $this->project = Project::factory()->create();
-        $deletePermission = Permission::firstOrCreate(
-            ['name' => 'project-delete'],
-            [
-                'display_name' => 'Delete project',
-                'description'  => 'Permission to delete project',
-                'grouping'     => 'project',
-            ]
-        );
-        $roleWithPermission = Role::create([
-            'name'         => 'project-deleter',
-            'display_name' => 'Project Deleter',
-            'description'  => 'Can delete projects',
-            'external_id'  => Str::uuid()->toString(),
-        ]);
-        $roleWithPermission->attachPermission($deletePermission);
-        $roleWithoutPermission = Role::create([
-            'name'         => 'project-viewer',
-            'display_name' => 'Project Viewer',
-            'description'  => 'Cannot delete projects',
-            'external_id'  => Str::uuid()->toString(),
-        ]);
-        $this->userWithPermission = User::factory()->create();
-        $this->userWithPermission->attachRole($roleWithPermission);
+        $this->project               = Project::factory()->create();
         $this->userWithoutPermission = User::factory()->create();
-        $this->userWithoutPermission->attachRole($roleWithoutPermission);
+
         $this->withoutMiddleware(VerifyCsrfToken::class);
     }
 
@@ -63,9 +35,7 @@ class ProjectAuthorizationTest extends AbstractTestCase
     public function it_user_with_project_delete_permission_can_delete_project()
     {
         /* Arrange */
-        $this->actingAs($this->userWithPermission);
-        \Illuminate\Support\Facades\Cache::tags('role_user')->flush();
-        $this->userWithPermission = $this->userWithPermission->fresh();
+        $this->withPermissions(PermissionName::PROJECT_DELETE);
 
         /* Act */
         $response = $this->json('DELETE', route('projects.destroy', $this->project->external_id));
@@ -93,19 +63,7 @@ class ProjectAuthorizationTest extends AbstractTestCase
     public function it_user_with_assign_permission_can_update_project_assignment()
     {
         /* Arrange */
-        $roleWithPermission = Role::create([
-            'name'         => 'project-assigner',
-            'display_name' => 'Project Assigner',
-            'description'  => 'Can assign projects',
-            'external_id'  => Str::uuid()->toString(),
-        ]);
-        $assignPermission = Permission::firstOrCreate(['name' => 'can-assign-new-user-to-project']);
-        $roleWithPermission->attachPermission($assignPermission);
-        $user = User::factory()->create();
-        $user->attachRole($roleWithPermission);
-        $this->actingAs($user);
-        \Illuminate\Support\Facades\Cache::tags('role_user')->flush();
-        $user = $user->fresh();
+        $this->withPermissions(PermissionName::PROJECT_ASSIGN);
         $newUser = User::factory()->create();
 
         /* Act */
@@ -140,19 +98,8 @@ class ProjectAuthorizationTest extends AbstractTestCase
     public function it_project_update_status_only_accepts_status_id_field()
     {
         /* Arrange */
-        $roleWithPermission = Role::create([
-            'name'         => 'status-updater',
-            'display_name' => 'Status Updater',
-            'description'  => 'Can update status',
-            'external_id'  => Str::uuid()->toString(),
-        ]);
-        $statusPermission = Permission::firstOrCreate(['name' => 'project-update-status']);
-        $roleWithPermission->attachPermission($statusPermission);
-        $user = User::factory()->create();
-        $user->attachRole($roleWithPermission);
-        $this->actingAs($user);
-        \Illuminate\Support\Facades\Cache::tags('role_user')->flush();
-        $user = $user->fresh();
+        $this->withPermissions(PermissionName::PROJECT_UPDATE_STATUS);
+
         $newStatus = Status::factory()->create(['source_type' => Project::class]);
         while ($newStatus->id == $this->project->status_id) {
             $newStatus = Status::factory()->create(['source_type' => Project::class]);

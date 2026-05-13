@@ -40,6 +40,8 @@ enum PermissionName: string
     case ABSENCE_VIEW   = 'absence-view';
 
     // Offer Management
+    case OFFER_CREATE = 'offer-create';
+    case OFFER_EDIT   = 'offer-edit';
     case OFFER_DELETE = 'offer-delete';
 
     // Project Management
@@ -70,6 +72,7 @@ enum PermissionName: string
     // Invoice Management
     case INVOICE_SEE          = 'invoice-see';
     case INVOICE_SEND         = 'invoice-send';
+    case INVOICE_PAY          = 'invoice-pay';
     case MODIFY_INVOICE_LINES = 'modify-invoice-lines';
 
     // Product Management
@@ -106,6 +109,8 @@ enum PermissionName: string
             self::LEAD_ASSIGN                => 'Assign Lead',
             self::ABSENCE_MANAGE             => 'Manage Absence',
             self::ABSENCE_VIEW               => 'View Absence',
+            self::OFFER_CREATE               => 'Create Offer',
+            self::OFFER_EDIT                 => 'Edit Offer',
             self::OFFER_DELETE               => 'Delete Offer',
             self::PROJECT_CREATE             => 'Create Project',
             self::PROJECT_UPDATE             => 'Update Project',
@@ -128,11 +133,116 @@ enum PermissionName: string
             self::DOCUMENT_UPLOAD            => 'Upload Document',
             self::INVOICE_SEE                => 'View Invoice',
             self::INVOICE_SEND               => 'Send Invoice',
+            self::INVOICE_PAY                => 'Set Invoice as Paid',
             self::MODIFY_INVOICE_LINES       => 'Modify Invoice Lines',
             self::PRODUCT_CREATE             => 'Create Product',
             self::PRODUCT_EDIT               => 'Edit Product',
             self::PRODUCT_DELETE             => 'Delete Product',
             default                          => ucfirst(str_replace('-', ' ', $this->value)),
         };
+    }
+
+    /**
+     * Get description for a permission
+     */
+    public function description(): string
+    {
+        return match($this) {
+            self::USER_CREATE                => 'Be able to create a new user',
+            self::USER_UPDATE                => "Be able to update a user's information",
+            self::USER_DELETE                => 'Be able to delete a user',
+            self::USER_VIEW                  => 'Be able to view users',
+            self::PAYMENT_CREATE             => 'Be able to add a new payment on a invoice',
+            self::PAYMENT_UPDATE             => 'Be able to update a payment',
+            self::PAYMENT_DELETE             => 'Be able to delete a payment',
+            self::APPOINTMENT_CREATE         => 'Be able to create a new appointment for a user',
+            self::APPOINTMENT_EDIT           => 'Be able to edit appointment such as times and title',
+            self::APPOINTMENT_DELETE         => 'Be able to delete an appointment',
+            self::CALENDAR_VIEW              => 'Be able to view the calendar for appointments',
+            self::CLIENT_CREATE              => 'Permission to create client',
+            self::CLIENT_UPDATE              => 'Permission to update client',
+            self::CLIENT_DELETE              => 'Permission to delete client',
+            self::CLIENT_VIEW                => 'Permission to view clients',
+            self::LEAD_CREATE                => 'Permission to create lead',
+            self::LEAD_DELETE                => 'Permission to delete a lead',
+            self::LEAD_VIEW                  => 'Permission to view leads',
+            self::LEAD_UPDATE_STATUS         => 'Permission to update lead status',
+            self::LEAD_UPDATE_DEADLINE       => 'Permission to update a lead deadline',
+            self::LEAD_ASSIGN                => 'Permission to change the assigned user on a lead',
+            self::ABSENCE_MANAGE             => 'Be able to manage absence',
+            self::ABSENCE_VIEW               => 'Be able to view absence',
+            self::OFFER_CREATE               => 'Be able to create an offer',
+            self::OFFER_EDIT                 => 'Be able to edit an offer',
+            self::OFFER_DELETE               => 'Be able to delete an offer',
+            self::PROJECT_CREATE             => 'Permission to create project',
+            self::PROJECT_UPDATE             => 'Permission to update project',
+            self::PROJECT_DELETE             => 'Permission to delete project',
+            self::PROJECT_UPDATE_STATUS      => 'Permission to update project status',
+            self::PROJECT_UPDATE_DEADLINE    => 'Permission to update a projects deadline',
+            self::PROJECT_UPDATE_ASSIGNMENT  => 'Permission to update project assignment',
+            self::PROJECT_ASSIGN             => 'Permission to change the assigned user on a project',
+            self::PROJECT_UPLOAD_FILES       => 'Allowed to upload files for a project',
+            self::TASK_CREATE                => 'Permission to create task',
+            self::TASK_DELETE                => 'Permission to delete a task',
+            self::TASK_UPDATE_STATUS         => 'Permission to update task status',
+            self::TASK_UPDATE_DEADLINE       => 'Permission to update a tasks deadline',
+            self::TASK_UPDATE_ASSIGNMENT     => 'Permission to update task assignment',
+            self::TASK_UPDATE_LINKED_PROJECT => 'Be able to change the project which is linked to a task',
+            self::TASK_ASSIGN                => 'Permission to change the assigned user on a task',
+            self::TASK_UPLOAD_FILES          => 'Allowed to upload files for a task',
+            self::DOCUMENT_VIEW              => 'Permission to view documents',
+            self::DOCUMENT_DELETE            => 'Permission to delete a document associated with a client',
+            self::DOCUMENT_UPLOAD            => 'Be able to upload a document associated with a client',
+            self::INVOICE_SEE                => "Permission to see invoices on customer, and it's associated task",
+            self::INVOICE_SEND               => 'Be able to set an invoice as send to an customer (Or Send it if billing integration is active)',
+            self::INVOICE_PAY                => 'Be able to set an invoice as paid or not paid',
+            self::MODIFY_INVOICE_LINES       => 'Permission to create and update invoice lines on task, and invoices',
+            self::PRODUCT_CREATE             => 'Be able to create an product',
+            self::PRODUCT_EDIT               => 'Be able to edit an product',
+            self::PRODUCT_DELETE             => 'Be able to delete an product',
+            default                          => ucfirst(str_replace('-', ' ', $this->value)),
+        };
+    }
+
+    /**
+     * Get grouping for a permission
+     */
+    public function grouping(): string
+    {
+        return match($this) {
+            self::USER_CREATE, self::USER_UPDATE, self::USER_DELETE, self::USER_VIEW => 'user',
+            self::CLIENT_CREATE, self::CLIENT_UPDATE, self::CLIENT_DELETE, self::CLIENT_VIEW => 'client',
+            self::DOCUMENT_VIEW, self::DOCUMENT_DELETE, self::DOCUMENT_UPLOAD => 'document',
+            self::TASK_CREATE, self::TASK_DELETE, self::TASK_UPDATE_STATUS, self::TASK_UPDATE_DEADLINE,
+            self::TASK_UPDATE_ASSIGNMENT, self::TASK_UPDATE_LINKED_PROJECT, self::TASK_ASSIGN, self::TASK_UPLOAD_FILES => 'task',
+            self::MODIFY_INVOICE_LINES, self::INVOICE_SEE, self::INVOICE_SEND, self::INVOICE_PAY => 'invoice',
+            self::LEAD_CREATE, self::LEAD_UPDATE_STATUS, self::LEAD_UPDATE_DEADLINE, self::LEAD_ASSIGN, self::LEAD_DELETE, self::LEAD_VIEW => 'lead',
+            self::PROJECT_CREATE, self::PROJECT_UPDATE_STATUS, self::PROJECT_UPDATE_DEADLINE, self::PROJECT_ASSIGN, self::PROJECT_UPLOAD_FILES, self::PROJECT_UPDATE, self::PROJECT_DELETE, self::PROJECT_UPDATE_ASSIGNMENT => 'project',
+            self::PAYMENT_CREATE, self::PAYMENT_DELETE, self::PAYMENT_UPDATE => 'payment',
+            self::CALENDAR_VIEW, self::APPOINTMENT_CREATE, self::APPOINTMENT_EDIT, self::APPOINTMENT_DELETE => 'appointment',
+            self::PRODUCT_CREATE, self::PRODUCT_EDIT, self::PRODUCT_DELETE => 'product',
+            self::OFFER_CREATE, self::OFFER_EDIT, self::OFFER_DELETE => 'offer',
+            self::ABSENCE_MANAGE, self::ABSENCE_VIEW => 'absence',
+            default => 'general',
+        };
+    }
+
+    /**
+     * Generate permission metadata for seeders and upgrade command.
+     * This is the single source of truth for all permissions.
+     *
+     * @return array<string, array{display_name: string, description: string, grouping: string}>
+     */
+    public static function allPermissions(): array
+    {
+        $permissions = [];
+        foreach (self::cases() as $case) {
+            $permissions[$case->value] = [
+                'display_name' => $case->label(),
+                'description'  => $case->description(),
+                'grouping'     => $case->grouping(),
+            ];
+        }
+        return $permissions;
     }
 }

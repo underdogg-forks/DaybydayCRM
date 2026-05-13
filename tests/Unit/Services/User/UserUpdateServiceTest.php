@@ -22,11 +22,11 @@ class UserUpdateServiceTest extends AbstractTestCase
     {
         // Arrange
         $service = new UserUpdateService();
-        $actor = User::factory()->withRole('employee')->create();
-        $target = User::factory()->withRole('employee')->create();
+        $unauthorizedUser = User::factory()->withRole('employee')->create();
+        $targetUser = User::factory()->withRole('employee')->create();
 
         // Act
-        $payload = $service->prepareValidatedInput($actor, $target, [
+        $payload = $service->prepareValidatedInput($unauthorizedUser, $targetUser, [
             'name' => 'Updated',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
@@ -42,11 +42,11 @@ class UserUpdateServiceTest extends AbstractTestCase
     {
         // Arrange
         $service = new UserUpdateService();
-        $actor = User::factory()->withRole('owner')->create();
-        $target = User::factory()->withRole('employee')->create();
+        $authorizedUser = User::factory()->withRole('owner')->create();
+        $targetUser = User::factory()->withRole('employee')->create();
 
         // Act
-        $payload = $service->prepareValidatedInput($actor, $target, [
+        $payload = $service->prepareValidatedInput($authorizedUser, $targetUser, [
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
         ], null);

@@ -25,7 +25,7 @@ class UserUpdateService
         if ($imageFile !== null) {
             $setting = Setting::query()->first();
             if ( ! $setting) {
-                throw new \RuntimeException('Company settings not found');
+                throw new \RuntimeException('Company settings must be configured before uploading user images');
             }
 
             $companyExternalId = $setting->external_id;
@@ -37,16 +37,16 @@ class UserUpdateService
 
     public function syncRoleAndDepartment(User $authenticatedUser, User $user, int $roleId, int $departmentId): bool
     {
-        $owners = User::whereHas('roles', function ($query) {
-            $query->where('name', RoleType::OWNER->value);
-        })->count();
-
-        $currentRole = $user->roles->first();
-        if ($currentRole && $currentRole->name == RoleType::OWNER->value && $owners <= 1) {
-            return false;
-        }
-
         if ($authenticatedUser->canChangeRole()) {
+            $owners = User::whereHas('roles', function ($query) {
+                $query->where('name', RoleType::OWNER->value);
+            })->count();
+
+            $currentRole = $user->roles->first();
+            if ($currentRole && $currentRole->name == RoleType::OWNER->value && $owners <= 1) {
+                return false;
+            }
+
             $user->roles()->sync([$roleId]);
         }
 

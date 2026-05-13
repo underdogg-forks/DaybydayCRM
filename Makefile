@@ -80,20 +80,23 @@ clear:
 phpunit:
 	vendor/bin/phpunit
 
+test:
+	APP_ENV=testing vendor/bin/phpunit --exclude-group flaky --stop-on-failure --stop-on-error
+
 test-fail:
-	vendor/bin/phpunit --exclude-group flaky --stop-on-failure
+	APP_ENV=testing vendor/bin/phpunit --exclude-group flaky --stop-on-failure
 
 # Usage: make test-filter f=SomeTest
 test-filter:
-	vendor/bin/phpunit --exclude-group flaky --filter $(f) --stop-on-failure
+	APP_ENV=testing vendor/bin/phpunit --exclude-group flaky --filter $(f) --stop-on-failure --stop-on-error
 
 # --- Parallel Testing (Inside Container) ---
 
 paratest:
-	vendor/bin/paratest --exclude-group flaky -p16 > phpunit-testdox.log 2>&1 || (cat phpunit-testdox.log >&2; exit 1)
+	APP_ENV=testing vendor/bin/paratest --exclude-group flaky -p16 > phpunit-testdox.log 2>&1 || (cat phpunit-testdox.log >&2; exit 1)
 
 parafail:
-	vendor/bin/paratest --exclude-group flaky -p16 --stop-on-failure > phpunit-testdox.log 2>&1 || (cat phpunit-testdox.log >&2; exit 1)
+	APP_ENV=testing vendor/bin/paratest --exclude-group flaky -p16 --stop-on-failure > phpunit-testdox.log 2>&1 || (cat phpunit-testdox.log >&2; exit 1)
 
 # --- Docker Compose (Host Level) ---
 

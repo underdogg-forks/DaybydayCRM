@@ -83,12 +83,11 @@ guestTest.describe('LeadsController guest restrictions', () => {
       guestExpect(response).not.toBeNull();
       const status = response!.status();
       const isAuthDenial = status === 401 || status === 403;
-      const isRedirect = status === 302 || status === 303;
-      if (isRedirect) {
-        const finalUrl = page.url();
-        guestExpect(finalUrl).toContain('login');
-      } else {
+
+      if (isAuthDenial) {
         guestExpect(isAuthDenial).toBe(true);
+      } else {
+        guestExpect(page.url()).toContain('login');
       }
     });
   }

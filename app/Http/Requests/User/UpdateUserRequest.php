@@ -32,8 +32,8 @@ class UpdateUserRequest extends FormRequest
             'password'              => ['sometimes', 'min:6', 'confirmed'],
             'password_confirmation' => ['sometimes', 'min:6'],
             'image_path'            => ['nullable', 'file'],
-            'roles'                 => ['required', 'integer', 'exists:roles,id'],
-            'departments'           => ['required', 'integer', 'exists:departments,id'],
+            'role'                  => ['required', 'integer', 'exists:roles,id'],
+            'department'            => ['required', 'integer', 'exists:departments,id'],
         ];
     }
 }

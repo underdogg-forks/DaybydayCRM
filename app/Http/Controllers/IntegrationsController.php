@@ -41,6 +41,10 @@ class IntegrationsController extends Controller
     {
         $integrationService->storeOrUpdateByApiType($request->validated());
 
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Integration saved successfully'], 201);
+        }
+
         return $this->index();
     }
 }

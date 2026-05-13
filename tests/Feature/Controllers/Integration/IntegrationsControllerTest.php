@@ -7,7 +7,7 @@ use Tests\AbstractTestCase;
 
 class IntegrationsControllerTest extends AbstractTestCase
 {
-    public function test_store_persists_only_validated_fields_and_redirects_ok(): void
+    public function test_store_persists_only_validated_fields_and_returns_ok(): void
     {
         // Arrange
         $payload = [

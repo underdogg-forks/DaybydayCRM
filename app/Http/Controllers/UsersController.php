@@ -257,13 +257,14 @@ class UsersController extends Controller
     public function update($external_id, UpdateUserRequest $request, UserUpdateService $userUpdateService)
     {
         $user = $this->findByExternalId($external_id);
-        $role       = $request->roles;
-        $department = $request->departments;
+        $validated = $request->validated();
+        $role       = $validated['role'];
+        $department = $validated['department'];
 
         $input = $userUpdateService->prepareValidatedInput(
             auth()->user(),
             $user,
-            $request->validated(),
+            $validated,
             $request->file('image_path')
         );
 

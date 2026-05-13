@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 class UserUpdateService
 {
@@ -19,14 +20,15 @@ class UserUpdateService
 
         if (isset($input['password']) && $input['password'] !== '') {
             $input['password'] = Hash::make($input['password']);
+            unset($input['password_confirmation']);
         } else {
-            unset($input['password']);
+            unset($input['password'], $input['password_confirmation']);
         }
 
         if ($imageFile !== null) {
             $setting = Setting::query()->first();
             if ( ! $setting) {
-                throw new \RuntimeException('No company settings found. Please configure company settings or contact support if this persists.');
+                throw new RuntimeException('No company settings found. Please configure company settings or contact support if this persists.');
             }
 
             $companyExternalId = $setting->external_id;

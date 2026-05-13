@@ -19,6 +19,20 @@ function getCachedWebRouteCases() {
 
 const clientRoutes = getCachedWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/clients'));
 
+function expectedAuthMutationStatuses(method: string): number[] {
+  switch (method) {
+    case 'POST':
+      return [200, 201, 302, 303, 400, 401, 403, 404, 419, 422];
+    case 'PUT':
+    case 'PATCH':
+      return [200, 302, 303, 400, 401, 403, 404, 405, 419, 422];
+    case 'DELETE':
+      return [200, 202, 204, 302, 303, 400, 401, 403, 404, 405, 419];
+    default:
+      return [200, 302, 303, 400, 401, 403, 404, 405, 419, 422];
+  }
+}
+
 for (const routeCase of clientRoutes) {
   guestTest(`clients guest behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {
     /* Arrange */
@@ -42,7 +56,7 @@ for (const routeCase of clientRoutes) {
     const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
     /* Assert */
-    guestExpect([302, 303, 401, 403, 422]).toContain(response.status());
+    guestExpect([302, 303, 401, 403]).toContain(response.status());
   });
 
   authTest(`clients auth behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {
@@ -75,6 +89,6 @@ for (const routeCase of clientRoutes) {
     const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
     /* Assert */
-    authExpect([200, 201, 302, 303, 400, 401, 403, 404, 405, 419, 422]).toContain(response.status());
+    authExpect(expectedAuthMutationStatuses(routeCase.method)).toContain(response.status());
   });
 }

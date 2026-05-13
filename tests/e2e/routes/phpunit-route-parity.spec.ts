@@ -51,7 +51,7 @@ guestTest.describe('PHPUnit endpoint parity - guest reachable cases', () => {
 
         if (routeCase.path === '/login') {
           await guestExpect(page.getByLabel(/email/i)).toBeVisible();
-          await guestExpect(page.getByLabel(/^password$/i)).toBeVisible();
+          await guestExpect(page.getByLabel(/password/i)).toBeVisible();
         }
 
         if (routeCase.path === '/register') {

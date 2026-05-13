@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\User;
 
+use App\Enums\RoleType;
 use App\Models\Department;
 use App\Models\Role;
 use App\Models\User;
@@ -68,6 +69,6 @@ class UserUpdateServiceTest extends AbstractTestCase
 
         // Assert
         $this->assertFalse($result);
-        $this->assertSame(Role::OWNER_ROLE, $owner->fresh()->roles->first()->name);
+        $this->assertSame(RoleType::OWNER->value, $owner->fresh()->roles->first()->name);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Services\User;
 
-use App\Models\Role;
+use App\Enums\RoleType;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -23,7 +23,12 @@ class UserUpdateService
         }
 
         if ($imageFile !== null) {
-            $companyExternalId = Setting::query()->first()->external_id;
+            $setting = Setting::query()->first();
+            if ( ! $setting) {
+                throw new \RuntimeException('Company settings not found');
+            }
+
+            $companyExternalId = $setting->external_id;
             $input['image_path'] = Storage::put($companyExternalId, $imageFile);
         }
 
@@ -33,11 +38,11 @@ class UserUpdateService
     public function syncRoleAndDepartment(User $authenticatedUser, User $user, int $roleId, int $departmentId): bool
     {
         $owners = User::whereHas('roles', function ($query) {
-            $query->where('name', Role::OWNER_ROLE);
+            $query->where('name', RoleType::OWNER->value);
         })->count();
 
         $currentRole = $user->roles->first();
-        if ($currentRole && $currentRole->name == Role::OWNER_ROLE && $owners <= 1) {
+        if ($currentRole && $currentRole->name == RoleType::OWNER->value && $owners <= 1) {
             return false;
         }
 

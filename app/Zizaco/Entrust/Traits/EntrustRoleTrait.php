@@ -43,9 +43,18 @@ trait EntrustRoleTrait
     {
         $rolePrimaryKey = $this->primaryKey;
         $cacheKey       = 'entrust_permissions_for_role_' . $this->{$rolePrimaryKey};
+        $permissionModel = Config::get('entrust.permission');
+
         if (Cache::getStore() instanceof TaggableStore) {
-            return Cache::tags(Config::get('entrust.permission_role_table'))->remember($cacheKey, Config::get('cache.ttl', 60), function () {
-                return $this->perms()->get();
+            // Store as arrays (like cachedRoles does) to avoid serialization issues with Redis
+            $permissionsArray = Cache::tags(Config::get('entrust.permission_role_table'))->remember($cacheKey, Config::get('cache.ttl'), function () {
+                return $this->perms()->get()->toArray();
+            });
+
+            // Reconstruct Permission objects from arrays
+            return collect($permissionsArray)->map(function ($permArr) use ($permissionModel) {
+                return (new $permissionModel())
+                    ->newFromBuilder($permArr);
             });
         } else {
             return $this->perms()->get();

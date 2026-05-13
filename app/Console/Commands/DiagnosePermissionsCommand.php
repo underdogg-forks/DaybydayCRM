@@ -188,8 +188,7 @@ class DiagnosePermissionsCommand extends Command
 
                 if ($canCreate) {
                     $this->line('   ✓ DB confirms user CAN task-create via their role');
-                    $this->warn('   ⚠  DB is correct — stale CACHE is likely the problem!');
-                    $this->issues++;
+                    $this->line('   ℹ  If permission denied in web request, the issue is stale CACHE (not DB).');
                 } else {
                     $this->issues++;
                     $this->warn('   ✗ DB confirms user CANNOT task-create — permissions not linked to role');
@@ -233,7 +232,8 @@ class DiagnosePermissionsCommand extends Command
             $existing = $role->perms()->pluck('id')->toArray();
             $missing  = array_diff($allPermIds, $existing);
             if (!empty($missing)) {
-                $role->perms()->attach($missing);
+                // Use syncWithoutDetaching to prevent duplicate key errors (consistent with UpgradeCommand)
+                $role->perms()->syncWithoutDetaching($missing);
                 $attached += count($missing);
                 $this->line("  + Attached " . count($missing) . " permissions to '{$roleName}'");
             } else {

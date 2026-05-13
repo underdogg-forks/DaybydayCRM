@@ -50,13 +50,14 @@ guestTest.describe('ProjectsController guest restrictions', () => {
 
       /* Assert */
       guestExpect(response).not.toBeNull();
-      const status = response!.status();
-      const isAuthDenial = status === 401 || status === 403;
-      const isRedirect = status === 302 || status === 303;
-      if (isRedirect) {
-        const finalUrl = page.url();
+      const finalUrl = page.url();
+      const redirectedToLogin = finalUrl.includes('/login') || finalUrl.includes('login');
+
+      if (redirectedToLogin) {
         guestExpect(finalUrl).toContain('login');
       } else {
+        const status = response!.status();
+        const isAuthDenial = status === 401 || status === 403;
         guestExpect(isAuthDenial).toBe(true);
       }
     });

@@ -26,7 +26,7 @@ class UsersControllerTest extends AbstractTestCase
         $targetRole = Role::firstOrCreate(['name' => 'manager'], ['display_name' => 'Manager', 'description' => 'Manager role']);
 
         /* Act */
-        $this->json(
+        $this->withoutMiddleware()->json(
             'PATCH',
             route('users.update', $targetUser->external_id),
             [
@@ -54,7 +54,7 @@ class UsersControllerTest extends AbstractTestCase
         $this->actingAs($manager);
 
         /* Act */
-        $response = $this->json(
+        $response = $this->withoutMiddleware()->json(
             'PATCH',
             route('users.update', $targetUser->external_id)
         );

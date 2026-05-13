@@ -45,7 +45,15 @@ guestTest.describe('RolesController guest restrictions', () => {
       const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${endpoint}`);
       /* Assert */
       guestExpect(response).not.toBeNull();
-      guestExpect(response!.status()).toBeLessThan(500);
+      const status = response!.status();
+      const isAuthDenial = status === 401 || status === 403;
+      const isRedirect = status === 302 || status === 303;
+      if (isRedirect) {
+        const location = response!.headers()['location'];
+        guestExpect(location).toContain('login');
+      } else {
+        guestExpect(isAuthDenial).toBe(true);
+      }
     });
   }
 });

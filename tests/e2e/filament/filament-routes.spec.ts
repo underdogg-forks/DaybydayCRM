@@ -2,9 +2,19 @@ import { test as authTest, expect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 import { interpolateRoutePath, loadWebRouteCases } from '../helpers/route-coverage';
 
-const filamentGetRoutes = loadWebRouteCases().filter(
-  (routeCase) => routeCase.method === 'GET' && routeCase.path.startsWith('/admin')
-);
+let cachedFilamentGetRoutes: ReturnType<typeof loadWebRouteCases> | null = null;
+
+function getFilamentGetRoutes() {
+  if (cachedFilamentGetRoutes === null) {
+    cachedFilamentGetRoutes = loadWebRouteCases().filter(
+      (routeCase) => routeCase.method === 'GET' && routeCase.path.startsWith('/admin')
+    );
+  }
+
+  return cachedFilamentGetRoutes;
+}
+
+const filamentGetRoutes = getFilamentGetRoutes();
 
 authTest.describe('Filament page and resource coverage', () => {
   for (const routeCase of filamentGetRoutes) {

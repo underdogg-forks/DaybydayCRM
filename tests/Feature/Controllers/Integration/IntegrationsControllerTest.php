@@ -9,6 +9,7 @@ class IntegrationsControllerTest extends AbstractTestCase
 {
     public function test_store_persists_only_validated_fields_and_redirects_ok(): void
     {
+        // Arrange
         $payload = [
             'api_type' => 'billing',
             'name' => 'Xero',
@@ -18,8 +19,10 @@ class IntegrationsControllerTest extends AbstractTestCase
             'is_admin' => true,
         ];
 
+        // Act
         $response = $this->post(route('integrations.store'), $payload);
 
+        // Assert
         $response->assertOk();
         $this->assertDatabaseHas('integrations', [
             'api_type' => 'billing',

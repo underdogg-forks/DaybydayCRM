@@ -6,6 +6,7 @@ use App\Enums\RoleType;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserUpdateService
@@ -17,7 +18,7 @@ class UserUpdateService
         }
 
         if (isset($input['password']) && $input['password'] !== '') {
-            $input['password'] = bcrypt($input['password']);
+            $input['password'] = Hash::make($input['password']);
         } else {
             unset($input['password']);
         }

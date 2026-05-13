@@ -33,6 +33,7 @@ class UserUpdateServiceTest extends AbstractTestCase
         ], null);
 
         // Assert
+        $this->assertArrayHasKey('name', $payload);
         $this->assertArrayNotHasKey('password', $payload);
         $this->assertArrayNotHasKey('password_confirmation', $payload);
     }

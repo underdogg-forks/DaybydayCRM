@@ -5,7 +5,6 @@ namespace Tests\Feature\Url;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
-use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use PHPUnit\Framework\Attributes\Test;
@@ -33,12 +32,11 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
     {
         parent::setUp();
 
-        $this->user   = factory(User::class)->create();
-        $this->client = factory(Client::class)->create();
-        $this->task   = factory(Task::class)->create([
+        $this->client = Client::factory()->create();
+        $this->task   = Task::factory()->create([
             'user_assigned_id' => $this->user->id,
         ]);
-        $this->project = factory(Project::class)->create([
+        $this->project = Project::factory()->create([
             'user_assigned_id' => $this->user->id,
         ]);
     }

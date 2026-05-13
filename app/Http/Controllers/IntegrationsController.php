@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Integration\StoreIntegrationRequest;
 use App\Models\Integration;
 use App\Services\Integration\IntegrationService;
-use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class IntegrationsController extends Controller
 {
@@ -18,9 +18,9 @@ class IntegrationsController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
      */
-    public function index()
+    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
     {
         $billing_integration    = Integration::whereApiType('billing')->first();
         $filesystem_integration = Integration::whereApiType('file')->first();
@@ -35,9 +35,9 @@ class IntegrationsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StoreIntegrationRequest $request, IntegrationService $integrationService)
+    public function store(StoreIntegrationRequest $request, IntegrationService $integrationService): JsonResponse|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
     {
         $integrationService->storeOrUpdateByApiType($request->validated());
 

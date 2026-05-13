@@ -3,10 +3,48 @@
 namespace App\Services\Client;
 
 use App\Models\Client;
+use App\Models\Contact;
 use Illuminate\Database\Eloquent\Collection;
+use Ramsey\Uuid\Uuid;
 
 class ClientService
 {
+    /**
+     * Create a new client with its primary contact.
+     *
+     * @param array $data Validated data from StoreClientRequest
+     *
+     * @return array [$client, $contact] tuple of newly created models
+     */
+    public function createClientWithContact(array $data): array
+    {
+        // Create the client
+        $client = Client::create([
+            'external_id'  => Uuid::uuid4()->toString(),
+            'company_name' => $data['company_name'],
+            'vat'          => $data['vat'] ?? null,
+            'address'      => $data['address'] ?? null,
+            'zipcode'      => $data['zipcode'] ?? null,
+            'city'         => $data['city'] ?? null,
+            'company_type' => $data['company_type'] ?? null,
+            'industry_id'  => $data['industry_id'],
+            'user_id'      => $data['user_id'],
+        ]);
+
+        // Create the primary contact for the client
+        $contact = Contact::create([
+            'external_id'      => Uuid::uuid4()->toString(),
+            'client_id'        => $client->id,
+            'name'             => $data['name'],
+            'email'            => $data['email'],
+            'primary_number'   => $data['primary_number'] ?? null,
+            'secondary_number' => $data['secondary_number'] ?? null,
+            'is_primary'       => true,
+        ]);
+
+        return [$client, $contact];
+    }
+
     /**
      * Get clients with optimized eager loading for datatables.
      *

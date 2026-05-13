@@ -8,7 +8,6 @@ use App\Events\ClientAction;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
-use App\Models\Contact;
 use App\Models\Industry;
 use App\Models\Integration;
 use App\Models\Setting;
@@ -17,13 +16,11 @@ use App\Models\User;
 use App\Repositories\FilesystemIntegration\FilesystemIntegration;
 use App\Repositories\Money\MoneyConverter;
 use App\Services\Client\ClientService;
-use App\Services\ClientNumber\ClientNumberService;
 use App\Services\Invoice\InvoiceCalculator;
 use App\Services\Storage\GetStorageProvider;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\Facades\DataTables;
 
 class ClientsController extends Controller
@@ -203,28 +200,7 @@ class ClientsController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
-        $client = Client::query()->create([
-            'external_id'   => Uuid::uuid4()->toString(),
-            'vat'           => $request->vat,
-            'company_name'  => $request->company_name,
-            'address'       => $request->address,
-            'zipcode'       => $request->zipcode,
-            'city'          => $request->city,
-            'company_type'  => $request->company_type,
-            'industry_id'   => $request->industry_id,
-            'user_id'       => $request->user_id,
-            'client_number' => app(ClientNumberService::class)->setNextClientNumber(),
-        ]);
-
-        $contact = Contact::query()->create([
-            'external_id'      => Uuid::uuid4()->toString(),
-            'name'             => $request->name,
-            'email'            => $request->email,
-            'primary_number'   => $request->primary_number,
-            'secondary_number' => $request->secondary_number,
-            'client_id'        => $client->id,
-            'is_primary'       => true,
-        ]);
+        [$client, $contact] = $this->clientService->createClientWithContact($request->validated());
 
         session()->flash('flash_message', __('Client successfully added'));
         event(new ClientAction($client, self::CREATED));
@@ -247,43 +223,16 @@ class ClientsController extends Controller
      */
     public function cvrapiStart(Request $request)
     {
-        $vat = $request->input('vat');
-
+        $vat          = $request->input('vat');
         $country      = $request->input('country');
         $company_name = $request->input('company_name');
 
         // Strip all other characters than numbers
         $vat = preg_replace('/[^0-9]/', '', $vat);
 
-        $result = $this->cvrApi($vat, 'dk');
+        $result = $this->clientService->cvrApi($vat, $country ?? 'dk');
 
-        return redirect()->back()
-            ->with('data', $result);
-    }
-
-    public function cvrApi($vat)
-    {
-        if (empty($vat)) {
-            // Print error message
-
-            return 'Please insert VAT';
-        }
-        // Start cURL
-        $ch = curl_init();
-
-        // Set cURL options
-        curl_setopt($ch, CURLOPT_URL, 'http://cvrapi.dk/api?search=' . $vat . '&country=dk');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Daybyday');
-
-        // Parse result
-        $result = curl_exec($ch);
-
-        // Close connection when done
-        curl_close($ch);
-
-        // Return our decoded result
-        return json_decode($result, 1);
+        return redirect()->back()->with('data', $result);
     }
 
     /**

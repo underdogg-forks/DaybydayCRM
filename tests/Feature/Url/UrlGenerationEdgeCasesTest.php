@@ -4,6 +4,7 @@ namespace Tests\Feature\Url;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
 /**
@@ -20,8 +21,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
     use DatabaseTransactions;
     use WithoutMiddleware;
 
-    /** @test */
-    public function url_helper_handles_multiple_subdirectory_levels()
+    #[Test]
+    public function it_url_helper_handles_multiple_subdirectory_levels()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/projects/crm/public']);
@@ -33,8 +34,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/projects/crm/public/tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_handles_trailing_slash_in_config()
+    #[Test]
+    public function it_url_helper_handles_trailing_slash_in_config()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public/']);
@@ -47,8 +48,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertStringNotContainsString('//tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_handles_empty_path()
+    #[Test]
+    public function it_url_helper_handles_empty_path()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -60,8 +61,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/daybydaycrm/public', $url);
     }
 
-    /** @test */
-    public function url_helper_handles_path_without_leading_slash()
+    #[Test]
+    public function it_url_helper_handles_path_without_leading_slash()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -73,8 +74,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/daybydaycrm/public/tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_works_with_ipv4_address()
+    #[Test]
+    public function it_url_helper_works_with_ipv4_address()
     {
         /* Arrange */
         config(['app.url' => 'http://192.168.1.1/crm']);
@@ -86,8 +87,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://192.168.1.1/crm/tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_works_with_localhost_and_port()
+    #[Test]
+    public function it_url_helper_works_with_localhost_and_port()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost:3000/crm']);
@@ -99,8 +100,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost:3000/crm/tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_works_with_https_and_non_standard_port()
+    #[Test]
+    public function it_url_helper_works_with_https_and_non_standard_port()
     {
         /* Arrange */
         config(['app.url' => 'https://example.com:8443/crm/public']);
@@ -112,8 +113,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('https://example.com:8443/crm/public/tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_concatenation_works_correctly()
+    #[Test]
+    public function it_url_helper_concatenation_works_correctly()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm']);
@@ -126,8 +127,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/crm/add-documents/12345-abcde/task', $url);
     }
 
-    /** @test */
-    public function url_helper_handles_special_characters_in_external_id()
+    #[Test]
+    public function it_url_helper_handles_special_characters_in_external_id()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm']);
@@ -140,8 +141,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/crm/tasks/abc-123_xyz', $url);
     }
 
-    /** @test */
-    public function url_helper_works_with_subdomain()
+    #[Test]
+    public function it_url_helper_works_with_subdomain()
     {
         /* Arrange */
         config(['app.url' => 'http://crm.example.com/public']);
@@ -153,8 +154,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://crm.example.com/public/tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_works_with_subdomain_and_no_path()
+    #[Test]
+    public function it_url_helper_works_with_subdomain_and_no_path()
     {
         /* Arrange */
         config(['app.url' => 'http://crm.example.com']);
@@ -166,8 +167,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://crm.example.com/tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_handles_query_parameters()
+    #[Test]
+    public function it_url_helper_handles_query_parameters()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm']);
@@ -179,8 +180,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/crm/tasks?status=active&user=123', $url);
     }
 
-    /** @test */
-    public function url_helper_handles_fragments()
+    #[Test]
+    public function it_url_helper_handles_fragments()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm']);
@@ -192,8 +193,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/crm/tasks#section1', $url);
     }
 
-    /** @test */
-    public function base_url_config_is_available_in_javascript_context()
+    #[Test]
+    public function it_base_url_config_is_available_in_javascript_context()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm/public']);
@@ -208,8 +209,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $response->assertSee('http://localhost/crm/public', false);
     }
 
-    /** @test */
-    public function javascript_url_construction_matches_php_url_helper()
+    #[Test]
+    public function it_javascript_url_construction_matches_php_url_helper()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm/public']);
@@ -221,8 +222,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals($phpUrl, $jsUrl);
     }
 
-    /** @test */
-    public function url_generation_is_consistent_across_multiple_calls()
+    #[Test]
+    public function it_url_generation_is_consistent_across_multiple_calls()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm']);
@@ -235,8 +236,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals($url1, $url2);
     }
 
-    /** @test */
-    public function url_helper_handles_deeply_nested_paths()
+    #[Test]
+    public function it_url_helper_handles_deeply_nested_paths()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm']);
@@ -248,8 +249,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/crm/api/v1/projects/123/tasks/456/documents', $url);
     }
 
-    /** @test */
-    public function empty_subdirectory_path_works_as_root_installation()
+    #[Test]
+    public function it_empty_subdirectory_path_works_as_root_installation()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost']);
@@ -261,8 +262,8 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
         $this->assertEquals('http://localhost/tasks', $url);
     }
 
-    /** @test */
-    public function url_concatenation_with_variables_works_correctly()
+    #[Test]
+    public function it_url_concatenation_with_variables_works_correctly()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm']);

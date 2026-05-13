@@ -8,6 +8,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
 /**
@@ -42,8 +43,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         ]);
     }
 
-    /** @test */
-    public function url_helper_generates_absolute_urls_with_subdirectory()
+    #[Test]
+    public function it_url_helper_generates_absolute_urls_with_subdirectory()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -55,8 +56,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $this->assertEquals('http://localhost/daybydaycrm/public/tasks', $url);
     }
 
-    /** @test */
-    public function url_helper_generates_absolute_urls_at_root()
+    #[Test]
+    public function it_url_helper_generates_absolute_urls_at_root()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost']);
@@ -68,8 +69,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $this->assertEquals('http://localhost/tasks', $url);
     }
 
-    /** @test */
-    public function task_show_page_contains_correct_document_upload_url()
+    #[Test]
+    public function it_task_show_page_contains_correct_document_upload_url()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -83,8 +84,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee($expectedUrl, false);
     }
 
-    /** @test */
-    public function project_show_page_contains_correct_document_upload_url()
+    #[Test]
+    public function it_project_show_page_contains_correct_document_upload_url()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -98,8 +99,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee($expectedUrl, false);
     }
 
-    /** @test */
-    public function products_index_contains_correct_creator_modal_url()
+    #[Test]
+    public function it_products_index_contains_correct_creator_modal_url()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -113,8 +114,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee($expectedUrl, false);
     }
 
-    /** @test */
-    public function task_create_page_contains_correct_client_create_redirect_url()
+    #[Test]
+    public function it_task_create_page_contains_correct_client_create_redirect_url()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -128,8 +129,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee($expectedUrl, false);
     }
 
-    /** @test */
-    public function project_create_page_contains_correct_client_create_redirect_url()
+    #[Test]
+    public function it_project_create_page_contains_correct_client_create_redirect_url()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -143,8 +144,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee($expectedUrl, false);
     }
 
-    /** @test */
-    public function lead_create_page_contains_correct_client_create_redirect_url()
+    #[Test]
+    public function it_lead_create_page_contains_correct_client_create_redirect_url()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -158,8 +159,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee($expectedUrl, false);
     }
 
-    /** @test */
-    public function users_index_contains_correct_delete_url()
+    #[Test]
+    public function it_users_index_contains_correct_delete_url()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -173,8 +174,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee($expectedUrl, false);
     }
 
-    /** @test */
-    public function master_layout_contains_base_url_configuration()
+    #[Test]
+    public function it_master_layout_contains_base_url_configuration()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -187,8 +188,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee('baseUrl: "http://localhost/daybydaycrm/public"', false);
     }
 
-    /** @test */
-    public function master_layout_contains_base_url_configuration_at_root()
+    #[Test]
+    public function it_master_layout_contains_base_url_configuration_at_root()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost']);
@@ -201,8 +202,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee('baseUrl: "http://localhost"', false);
     }
 
-    /** @test */
-    public function url_generation_works_with_https_subdirectory()
+    #[Test]
+    public function it_url_generation_works_with_https_subdirectory()
     {
         /* Arrange */
         config(['app.url' => 'https://example.com/crm/public']);
@@ -214,8 +215,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $this->assertEquals('https://example.com/crm/public/tasks', $url);
     }
 
-    /** @test */
-    public function url_generation_works_with_port_and_subdirectory()
+    #[Test]
+    public function it_url_generation_works_with_port_and_subdirectory()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost:8080/daybydaycrm/public']);
@@ -227,8 +228,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $this->assertEquals('http://localhost:8080/daybydaycrm/public/tasks', $url);
     }
 
-    /** @test */
-    public function master_layout_loads_js_assets_with_correct_subdirectory_path()
+    #[Test]
+    public function it_master_layout_loads_js_assets_with_correct_subdirectory_path()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -242,8 +243,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee('http://localhost/daybydaycrm/public/js/vendor.js', false);
     }
 
-    /** @test */
-    public function master_layout_loads_js_assets_at_root_installation()
+    #[Test]
+    public function it_master_layout_loads_js_assets_at_root_installation()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost']);
@@ -257,8 +258,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee('http://localhost/js/vendor.js', false);
     }
 
-    /** @test */
-    public function calendar_page_loads_js_assets_with_correct_subdirectory_path()
+    #[Test]
+    public function it_calendar_page_loads_js_assets_with_correct_subdirectory_path()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);
@@ -272,8 +273,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
         $response->assertSee('http://localhost/daybydaycrm/public/js/vendor.js', false);
     }
 
-    /** @test */
-    public function calendar_page_contains_base_url_configuration()
+    #[Test]
+    public function it_calendar_page_contains_base_url_configuration()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/daybydaycrm/public']);

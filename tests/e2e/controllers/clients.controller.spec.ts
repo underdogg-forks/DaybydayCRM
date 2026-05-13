@@ -91,11 +91,11 @@ guestTest.describe('ClientsController guest restrictions', () => {
       guestExpect(response).not.toBeNull();
       const status = response!.status();
       const isAuthDenial = status === 401 || status === 403;
-      const isRedirect = status === 302 || status === 301;
-      if (isRedirect) {
-        guestExpect(page.url()).not.toBe(originalUrl);
-      } else {
+      if (isAuthDenial) {
         guestExpect(isAuthDenial).toBe(true);
+      } else {
+        guestExpect(page.url()).not.toBe(originalUrl);
+        guestExpect(page.url()).toContain('/login');
       }
     });
   }

@@ -256,13 +256,21 @@ class UsersController extends Controller
      */
     public function update($external_id, UpdateUserRequest $request)
     {
-        $user       = $this->findByExternalId($external_id);
-        $password   = bcrypt($request->password);
+        $user = $this->findByExternalId($external_id);
         $role       = $request->roles;
         $department = $request->departments;
 
+        $input = $request->validated();
+
         if ( ! auth()->user()->canChangePasswordOn($user)) {
-            unset($request['password']);
+            unset($input['password']);
+            unset($input['password_confirmation']);
+        }
+
+        if (isset($input['password']) && $input['password'] !== '') {
+            $input['password'] = bcrypt($input['password']);
+        } else {
+            unset($input['password']);
         }
 
         if ($request->hasFile('image_path')) {
@@ -272,17 +280,7 @@ class UsersController extends Controller
             $filename = str_random(8) . '_' . $file->getClientOriginalName();
 
             $path = Storage::put($companyname, $file);
-            if ($request->password == '') {
-                $input = array_replace($request->except('password'), ['image_path' => "{$path}"]);
-            } else {
-                $input = array_replace($request->all(), ['image_path' => "{$path}", 'password' => "{$password}"]);
-            }
-        } else {
-            if ($request->password == '') {
-                $input = array_replace($request->except('password'));
-            } else {
-                $input = array_replace($request->all(), ['password' => "{$password}"]);
-            }
+            $input['image_path'] = $path;
         }
 
         $owners = User::whereHas('roles', function ($q) {

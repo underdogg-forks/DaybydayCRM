@@ -32,8 +32,8 @@ class StoreUserRequest extends FormRequest
             'password'              => 'required|min:6|confirmed',
             'password_confirmation' => 'required|min:6',
             'image_path'            => '',
-            'roles'                 => 'required',
-            'departments'           => 'required',
+            'roles'                 => 'required|integer|exists:roles,id',
+            'departments'           => 'required|integer|exists:departments,id',
         ];
     }
 }

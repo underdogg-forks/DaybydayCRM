@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Integration\StoreIntegrationRequest;
 use App\Models\Integration;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class IntegrationsController extends Controller
@@ -36,9 +36,9 @@ class IntegrationsController extends Controller
      *
      * @return Response
      */
-    public function store(Request $request)
+    public function store(StoreIntegrationRequest $request)
     {
-        $input = $request->all();
+        $input = $request->validated();
 
         $existing = Integration::query()->where([
             // 'user_id' => $request->post['user_id'] ? $userId : null,

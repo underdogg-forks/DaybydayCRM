@@ -23,14 +23,18 @@ for (const routeCase of clientRoutes) {
   guestTest(`clients guest behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {
     /* Arrange */
     const routePath = interpolateRoutePath(routeCase.path);
+    const routeUrl = `${PLAYWRIGHT_BASE_URL}${routePath}`;
 
     /* Act */
     if (routeCase.method === 'GET') {
-      const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
+      const response = await request.get(routeUrl, { failOnStatusCode: false, maxRedirects: 0 });
+      const status = response.status();
 
       /* Assert */
-      guestExpect(response).not.toBeNull();
-      guestExpect(response!.status()).toBeLessThan(500);
+      guestExpect([302, 303, 401, 403]).toContain(status);
+      if (status === 302 || status === 303) {
+        guestExpect(response.headers()['location'] ?? '').toContain('/login');
+      }
       return;
     }
 
@@ -38,20 +42,32 @@ for (const routeCase of clientRoutes) {
     const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
     /* Assert */
-    guestExpect(response.status()).toBeLessThan(500);});
+    guestExpect([302, 303, 401, 403, 419]).toContain(response.status());
   });
 
   authTest(`clients auth behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {
     /* Arrange */
     const routePath = interpolateRoutePath(routeCase.path);
+    const routeUrl = `${PLAYWRIGHT_BASE_URL}${routePath}`;
+    const expectsJson = routeCase.path.includes('/data');
 
     /* Act */
-    if (routeCase.method === 'GET') {
-      const response = await page.goto(`${PLAYWRIGHT_BASE_URL}${routePath}`);
+    if (routeCase.method === 'GET' && expectsJson) {
+      const response = await request.get(routeUrl, { failOnStatusCode: false });
 
       /* Assert */
+      authExpect([200, 401, 403, 404]).toContain(response.status());
+      if (response.status() === 200) {
+        authExpect(response.headers()['content-type'] ?? '').toContain('application/json');
+      }
+      return;
+    }
+
+    if (routeCase.method === 'GET') {
+      const response = await page.goto(routeUrl);
       authExpect(response).not.toBeNull();
-      authExpect(response!.status()).toBeLessThan(500);
+      authExpect([200, 302, 303, 403, 404]).toContain(response!.status());
+      authExpect(page.url().toLowerCase()).not.toContain('/login');
       return;
     }
 
@@ -59,6 +75,6 @@ for (const routeCase of clientRoutes) {
     const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
     /* Assert */
-    authExpect(response.status()).toBeLessThan(500);});
+    authExpect([200, 201, 302, 303, 400, 401, 403, 404, 405, 419, 422]).toContain(response.status());
   });
 }

@@ -12,6 +12,8 @@ export interface RouteCase {
 }
 
 const SUPPORTED_METHODS = new Set<HttpMethod>(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+let cachedWebRouteCases: RouteCase[] | null = null;
+let cachedPhpUnitHttpCalls: RouteCase[] | null = null;
 
 function normalizePath(rawPath: string): string {
   const withoutDomain = rawPath.replace(/^https?:\/\/[^/]+/i, '');
@@ -172,11 +174,17 @@ function dedupe(routeCases: RouteCase[]): RouteCase[] {
 }
 
 export function loadWebRouteCases(): RouteCase[] {
-  try {
-    return dedupe(fromArtisanRouteList());
-  } catch {
-    return dedupe(fromWebPhpFallback());
+  if (cachedWebRouteCases !== null) {
+    return cachedWebRouteCases;
   }
+
+  try {
+    cachedWebRouteCases = dedupe(fromArtisanRouteList());
+  } catch {
+    cachedWebRouteCases = dedupe(fromWebPhpFallback());
+  }
+
+  return cachedWebRouteCases;
 }
 
 export function interpolateRoutePath(rawPath: string): string {
@@ -203,6 +211,10 @@ export function malformedInterpolatedRoutePath(rawPath: string): string {
 }
 
 export function loadPhpUnitHttpCalls(): RouteCase[] {
+  if (cachedPhpUnitHttpCalls !== null) {
+    return cachedPhpUnitHttpCalls;
+  }
+
   const testsRoot = path.join(process.cwd(), 'tests');
   const files: string[] = [];
   const stack = [testsRoot];
@@ -276,5 +288,7 @@ export function loadPhpUnitHttpCalls(): RouteCase[] {
     }
   }
 
-  return dedupe(routeCases);
+  cachedPhpUnitHttpCalls = dedupe(routeCases);
+
+  return cachedPhpUnitHttpCalls;
 }

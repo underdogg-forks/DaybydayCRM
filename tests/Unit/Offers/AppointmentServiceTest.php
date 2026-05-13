@@ -126,7 +126,7 @@ class AppointmentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($result);
-        $this->assertDatabaseMissing('appointments', ['id' => $appointmentId]);
+        $this->assertSoftDeleted('appointments', ['id' => $appointmentId]);
     }
 
     #[Test]

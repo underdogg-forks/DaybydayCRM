@@ -62,6 +62,8 @@ class UserServiceTest extends AbstractTestCase
     {
         // Arrange
         $service    = new UserUpdateService();
+        // Remove the test user's owner role so the factory-created owner is the LAST owner
+        $this->user->roles()->detach();
         $owner      = User::factory()->withRole(RoleType::OWNER->value)->create();
         $newRole    = Role::factory()->create(['name' => RoleType::USER->value, 'display_name' => 'User']);
         $department = Department::factory()->create();

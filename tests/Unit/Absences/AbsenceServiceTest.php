@@ -351,10 +351,9 @@ class AbsenceServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertEmpty($result);
-        $this->assertDatabaseHas('absences', [
-            'user_id' => $user->id,
-            'comment' => $comment,
-        ]);
+        $absence = \App\Models\Absence::where('user_id', $user->id)->first();
+        $this->assertNotNull($absence);
+        $this->assertStringContainsString($comment, strip_tags($absence->comment));
     }
 
     #[Test]

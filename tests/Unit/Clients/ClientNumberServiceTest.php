@@ -144,7 +144,7 @@ class ClientNumberServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Clients number cannot be negative.');
+        $this->expectExceptionMessage('Client number cannot be negative.');
 
         /* Act */
         $this->clientNumberService->setClientNumber($negativeNumber);

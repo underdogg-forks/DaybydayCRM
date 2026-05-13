@@ -13,7 +13,9 @@
     <link rel="stylesheet" href="https://unpkg.com/vis-timeline@7.3.4/styles/vis-timeline-graph2d.min.css">
     <link href="https://unpkg.com/ionicons@4.5.5/dist/css/ionicons.min.css" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
-    @vite(['resources/assets/sass/vendor.scss', 'resources/assets/sass/app.scss'])
+    @if(file_exists(public_path('build/manifest.json')))
+        @vite(['resources/assets/sass/vendor.scss', 'resources/assets/sass/app.scss'])
+    @endif
     <link href="{{ URL::asset('css/summernote.css') }}" rel="stylesheet">
     <link rel="shortcut icon" href="{{{ asset('images/favicon.png') }}}">
     <script>
@@ -220,7 +222,9 @@
 <script type="text/javascript" src="{{ URL::asset('js/dropzone.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('js/summernote.min.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('js/jquery-ui-sortable.min.js') }}"></script>
-@vite(['resources/assets/js/app.js'])
+@if(file_exists(public_path('build/manifest.json')))
+    @vite(['resources/assets/js/app.js'])
+@endif
 @if(App::getLocale() === "dk")
 <script>
     $(document).ready(function () {

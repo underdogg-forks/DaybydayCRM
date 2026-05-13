@@ -138,7 +138,7 @@ class InvoiceLineServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($result);
-        $this->assertDatabaseMissing('invoice_lines', ['id' => $lineId]);
+        $this->assertSoftDeleted('invoice_lines', ['id' => $lineId]);
     }
 
     #[Test]

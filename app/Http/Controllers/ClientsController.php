@@ -189,10 +189,13 @@ class ClientsController extends Controller
      */
     public function create()
     {
+        $setting = Setting::first();
+        $country = $setting ? Country::fromCode($setting->country) : null;
+
         return view('clients.create')
             ->withUsers(User::with('department')->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->withIndustries($this->listAllIndustries())
-            ->withCountry(Country::fromCode(Setting::first()->country));
+            ->withCountry($country);
     }
 
     /**

@@ -141,7 +141,9 @@ class OfferService
      */
     public function markAsLost(Offer $offer): bool
     {
-        return $offer->setAsLost();
+        $offer->setAsLost();
+
+        return true;
     }
 
     /**

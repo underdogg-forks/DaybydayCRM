@@ -70,9 +70,16 @@ class AbsenceController extends Controller
     {
         $result = $absenceService->storeAbsence($request);
         if ($result['error']) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => $result['error']], 400);
+            }
             session()->flash('flash_message_warning', __($result['error']));
 
             return redirect()->back();
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Absence registered'], 200);
         }
         session()->flash('flash_message', __('Absence registered'));
 

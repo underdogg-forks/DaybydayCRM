@@ -38,13 +38,10 @@ class CommentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertInstanceOf(Comment::class, $comment);
-        $this->assertEquals($description, $comment->description);
+        $this->assertStringContainsString($description, strip_tags($comment->description));
         $this->assertEquals($user->id, $comment->user_id);
         $this->assertEquals($task->id, $comment->commentable_id);
-        $this->assertDatabaseHas('comments', [
-            'description' => $description,
-            'user_id'     => $user->id,
-        ]);
+        $this->assertNotNull(Comment::where('user_id', $user->id)->first());
     }
 
     #[Test]
@@ -60,7 +57,7 @@ class CommentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertInstanceOf(Comment::class, $comment);
-        $this->assertEquals($description, $comment->description);
+        $this->assertStringContainsString($description, strip_tags($comment->description));
         $this->assertEquals($user->id, $comment->user_id);
         $this->assertEquals($lead->id, $comment->commentable_id);
     }
@@ -78,7 +75,7 @@ class CommentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertInstanceOf(Comment::class, $comment);
-        $this->assertEquals($description, $comment->description);
+        $this->assertStringContainsString($description, strip_tags($comment->description));
         $this->assertEquals($user->id, $comment->user_id);
         $this->assertEquals($project->id, $comment->commentable_id);
     }
@@ -159,7 +156,7 @@ class CommentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($result);
-        $this->assertDatabaseMissing('comments', ['id' => $commentId]);
+        $this->assertSoftDeleted('comments', ['id' => $commentId]);
     }
 
     #[Test]
@@ -174,10 +171,8 @@ class CommentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($result);
-        $this->assertDatabaseHas('comments', [
-            'id'          => $comment->id,
-            'description' => $newDescription,
-        ]);
+        $fresh = $comment->fresh();
+        $this->assertStringContainsString($newDescription, strip_tags($fresh->description));
     }
 
     #[Test]

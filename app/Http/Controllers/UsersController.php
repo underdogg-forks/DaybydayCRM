@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -258,8 +259,8 @@ class UsersController extends Controller
     {
         $user       = $this->findByExternalId($external_id);
         $validated  = $request->validated();
-        $role       = $validated['role'];
-        $department = $validated['department'];
+        $role       = $validated['role'] ?? null;
+        $department = $validated['department'] ?? null;
 
         $input = $userUpdateService->prepareValidatedInput(
             auth()->user(),
@@ -270,8 +271,10 @@ class UsersController extends Controller
 
         $user->fill($input)->save();
 
-        if ( ! $userUpdateService->syncRoleAndDepartment(auth()->user(), $user, (int) $role, (int) $department)) {
-            session()->flash('flash_message_warning', __('Not able to change owner role, please choose a new owner first'));
+        if ($role !== null || $department !== null) {
+            if (! $userUpdateService->syncRoleAndDepartment(auth()->user(), $user, (int) ($role ?? 0), (int) ($department ?? 0))) {
+                session()->flash('flash_message_warning', __('Not able to change owner role, please choose a new owner first'));
+            }
         }
 
         session()->flash('flash_message', __('User successfully updated'));

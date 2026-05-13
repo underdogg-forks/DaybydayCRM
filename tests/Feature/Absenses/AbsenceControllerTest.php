@@ -51,9 +51,8 @@ class AbsenceControllerTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $response->assertStatus(302);
+        $response->assertStatus(200);
         $absences = $user->fresh()->absences;
-        $this->assertNotNull(\Session::all()['flash_message']);
         $this->assertCount(1, $absences);
     }
 
@@ -73,8 +72,8 @@ class AbsenceControllerTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $this->assertNotNull(Session::all()['flash_message']);
-        $this->assertCount(1, $this->user->absences);
+        $response->assertStatus(200);
+        $this->assertCount(1, $this->user->fresh()->absences);
     }
 
     #[Test]
@@ -97,7 +96,8 @@ class AbsenceControllerTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $this->assertCount(0, $absentUser->absences);
-        $this->assertCount(1, $this->user->absences);
+        $response->assertStatus(200);
+        $this->assertCount(0, $absentUser->fresh()->absences);
+        $this->assertCount(1, $this->user->fresh()->absences);
     }
 }

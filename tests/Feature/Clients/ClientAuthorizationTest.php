@@ -65,7 +65,7 @@ class ClientAuthorizationTest extends AbstractTestCase
         $this->actingAs($this->userWithoutPermission);
 
         /* Act */
-        $response = $this->delete(route('clients.destroy', $this->client->external_id));
+        $response = $this->deleteJson(route('clients.destroy', $this->client->external_id));
 
         /* Assert */
         $response->assertStatus(403);

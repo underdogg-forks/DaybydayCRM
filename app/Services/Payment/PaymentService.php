@@ -9,8 +9,8 @@ use App\Models\Payment;
 use App\Services\Invoice\GenerateInvoiceStatus;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
-use Log;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
 
@@ -42,7 +42,8 @@ class PaymentService
         }
 
         // Validate payment source
-        if ( ! PaymentSource::isValidValue($source)) {
+        $validSources = array_keys(PaymentSource::values());
+        if (! in_array($source, $validSources, true)) {
             throw new InvalidArgumentException("Invalid payment source: {$source}");
         }
 

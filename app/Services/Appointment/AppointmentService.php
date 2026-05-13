@@ -143,7 +143,7 @@ class AppointmentService
      */
     public function hasAppointmentAtTime(User $user, Carbon $time): bool
     {
-        return $user->appointments()
+        return Appointment::where('user_id', $user->id)
             ->where('start_at', '<=', $time)
             ->where('end_at', '>=', $time)
             ->exists();

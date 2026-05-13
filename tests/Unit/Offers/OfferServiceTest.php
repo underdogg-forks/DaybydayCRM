@@ -212,7 +212,7 @@ class OfferServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($result);
-        $this->assertDatabaseMissing('offers', ['id' => $offerId]);
+        $this->assertSoftDeleted('offers', ['id' => $offerId]);
     }
 
     #[Test]

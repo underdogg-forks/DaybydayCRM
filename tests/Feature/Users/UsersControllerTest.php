@@ -30,10 +30,10 @@ class UsersControllerTest extends AbstractTestCase
             'PATCH',
             route('users.update', $targetUser->external_id),
             [
-                'name'        => $targetUser->name,
-                'email'       => $targetUser->email,
-                'departments' => $targetUser->department()->first()->id,
-                'roles'       => $targetRole->id,
+                'name'       => $targetUser->name,
+                'email'      => $targetUser->email,
+                'department' => $targetUser->department()->first()->id,
+                'role'       => $targetRole->id,
             ]
         )->assertRedirect();
 

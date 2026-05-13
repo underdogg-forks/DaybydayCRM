@@ -122,7 +122,7 @@ class PaymentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($result);
-        $this->assertDatabaseMissing('payments', ['id' => $paymentId]);
+        $this->assertSoftDeleted('payments', ['id' => $paymentId]);
     }
 
     #[Test]

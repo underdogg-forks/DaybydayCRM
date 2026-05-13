@@ -70,10 +70,10 @@ class UserSecurityTest extends AbstractTestCase
 
         /* Act */
         $response = $this->json('PATCH', route('users.update', $this->targetUser->external_id), [
-            'name'        => 'Updated Name',
-            'email'       => $this->targetUser->email,
-            'departments' => $this->targetUser->department()->first()->id,
-            'roles'       => $this->targetUser->roles->first()->id,
+            'name'       => 'Updated Name',
+            'email'      => $this->targetUser->email,
+            'department' => $this->targetUser->department()->first()->id,
+            'role'       => $this->targetUser->roles->first()->id,
         ]);
 
         /* Assert */
@@ -93,10 +93,10 @@ class UserSecurityTest extends AbstractTestCase
 
         /* Act */
         $response = $this->json('PATCH', route('users.update', $this->targetUser->external_id), [
-            'name'        => 'Hacked Name',
-            'email'       => $this->targetUser->email,
-            'departments' => $this->targetUser->department()->first()->id,
-            'roles'       => $this->targetUser->roles->first()->id,
+            'name'       => 'Hacked Name',
+            'email'      => $this->targetUser->email,
+            'department' => $this->targetUser->department()->first()->id,
+            'role'       => $this->targetUser->roles->first()->id,
         ]);
 
         /* Assert */
@@ -115,11 +115,11 @@ class UserSecurityTest extends AbstractTestCase
 
         /* Act */
         $response = $this->json('PATCH', route('users.update', $this->targetUser->external_id), [
-            'name'        => $this->targetUser->name,
-            'email'       => $this->targetUser->email,
-            'password'    => 'newpassword123',
-            'departments' => $this->targetUser->department()->first()->id,
-            'roles'       => $this->targetUser->roles->first()->id,
+            'name'       => $this->targetUser->name,
+            'email'      => $this->targetUser->email,
+            'password'   => 'newpassword123',
+            'department' => $this->targetUser->department()->first()->id,
+            'role'       => $this->targetUser->roles->first()->id,
         ]);
 
         /* Assert */

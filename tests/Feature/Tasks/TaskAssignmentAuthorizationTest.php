@@ -53,6 +53,8 @@ class TaskAssignmentAuthorizationTest extends AbstractTestCase
 
         $this->authorizedUser = User::factory()->create();
         $this->authorizedUser->attachRole($authorizedRole);
+        // Flush cache and reload user to ensure permissions are visible
+        Cache::flush();
         $this->authorizedUser = $this->authorizedUser->fresh();
 
         $this->unauthorizedUser = User::factory()->create();

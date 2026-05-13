@@ -66,7 +66,7 @@ class DepartmentsControllerTest extends AbstractTestCase
         $this->json('DELETE', route('departments.destroy', $department->external_id));
 
         /* Assert */
-        $this->assertNotNull(Session::all()['flash_message_warning']);
+        $this->assertNotNull(Session::get('flash_message_warning'));
         $this->assertNotNull(Department::where('external_id', $department->external_id)->first());
     }
 }

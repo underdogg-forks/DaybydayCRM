@@ -2,15 +2,13 @@
 
 namespace Tests\Feature\Controllers\Task;
 
+use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Lead;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
@@ -21,9 +19,9 @@ class TaskSecurityTest extends AbstractTestCase
 {
     use RefreshDatabase;
 
-    protected $task;
+    protected Task $task;
 
-    protected $unauthorizedUser;
+    protected User $unauthorizedUser;
 
     protected function setUp(): void
     {
@@ -36,8 +34,6 @@ class TaskSecurityTest extends AbstractTestCase
 
         $this->unauthorizedUser = User::factory()->withRole('employee')->create();
 
-        Cache::tags('role_user')->flush();
-
         $this->withoutMiddleware(VerifyCsrfToken::class);
     }
 
@@ -45,11 +41,7 @@ class TaskSecurityTest extends AbstractTestCase
     public function it_authorized_user_can_delete_task()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-delete']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(PermissionName::TASK_DELETE);
 
         /* Act */
         $response = $this->json('DELETE', route('tasks.destroy', $this->task->external_id));
@@ -77,9 +69,7 @@ class TaskSecurityTest extends AbstractTestCase
     public function it_updates_status_only_accepts_status_id_field()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(PermissionName::TASK_UPDATE_STATUS);
 
         $newStatus        = Status::factory()->create(['source_type' => Task::class]);
         $originalAssignee = $this->task->user_assigned_id;
@@ -95,9 +85,7 @@ class TaskSecurityTest extends AbstractTestCase
         $this->task->refresh();
 
         $this->assertEquals($newStatus->id, $this->task->status_id);
-
         $this->assertEquals($originalAssignee, $this->task->user_assigned_id);
-
         $this->assertNotEquals('Hacked Title', $this->task->title);
     }
 
@@ -105,9 +93,7 @@ class TaskSecurityTest extends AbstractTestCase
     public function it_updates_status_with_invalid_status_external_id_returns_error()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(PermissionName::TASK_UPDATE_STATUS);
 
         /* Act */
         $response = $this->json('PATCH', route('task.update.status', $this->task->external_id), [
@@ -123,9 +109,7 @@ class TaskSecurityTest extends AbstractTestCase
     public function it_updates_status_via_ajax_with_valid_external_id()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(PermissionName::TASK_UPDATE_STATUS);
 
         $newStatus = Status::factory()->create(['source_type' => Task::class]);
 
@@ -143,9 +127,7 @@ class TaskSecurityTest extends AbstractTestCase
     public function it_updates_status_rejects_invalid_status_type()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(PermissionName::TASK_UPDATE_STATUS);
 
         $leadStatus     = Status::factory()->create(['source_type' => Lead::class]);
         $originalStatus = $this->task->status_id;
@@ -159,7 +141,6 @@ class TaskSecurityTest extends AbstractTestCase
         $this->task->refresh();
 
         $this->assertEquals($originalStatus, $this->task->status_id);
-
         $response->assertStatus(400);
         $response->assertJson(['error' => 'Invalid status for task']);
     }
@@ -168,9 +149,7 @@ class TaskSecurityTest extends AbstractTestCase
     public function it_updates_status_rejects_nonexistent_status_id()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        Cache::tags('role_user')->flush();
+        $this->withPermissions(PermissionName::TASK_UPDATE_STATUS);
 
         $originalStatus = $this->task->status_id;
 

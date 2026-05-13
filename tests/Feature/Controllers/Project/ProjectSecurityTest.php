@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Controllers\Project;
 
+use App\Enums\PermissionName;
 use App\Models\Lead;
-use App\Models\Permission;
 use App\Models\Project;
 use App\Models\Status;
 use App\Models\User;
@@ -18,16 +18,15 @@ class ProjectSecurityTest extends AbstractTestCase
 {
     use RefreshDatabase;
 
-    protected $project;
+    protected Project $project;
 
-    protected $unauthorizedUser;
+    protected User $unauthorizedUser;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        /* Arrange */
-        $this->project = Project::factory()->create();
+        $this->project          = Project::factory()->create();
         $this->unauthorizedUser = User::factory()->withRole('employee')->create();
     }
 
@@ -35,8 +34,7 @@ class ProjectSecurityTest extends AbstractTestCase
     public function it_authorized_user_can_delete_project()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'project-delete']);
-        $this->user->roles->first()->attachPermission($permission);
+        $this->withPermissions(PermissionName::PROJECT_DELETE);
 
         /* Act */
         $response = $this->json('DELETE', route('projects.destroy', $this->project->external_id));
@@ -64,10 +62,8 @@ class ProjectSecurityTest extends AbstractTestCase
     public function it_updates_status_only_accepts_status_id_field()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'project-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
+        $this->withPermissions(PermissionName::PROJECT_UPDATE_STATUS);
+
         $newStatus        = Status::factory()->create(['source_type' => Project::class]);
         $originalAssignee = $this->project->user_assigned_id;
 
@@ -89,10 +85,7 @@ class ProjectSecurityTest extends AbstractTestCase
     public function it_updates_status_with_invalid_status_external_id_returns_error()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'project-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
+        $this->withPermissions(PermissionName::PROJECT_UPDATE_STATUS);
 
         /* Act */
         $response = $this->json('PATCH', route('project.update.status', $this->project->external_id), [
@@ -108,10 +101,8 @@ class ProjectSecurityTest extends AbstractTestCase
     public function it_updates_status_via_ajax_with_valid_external_id()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'project-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
+        $this->withPermissions(PermissionName::PROJECT_UPDATE_STATUS);
+
         $newStatus = Status::factory()->create(['source_type' => Project::class]);
 
         /* Act */
@@ -128,8 +119,8 @@ class ProjectSecurityTest extends AbstractTestCase
     public function it_updates_status_rejects_invalid_status_type()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'project-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
+        $this->withPermissions(PermissionName::PROJECT_UPDATE_STATUS);
+
         $leadStatus     = Status::factory()->create(['source_type' => Lead::class]);
         $originalStatus = $this->project->status_id;
 
@@ -149,8 +140,8 @@ class ProjectSecurityTest extends AbstractTestCase
     public function it_updates_status_rejects_nonexistent_status_id()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'project-update-status']);
-        $this->user->roles->first()->attachPermission($permission);
+        $this->withPermissions(PermissionName::PROJECT_UPDATE_STATUS);
+
         $originalStatus = $this->project->status_id;
 
         /* Act */

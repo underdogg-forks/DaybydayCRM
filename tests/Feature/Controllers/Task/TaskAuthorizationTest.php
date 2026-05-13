@@ -2,16 +2,13 @@
 
 namespace Tests\Feature\Controllers\Task;
 
+use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;
-use App\Models\Permission;
 use App\Models\Project;
-use App\Models\Role;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
@@ -23,48 +20,11 @@ class TaskAuthorizationTest extends AbstractTestCase
 
     private Task $task;
 
-    private User $userWithPermission;
-
-    private User $userWithoutPermission;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->task = Task::factory()->create();
-
-        $deletePermission = Permission::firstOrCreate(
-            ['name' => 'task-delete'],
-            [
-                'display_name' => 'Delete task',
-                'description'  => 'Permission to delete task',
-                'grouping'     => 'task',
-            ]
-        );
-
-        $roleWithPermission = Role::create([
-            'name'         => 'task-deleter',
-            'display_name' => 'Task Deleter',
-            'description'  => 'Can delete tasks',
-            'external_id'  => Str::uuid()->toString(),
-        ]);
-        $roleWithPermission->attachPermission($deletePermission);
-
-        $roleWithoutPermission = Role::create([
-            'name'         => 'task-viewer',
-            'display_name' => 'Task Viewer',
-            'description'  => 'Cannot delete tasks',
-            'external_id'  => Str::uuid()->toString(),
-        ]);
-
-        $this->userWithPermission = User::factory()->create();
-        $this->userWithPermission->attachRole($roleWithPermission);
-
-        $this->userWithoutPermission = User::factory()->create();
-        $this->userWithoutPermission->attachRole($roleWithoutPermission);
-
-        Cache::tags('role_user')->flush();
-
         $this->withoutMiddleware(VerifyCsrfToken::class);
     }
 
@@ -72,7 +32,7 @@ class TaskAuthorizationTest extends AbstractTestCase
     public function it_user_with_task_delete_permission_can_delete_task()
     {
         /* Arrange */
-        $this->actingAs($this->userWithPermission);
+        $this->withPermissions(PermissionName::TASK_DELETE);
 
         /* Act */
         $response = $this->json('DELETE', route('tasks.destroy', $this->task->external_id));
@@ -86,7 +46,7 @@ class TaskAuthorizationTest extends AbstractTestCase
     public function it_user_without_task_delete_permission_cannot_delete_task()
     {
         /* Arrange */
-        $this->actingAs($this->userWithoutPermission);
+        $this->actingAs(User::factory()->create());
 
         /* Act */
         $response = $this->json('DELETE', route('tasks.destroy', $this->task->external_id));
@@ -100,24 +60,8 @@ class TaskAuthorizationTest extends AbstractTestCase
     public function it_user_with_update_project_permission_can_update_task_project()
     {
         /* Arrange */
+        $this->withPermissions(PermissionName::TASK_UPDATE_LINKED_PROJECT);
         $project = Project::factory()->create(['client_id' => $this->task->client_id]);
-
-        $roleWithPermission = Role::create([
-            'name'         => 'project-updater',
-            'display_name' => 'Project Updater',
-            'description'  => 'Can update task project',
-            'external_id'  => Str::uuid()->toString(),
-        ]);
-        $updateProjectPermission = Permission::firstOrCreate(['name' => 'task-update-linked-project'], [
-            'display_name' => 'Update task linked project',
-            'description'  => 'Can update task project',
-            'grouping'     => 'task',
-        ]);
-        $roleWithPermission->attachPermission($updateProjectPermission);
-
-        $user = User::factory()->create();
-        $user->attachRole($roleWithPermission);
-        $this->actingAs($user);
 
         /* Act */
         $response = $this->json('PATCH', route('tasks.updateProject', $this->task->external_id), [
@@ -133,9 +77,8 @@ class TaskAuthorizationTest extends AbstractTestCase
     public function it_user_without_update_project_permission_cannot_update_task_project()
     {
         /* Arrange */
+        $this->actingAs(User::factory()->create());
         $project = Project::factory()->create(['client_id' => $this->task->client_id]);
-
-        $this->actingAs($this->userWithoutPermission);
 
         /* Act */
         $response = $this->json('PATCH', route('tasks.updateProject', $this->task->external_id), [
@@ -151,22 +94,7 @@ class TaskAuthorizationTest extends AbstractTestCase
     public function it_task_update_status_only_accepts_status_id_field()
     {
         /* Arrange */
-        $roleWithPermission = Role::create([
-            'name'         => 'status-updater',
-            'display_name' => 'Status Updater',
-            'description'  => 'Can update status',
-            'external_id'  => Str::uuid()->toString(),
-        ]);
-        $statusPermission = Permission::firstOrCreate(['name' => 'task-update-status'], [
-            'display_name' => 'Update task status',
-            'description'  => 'Can update task status',
-            'grouping'     => 'task',
-        ]);
-        $roleWithPermission->attachPermission($statusPermission);
-
-        $user = User::factory()->create();
-        $user->attachRole($roleWithPermission);
-        $this->actingAs($user);
+        $this->withPermissions(PermissionName::TASK_UPDATE_STATUS);
 
         $newStatus = Status::factory()->create(['source_type' => \App\Models\Task::class]);
         while ($newStatus->id == $this->task->status_id) {

@@ -2,13 +2,10 @@
 
 namespace Tests\Feature\Controllers\User;
 
+use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\User;
-use Cache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
@@ -19,18 +16,19 @@ class UserSecurityTest extends AbstractTestCase
 {
     use RefreshDatabase;
 
-    protected $targetUser;
+    protected User $targetUser;
 
-    protected $unauthorizedUser;
+    protected User $unauthorizedUser;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->targetUser = User::factory()->withRole('employee')->create();
-        $this->user = User::factory()->withRole('employee')->create();
-        $this->actingAs($this->user);
+        $this->targetUser       = User::factory()->withRole('employee')->create();
+        $this->user             = User::factory()->withRole('employee')->create();
         $this->unauthorizedUser = User::factory()->withRole('employee')->create();
+
+        $this->actingAs($this->user);
         $this->withoutMiddleware(VerifyCsrfToken::class);
     }
 
@@ -38,16 +36,7 @@ class UserSecurityTest extends AbstractTestCase
     public function it_authorized_user_can_edit_user()
     {
         /* Arrange */
-        $adminRole = Role::firstOrCreate(['name' => 'admin'], [
-            'display_name' => 'Administrator',
-            'description'  => 'Administrator role',
-        ]);
-        $permission = Permission::firstOrCreate(['name' => 'user-update']);
-        $adminRole->attachPermission($permission);
-        $this->user->attachRole($adminRole);
-        Cache::tags('role_user')->flush();
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
+        $this->withPermissions(PermissionName::USER_UPDATE);
 
         /* Act */
         $response = $this->json('GET', route('users.edit', $this->targetUser->external_id));
@@ -55,11 +44,7 @@ class UserSecurityTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'user' => [
-                'id',
-                'name',
-                'email',
-            ],
+            'user' => ['id', 'name', 'email'],
         ]);
     }
 
@@ -67,33 +52,21 @@ class UserSecurityTest extends AbstractTestCase
     public function it_unauthorized_user_cannot_edit_user()
     {
         /* Arrange */
-        $plainUser = User::factory()->withRole('employee')->create();
-        $this->actingAs($plainUser);
+        $this->actingAs($this->unauthorizedUser);
 
         /* Act */
         $response = $this->json('GET', route('users.edit', $this->targetUser->external_id));
 
         /* Assert */
         $response->assertStatus(403);
-        $response->assertJson([
-            'message' => 'This action is unauthorized.',
-        ]);
+        $response->assertJson(['message' => 'This action is unauthorized.']);
     }
 
     #[Test]
     public function it_authorized_user_can_update_user()
     {
         /* Arrange */
-        $adminRole = Role::firstOrCreate(['name' => 'admin'], [
-            'display_name' => 'Administrator',
-            'description'  => 'Administrator role',
-        ]);
-        $permission = Permission::firstOrCreate(['name' => 'user-update']);
-        $adminRole->attachPermission($permission);
-        $this->user->attachRole($adminRole);
-        Cache::tags('role_user')->flush();
-        $this->user = $this->user->fresh();
-        $this->actingAs($this->user);
+        $this->withPermissions(PermissionName::USER_UPDATE);
 
         /* Act */
         $response = $this->json('PATCH', route('users.update', $this->targetUser->external_id), [
@@ -135,20 +108,9 @@ class UserSecurityTest extends AbstractTestCase
     public function it_user_update_prevents_password_change_without_permission()
     {
         /* Arrange */
-        $manager = User::factory()->create();
-        $managerRole = Role::firstOrCreate(
-            ['name' => 'manager'],
-            [
-                'display_name' => 'Manager',
-                'description'  => 'Manager role',
-                'external_id'  => Str::uuid()->toString(),
-            ]
-        );
-        $manager->attachRole($managerRole);
-        $permission = Permission::firstOrCreate(['name' => 'user-update']);
-        $managerRole->attachPermission($permission);
-        $manager = $manager->fresh();
-        $this->actingAs($manager);
+        $manager = User::factory()->withRole('manager')->create();
+        $this->user = $manager;
+        $this->withPermissions(PermissionName::USER_UPDATE);
         $originalPassword = $this->targetUser->password;
 
         /* Act */

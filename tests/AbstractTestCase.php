@@ -80,98 +80,37 @@ abstract class AbstractTestCase extends BaseTestCase
     }
 
     /**
-     * Refactored asOwner to use the new Enum for consistency.
+     * Refactored asOwner to grant ALL permissions from the enum — never needs manual updates.
      */
-    public function asOwner()
+    public function asOwner(): self
     {
         $role = Role::firstOrCreate(
             ['name' => 'owner'],
             ['display_name' => 'Owner', 'description' => 'Owner role', 'external_id' => 'owner-role-id']
         );
 
-        // Attach role if not already attached
-        if ( ! $this->user->hasRole('owner')) {
+        if (! $this->user->hasRole('owner')) {
             $this->user->attachRole($role);
         }
 
-        // Bulk grant using the Enum to ensure the "Green" state
-        return $this->withPermissions([
-            PermissionName::USER_UPDATE,
-            PermissionName::USER_DELETE,
-            PermissionName::PAYMENT_CREATE,
-            PermissionName::PAYMENT_DELETE,
-            PermissionName::APPOINTMENT_EDIT,
-            PermissionName::APPOINTMENT_DELETE,
-            PermissionName::CALENDAR_VIEW,
-            PermissionName::CLIENT_CREATE,
-            PermissionName::CLIENT_UPDATE,
-            PermissionName::CLIENT_DELETE,
-            PermissionName::LEAD_CREATE,
-            PermissionName::LEAD_DELETE,
-            PermissionName::LEAD_UPDATE_STATUS,
-            PermissionName::LEAD_UPDATE_DEADLINE,
-            PermissionName::LEAD_ASSIGN,
-            PermissionName::ABSENCE_MANAGE,
-            PermissionName::ABSENCE_VIEW,
-            PermissionName::PROJECT_DELETE,
-            PermissionName::PROJECT_UPDATE,
-            PermissionName::PROJECT_UPDATE_STATUS,
-            PermissionName::PROJECT_ASSIGN,
-            PermissionName::TASK_CREATE,
-            PermissionName::TASK_DELETE,
-            PermissionName::TASK_UPDATE_STATUS,
-            PermissionName::TASK_ASSIGN,
-            PermissionName::DOCUMENT_VIEW,
-            PermissionName::DOCUMENT_DELETE,
-            PermissionName::MODIFY_INVOICE_LINES,
-        ]);
+        return $this->withPermissions(PermissionName::cases());
     }
 
     /**
-     * Assigns administrator role and permissions to the test user for admin-level tests.
+     * Assigns administrator role with ALL permissions to the test user.
      */
-    public function asAdmin()
+    public function asAdmin(): self
     {
-        $role = \App\Models\Role::firstOrCreate(
-            ['name' => 'admin'],
+        $role = Role::firstOrCreate(
+            ['name' => 'administrator'],
             ['display_name' => 'Administrator', 'description' => 'Administrator role', 'external_id' => 'admin-role-id']
         );
 
-        // Attach role if not already attached
-        if ( ! $this->user->hasRole('admin')) {
+        if (! $this->user->hasRole('administrator')) {
             $this->user->attachRole($role);
         }
 
-        // Grant a broad set of permissions for admin (can be adjusted as needed)
-        return $this->withPermissions([
-            \App\Enums\PermissionName::USER_UPDATE,
-            \App\Enums\PermissionName::USER_DELETE,
-            \App\Enums\PermissionName::CLIENT_CREATE,
-            \App\Enums\PermissionName::CLIENT_UPDATE,
-            \App\Enums\PermissionName::CLIENT_DELETE,
-            \App\Enums\PermissionName::LEAD_CREATE,
-            \App\Enums\PermissionName::LEAD_DELETE,
-            \App\Enums\PermissionName::LEAD_UPDATE_STATUS,
-            \App\Enums\PermissionName::LEAD_UPDATE_DEADLINE,
-            \App\Enums\PermissionName::LEAD_ASSIGN,
-            \App\Enums\PermissionName::PAYMENT_CREATE,
-            \App\Enums\PermissionName::PAYMENT_DELETE,
-            \App\Enums\PermissionName::APPOINTMENT_EDIT,
-            \App\Enums\PermissionName::APPOINTMENT_DELETE,
-            \App\Enums\PermissionName::CALENDAR_VIEW,
-            \App\Enums\PermissionName::ABSENCE_MANAGE,
-            \App\Enums\PermissionName::PROJECT_DELETE,
-            \App\Enums\PermissionName::PROJECT_UPDATE,
-            \App\Enums\PermissionName::PROJECT_UPDATE_STATUS,
-            \App\Enums\PermissionName::PROJECT_ASSIGN,
-            \App\Enums\PermissionName::TASK_CREATE,
-            \App\Enums\PermissionName::TASK_DELETE,
-            \App\Enums\PermissionName::TASK_UPDATE_STATUS,
-            \App\Enums\PermissionName::TASK_ASSIGN,
-            \App\Enums\PermissionName::DOCUMENT_VIEW,
-            \App\Enums\PermissionName::DOCUMENT_DELETE,
-            \App\Enums\PermissionName::MODIFY_INVOICE_LINES,
-        ]);
+        return $this->withPermissions(PermissionName::cases());
     }
 
     protected function followRedirectsAndFail($response)

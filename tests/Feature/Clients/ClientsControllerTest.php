@@ -122,7 +122,7 @@ class ClientsControllerTest extends AbstractTestCase
         ]);
 
         /* Act */
-        $response = $this->json('PATCH', route('clients.update', $client->external_id), [
+        $response = $this->withoutMiddleware()->json('PATCH', route('clients.update', $client->external_id), [
             'name'             => 'Mads',
             'email'            => 'james@test.com',
             'primary_number'   => '2342342342',
@@ -161,7 +161,7 @@ class ClientsControllerTest extends AbstractTestCase
         $targetUser  = User::factory()->create();
 
         /* Act */
-        $r = $this->json('POST', '/clients/updateassign/' . $client->external_id, [
+        $r = $this->withoutMiddleware()->json('POST', '/clients/updateassign/' . $client->external_id, [
             'user_external_id' => $targetUser->external_id,
         ]);
 
@@ -187,7 +187,7 @@ class ClientsControllerTest extends AbstractTestCase
         $client->contacts()->forceDelete();
 
         /* Act */
-        $response = $this->json('PATCH', route('clients.update', $client->external_id), [
+        $response = $this->withoutMiddleware()->json('PATCH', route('clients.update', $client->external_id), [
             'name'             => 'No Contact Name',
             'email'            => 'noprimary@test.com',
             'primary_number'   => '1234567890',
@@ -220,7 +220,7 @@ class ClientsControllerTest extends AbstractTestCase
         $this->actingAs($this->user);
 
         /* Act */
-        $response = $this->json('POST', '/clients/updateassign/' . $client->external_id, [
+        $response = $this->withoutMiddleware()->json('POST', '/clients/updateassign/' . $client->external_id, [
             'user_external_id' => $this->user->external_id,
         ]);
 

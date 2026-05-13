@@ -2,13 +2,12 @@ import { test as guestTest, expect as guestExpect } from '@playwright/test';
 import { test as authTest, expect as authExpect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 import { fetchCsrfToken } from '../helpers/csrf';
-import { interpolateRoutePath, loadPhpUnitHttpCalls } from '../helpers/route-coverage';
+import { interpolateRoutePath, isLikelyJsonPath, loadPhpUnitHttpCalls } from '../helpers/route-coverage';
 import { callRouteSmoke } from '../helpers/request-smoke';
 
 const allPhpUnitHttpCalls = loadPhpUnitHttpCalls();
 const publicPaths = new Set(['/login', '/register', '/password/reset']);
 const controllerPrefixes = ['/clients', '/leads', '/projects', '/roles', '/tasks', '/users'];
-const jsonPathMatchers = ['/data', '/users/users', '/calendar-users'];
 
 function isGuestCase(method: string, path: string): boolean {
   if (method === 'GET' && publicPaths.has(path)) {
@@ -16,10 +15,6 @@ function isGuestCase(method: string, path: string): boolean {
   }
 
   return method === 'POST' && ['/login', '/register', '/password/email'].includes(path);
-}
-
-function isLikelyJsonPath(path: string): boolean {
-  return jsonPathMatchers.some((matcher) => path.includes(matcher) || path.endsWith(matcher));
 }
 
 guestTest.describe('PHPUnit route extraction', () => {

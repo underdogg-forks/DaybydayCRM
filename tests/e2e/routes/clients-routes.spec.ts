@@ -3,7 +3,7 @@ import { test as authTest, expect as authExpect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 import { fetchCsrfToken } from '../helpers/csrf';
 import { callRouteSmoke } from '../helpers/request-smoke';
-import { interpolateRoutePath, loadWebRouteCases } from '../helpers/route-coverage';
+import { expectedAuthMutationStatuses, interpolateRoutePath, isLikelyJsonPath, loadWebRouteCases } from '../helpers/route-coverage';
 
 function getCachedWebRouteCases() {
   const routeCoverageCache = globalThis as typeof globalThis & {
@@ -18,20 +18,6 @@ function getCachedWebRouteCases() {
 }
 
 const clientRoutes = getCachedWebRouteCases().filter((routeCase) => routeCase.path.startsWith('/clients'));
-
-function expectedAuthMutationStatuses(method: string): number[] {
-  switch (method) {
-    case 'POST':
-      return [200, 201, 302, 303, 400, 401, 403, 404, 419, 422];
-    case 'PUT':
-    case 'PATCH':
-      return [200, 302, 303, 400, 401, 403, 404, 405, 419, 422];
-    case 'DELETE':
-      return [200, 202, 204, 302, 303, 400, 401, 403, 404, 405, 419];
-    default:
-      return [200, 302, 303, 400, 401, 403, 404, 405, 419, 422];
-  }
-}
 
 for (const routeCase of clientRoutes) {
   guestTest(`clients guest behavior: ${routeCase.method} ${routeCase.path}`, async ({ page, request }) => {
@@ -63,7 +49,7 @@ for (const routeCase of clientRoutes) {
     /* Arrange */
     const routePath = interpolateRoutePath(routeCase.path);
     const routeUrl = `${PLAYWRIGHT_BASE_URL}${routePath}`;
-    const expectsJson = routeCase.path.includes('/data');
+    const expectsJson = isLikelyJsonPath(routeCase.path);
 
     /* Act */
     if (routeCase.method === 'GET' && expectsJson) {

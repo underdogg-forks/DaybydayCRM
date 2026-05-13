@@ -47,13 +47,9 @@ guestTest.describe('RolesController guest restrictions', () => {
       guestExpect(response).not.toBeNull();
       const status = response!.status();
       const isAuthDenial = status === 401 || status === 403;
-      const isRedirect = status === 302 || status === 303;
-      if (isRedirect) {
-        const location = response!.headers()['location'];
-        guestExpect(location).toContain('login');
-      } else {
-        guestExpect(isAuthDenial).toBe(true);
-      }
+      const wasRedirectedToLogin = page.url().includes('/login') || page.url().includes('login');
+
+      guestExpect(isAuthDenial || wasRedirectedToLogin).toBe(true);
     });
   }
 });

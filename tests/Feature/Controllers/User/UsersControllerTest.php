@@ -49,7 +49,7 @@ class UsersControllerTest extends AbstractTestCase
     {
         /* Arrange */
         /** @var User $manager */
-        $manager = User::factory()->withRole('manager')->create();
+        $manager    = User::factory()->withRole('manager')->create();
         $targetUser = User::factory()->create();
         $this->actingAs($manager);
 

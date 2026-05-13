@@ -3,13 +3,10 @@
 namespace Tests\Feature\Controllers\Project;
 
 use App\Http\Middleware\VerifyCsrfToken;
-use App\Models\Permission;
 use App\Models\Project;
-use App\Models\Role;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
@@ -93,7 +90,7 @@ class DeleteProjectControllerTest extends AbstractTestCase
     public function it_can_delete_project_if_there_is_no_tasks()
     {
         /* Arrange */
-        $project  = Project::factory()->create();
+        $project = Project::factory()->create();
 
         /* Act */
         $response = $this->json('DELETE', route('projects.destroy', $project->external_id));

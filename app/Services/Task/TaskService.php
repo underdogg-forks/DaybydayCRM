@@ -11,28 +11,28 @@ class TaskService
 {
     public function create(array $validated, int $userId): Task
     {
-        $clientId = null;
+        $clientId  = null;
         $projectId = null;
 
-        if (!empty($validated['client_external_id'])) {
-            $client = Client::query()->where('external_id', $validated['client_external_id'])->first();
+        if ( ! empty($validated['client_external_id'])) {
+            $client   = Client::query()->where('external_id', $validated['client_external_id'])->first();
             $clientId = $client ? $client->id : null;
         }
 
-        if (!empty($validated['project_external_id'])) {
-            $project = Project::query()->where('external_id', $validated['project_external_id'])->first();
+        if ( ! empty($validated['project_external_id'])) {
+            $project   = Project::query()->where('external_id', $validated['project_external_id'])->first();
             $projectId = $project ? $project->id : null;
         }
 
         return Task::query()->create([
-            'title' => $validated['title'],
-            'description' => clean($validated['description']),
+            'title'            => $validated['title'],
+            'description'      => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],
-            'deadline' => Carbon::parse($validated['deadline'])->toDateString(),
-            'status_id' => $validated['status_id'],
-            'user_created_id' => $userId,
-            'client_id' => $clientId,
-            'project_id' => $projectId,
+            'deadline'         => Carbon::parse($validated['deadline'])->toDateString(),
+            'status_id'        => $validated['status_id'],
+            'user_created_id'  => $userId,
+            'client_id'        => $clientId,
+            'project_id'       => $projectId,
         ]);
     }
 

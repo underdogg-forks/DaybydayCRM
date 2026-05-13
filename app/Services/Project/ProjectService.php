@@ -15,18 +15,18 @@ class ProjectService
         }
 
         $client = Client::query()->where('external_id', $validated['client_external_id'])->first();
-        if (! $client) {
+        if ( ! $client) {
             return null;
         }
 
         return Project::query()->create([
-            'title' => $validated['title'],
-            'description' => clean($validated['description']),
+            'title'            => $validated['title'],
+            'description'      => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],
-            'deadline' => Carbon::parse($validated['deadline'])->toDateString(),
-            'status_id' => $validated['status_id'],
-            'user_created_id' => $userId,
-            'client_id' => $client->id,
+            'deadline'         => Carbon::parse($validated['deadline'])->toDateString(),
+            'status_id'        => $validated['status_id'],
+            'user_created_id'  => $userId,
+            'client_id'        => $client->id,
         ]);
     }
 

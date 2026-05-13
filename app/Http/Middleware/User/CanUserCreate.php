@@ -17,7 +17,7 @@ class CanUserCreate
      */
     public function handle($request, Closure $next)
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $message = __("You don't have permission to create a user");
 
         if ( ! $user?->can(PermissionName::USER_CREATE->value)) {
@@ -26,6 +26,7 @@ class CanUserCreate
             }
 
             session()->flash('flash_message_warning', $message);
+
             return redirect()->route('users.index');
         }
 

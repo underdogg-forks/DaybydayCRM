@@ -21,7 +21,7 @@ class RolePermissionTableSeeder extends Seeder
         foreach ([Role::OWNER_ROLE, Role::ADMIN_ROLE] as $roleName) {
             $role = Role::where('name', $roleName)->first();
 
-            if (! $role) {
+            if ( ! $role) {
                 $this->command->warn("RolePermissionTableSeeder: role '{$roleName}' not found, skipping.");
                 continue;
             }

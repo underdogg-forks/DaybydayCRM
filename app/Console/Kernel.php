@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
         Commands\Test::class,
         UpgradeCommand::class,
         ClearEntrustCacheCommand::class,
-        DiagnosePermissionsCommand::class
+        DiagnosePermissionsCommand::class,
     ];
 
     /**

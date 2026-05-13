@@ -89,7 +89,7 @@ abstract class AbstractTestCase extends BaseTestCase
             ['display_name' => 'Owner', 'description' => 'Owner role', 'external_id' => 'owner-role-id']
         );
 
-        if (! $this->user->hasRole('owner')) {
+        if ( ! $this->user->hasRole('owner')) {
             $this->user->attachRole($role);
         }
 
@@ -106,7 +106,7 @@ abstract class AbstractTestCase extends BaseTestCase
             ['display_name' => 'Administrator', 'description' => 'Administrator role', 'external_id' => 'admin-role-id']
         );
 
-        if (! $this->user->hasRole('administrator')) {
+        if ( ! $this->user->hasRole('administrator')) {
             $this->user->attachRole($role);
         }
 

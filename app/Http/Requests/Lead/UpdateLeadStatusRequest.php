@@ -16,7 +16,7 @@ class UpdateLeadStatusRequest extends FormRequest
         return [
             'status_id' => ['nullable', 'integer', 'exists:statuses,id', 'prohibits:closeLead,openLead'],
             'closeLead' => ['nullable', 'boolean', 'prohibits:status_id,openLead'],
-            'openLead' => ['nullable', 'boolean', 'prohibits:status_id,closeLead'],
+            'openLead'  => ['nullable', 'boolean', 'prohibits:status_id,closeLead'],
         ];
     }
 }

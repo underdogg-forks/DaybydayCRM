@@ -143,7 +143,7 @@ class Task extends Model implements Commentable
         if ($this->relationLoaded('user')) {
             return $this->user;
         }
-        
+
         return User::query()->findOrFail($this->user_assigned_id);
     }
 

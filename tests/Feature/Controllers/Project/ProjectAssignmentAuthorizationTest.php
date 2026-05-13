@@ -52,9 +52,9 @@ class ProjectAssignmentAuthorizationTest extends AbstractTestCase
         $this->authorizedUser = User::factory()->create();
         $this->authorizedUser->attachRole($authorizedRole);
         $this->unauthorizedUser = User::factory()->create();
-        $this->newAssignee = User::factory()->create();
-        $client        = Client::factory()->create();
-        $this->project = Project::factory()->create([
+        $this->newAssignee      = User::factory()->create();
+        $client                 = Client::factory()->create();
+        $this->project          = Project::factory()->create([
             'user_assigned_id' => $this->authorizedUser->id,
             'client_id'        => $client->id,
         ]);

@@ -81,6 +81,26 @@ enum PermissionName: string
     case PRODUCT_DELETE = 'product-delete';
 
     /**
+     * Generate permission metadata for seeders and upgrade command.
+     * This is the single source of truth for all permissions.
+     *
+     * @return array<string, array{display_name: string, description: string, grouping: string}>
+     */
+    public static function allPermissions(): array
+    {
+        $permissions = [];
+        foreach (self::cases() as $case) {
+            $permissions[$case->value] = [
+                'display_name' => $case->label(),
+                'description'  => $case->description(),
+                'grouping'     => $case->grouping(),
+            ];
+        }
+
+        return $permissions;
+    }
+
+    /**
      * Helper to get labels for Entrust's display_name.
      */
     public function label(): string
@@ -143,7 +163,7 @@ enum PermissionName: string
     }
 
     /**
-     * Get description for a permission
+     * Get description for a permission.
      */
     public function description(): string
     {
@@ -205,44 +225,25 @@ enum PermissionName: string
     }
 
     /**
-     * Get grouping for a permission
+     * Get grouping for a permission.
      */
     public function grouping(): string
     {
         return match($this) {
-            self::USER_CREATE, self::USER_UPDATE, self::USER_DELETE, self::USER_VIEW => 'user',
+            self::USER_CREATE, self::USER_UPDATE, self::USER_DELETE, self::USER_VIEW         => 'user',
             self::CLIENT_CREATE, self::CLIENT_UPDATE, self::CLIENT_DELETE, self::CLIENT_VIEW => 'client',
-            self::DOCUMENT_VIEW, self::DOCUMENT_DELETE, self::DOCUMENT_UPLOAD => 'document',
+            self::DOCUMENT_VIEW, self::DOCUMENT_DELETE, self::DOCUMENT_UPLOAD                => 'document',
             self::TASK_CREATE, self::TASK_DELETE, self::TASK_UPDATE_STATUS, self::TASK_UPDATE_DEADLINE,
-            self::TASK_UPDATE_ASSIGNMENT, self::TASK_UPDATE_LINKED_PROJECT, self::TASK_ASSIGN, self::TASK_UPLOAD_FILES => 'task',
-            self::MODIFY_INVOICE_LINES, self::INVOICE_SEE, self::INVOICE_SEND, self::INVOICE_PAY => 'invoice',
-            self::LEAD_CREATE, self::LEAD_UPDATE_STATUS, self::LEAD_UPDATE_DEADLINE, self::LEAD_ASSIGN, self::LEAD_DELETE, self::LEAD_VIEW => 'lead',
+            self::TASK_UPDATE_ASSIGNMENT, self::TASK_UPDATE_LINKED_PROJECT, self::TASK_ASSIGN, self::TASK_UPLOAD_FILES                                                                                                      => 'task',
+            self::MODIFY_INVOICE_LINES, self::INVOICE_SEE, self::INVOICE_SEND, self::INVOICE_PAY                                                                                                                            => 'invoice',
+            self::LEAD_CREATE, self::LEAD_UPDATE_STATUS, self::LEAD_UPDATE_DEADLINE, self::LEAD_ASSIGN, self::LEAD_DELETE, self::LEAD_VIEW                                                                                  => 'lead',
             self::PROJECT_CREATE, self::PROJECT_UPDATE_STATUS, self::PROJECT_UPDATE_DEADLINE, self::PROJECT_ASSIGN, self::PROJECT_UPLOAD_FILES, self::PROJECT_UPDATE, self::PROJECT_DELETE, self::PROJECT_UPDATE_ASSIGNMENT => 'project',
-            self::PAYMENT_CREATE, self::PAYMENT_DELETE, self::PAYMENT_UPDATE => 'payment',
-            self::CALENDAR_VIEW, self::APPOINTMENT_CREATE, self::APPOINTMENT_EDIT, self::APPOINTMENT_DELETE => 'appointment',
-            self::PRODUCT_CREATE, self::PRODUCT_EDIT, self::PRODUCT_DELETE => 'product',
-            self::OFFER_CREATE, self::OFFER_EDIT, self::OFFER_DELETE => 'offer',
-            self::ABSENCE_MANAGE, self::ABSENCE_VIEW => 'absence',
-            default => 'general',
+            self::PAYMENT_CREATE, self::PAYMENT_DELETE, self::PAYMENT_UPDATE                                                                                                                                                => 'payment',
+            self::CALENDAR_VIEW, self::APPOINTMENT_CREATE, self::APPOINTMENT_EDIT, self::APPOINTMENT_DELETE                                                                                                                 => 'appointment',
+            self::PRODUCT_CREATE, self::PRODUCT_EDIT, self::PRODUCT_DELETE                                                                                                                                                  => 'product',
+            self::OFFER_CREATE, self::OFFER_EDIT, self::OFFER_DELETE                                                                                                                                                        => 'offer',
+            self::ABSENCE_MANAGE, self::ABSENCE_VIEW                                                                                                                                                                        => 'absence',
+            default                                                                                                                                                                                                         => 'general',
         };
-    }
-
-    /**
-     * Generate permission metadata for seeders and upgrade command.
-     * This is the single source of truth for all permissions.
-     *
-     * @return array<string, array{display_name: string, description: string, grouping: string}>
-     */
-    public static function allPermissions(): array
-    {
-        $permissions = [];
-        foreach (self::cases() as $case) {
-            $permissions[$case->value] = [
-                'display_name' => $case->label(),
-                'description'  => $case->description(),
-                'grouping'     => $case->grouping(),
-            ];
-        }
-        return $permissions;
     }
 }

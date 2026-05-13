@@ -22,18 +22,18 @@ class TaskServiceTest extends AbstractTestCase
     public function it_covers_task_service_methods(): void
     {
         $service = new TaskService();
-        $user = User::factory()->create();
-        $client = Client::factory()->create();
+        $user    = User::factory()->create();
+        $client  = Client::factory()->create();
         $project = Project::factory()->create(['client_id' => $client->id]);
-        $status = Status::factory()->create(['source_type' => Task::class]);
+        $status  = Status::factory()->create(['source_type' => Task::class]);
 
         $task = $service->create([
-            'title' => 'T',
-            'description' => 'D',
-            'user_assigned_id' => $user->id,
-            'deadline' => '2026-02-01 12:00:00',
-            'status_id' => $status->id,
-            'client_external_id' => $client->external_id,
+            'title'               => 'T',
+            'description'         => 'D',
+            'user_assigned_id'    => $user->id,
+            'deadline'            => '2026-02-01 12:00:00',
+            'status_id'           => $status->id,
+            'client_external_id'  => $client->external_id,
             'project_external_id' => $project->external_id,
         ], $user->id);
 

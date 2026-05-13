@@ -3,7 +3,6 @@
 namespace Tests\Feature\Controllers\Absence;
 
 use App\Enums\PermissionName;
-use App\Models\Permission;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;

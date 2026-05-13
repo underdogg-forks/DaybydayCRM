@@ -11,12 +11,12 @@ class IntegrationsControllerTest extends AbstractTestCase
     {
         // Arrange
         $payload = [
-            'api_type' => 'billing',
-            'name' => 'Xero',
-            'client_id' => 'client',
+            'api_type'      => 'billing',
+            'name'          => 'Xero',
+            'client_id'     => 'client',
             'client_secret' => 'secret',
-            'api_key' => 'key',
-            'is_admin' => true,
+            'api_key'       => 'key',
+            'is_admin'      => true,
         ];
 
         // Act
@@ -25,8 +25,8 @@ class IntegrationsControllerTest extends AbstractTestCase
         // Assert
         $response->assertOk();
         $this->assertDatabaseHas('integrations', [
-            'api_type' => 'billing',
-            'name' => 'Xero',
+            'api_type'  => 'billing',
+            'name'      => 'Xero',
             'client_id' => 'client',
         ]);
 

@@ -17,7 +17,7 @@ class IsLeadAssigned
      */
     public function handle($request, Closure $next)
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $message = __("You don't have the right permission for this action");
 
         if ( ! $user?->can(PermissionName::LEAD_ASSIGN->value)) {
@@ -26,6 +26,7 @@ class IsLeadAssigned
             }
 
             session()->flash('flash_message_warning', $message);
+
             return redirect()->back();
         }
 

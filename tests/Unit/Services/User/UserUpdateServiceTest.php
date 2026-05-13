@@ -22,14 +22,14 @@ class UserUpdateServiceTest extends AbstractTestCase
     public function it_removes_password_fields_when_actor_cannot_change_password(): void
     {
         // Arrange
-        $service = new UserUpdateService();
+        $service          = new UserUpdateService();
         $unauthorizedUser = User::factory()->withRole(RoleType::USER->value)->create();
-        $targetUser = User::factory()->withRole(RoleType::USER->value)->create();
+        $targetUser       = User::factory()->withRole(RoleType::USER->value)->create();
 
         // Act
         $payload = $service->prepareValidatedInput($unauthorizedUser, $targetUser, [
-            'name' => 'Updated',
-            'password' => 'secret123',
+            'name'                  => 'Updated',
+            'password'              => 'secret123',
             'password_confirmation' => 'secret123',
         ], null);
 
@@ -43,13 +43,13 @@ class UserUpdateServiceTest extends AbstractTestCase
     public function it_hashes_password_when_actor_can_change_password(): void
     {
         // Arrange
-        $service = new UserUpdateService();
+        $service        = new UserUpdateService();
         $authorizedUser = User::factory()->withRole(RoleType::OWNER->value)->create();
-        $targetUser = User::factory()->withRole(RoleType::USER->value)->create();
+        $targetUser     = User::factory()->withRole(RoleType::USER->value)->create();
 
         // Act
         $payload = $service->prepareValidatedInput($authorizedUser, $targetUser, [
-            'password' => 'secret123',
+            'password'              => 'secret123',
             'password_confirmation' => 'secret123',
         ], null);
 
@@ -61,9 +61,9 @@ class UserUpdateServiceTest extends AbstractTestCase
     public function it_prevents_changing_last_owner_role(): void
     {
         // Arrange
-        $service = new UserUpdateService();
-        $owner = User::factory()->withRole(RoleType::OWNER->value)->create();
-        $newRole = Role::factory()->create(['name' => RoleType::USER->value, 'display_name' => 'User']);
+        $service    = new UserUpdateService();
+        $owner      = User::factory()->withRole(RoleType::OWNER->value)->create();
+        $newRole    = Role::factory()->create(['name' => RoleType::USER->value, 'display_name' => 'User']);
         $department = Department::factory()->create();
 
         // Act

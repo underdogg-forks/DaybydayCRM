@@ -22,7 +22,7 @@ class PermissionsTableSeeder extends Seeder
         // Always ensure external_id is set for every permission, even if the array is changed in the future
         foreach ($permissions as $name => $data) {
             $existing = Permission::where('name', $name)->first();
-            if (!$existing) {
+            if ( ! $existing) {
                 Permission::create([
                     'external_id'  => Str::uuid()->toString(),
                     'display_name' => $data['display_name'],

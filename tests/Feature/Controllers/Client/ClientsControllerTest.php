@@ -106,7 +106,7 @@ class ClientsControllerTest extends AbstractTestCase
         $this->withPermissions(PermissionName::CLIENT_UPDATE);
         $industry = Industry::factory()->create();
         $user     = User::factory()->create();
-        $client = Client::factory()->create([
+        $client   = Client::factory()->create([
             'vat'          => '5898989898',
             'company_type' => 'A/S',
             'company_name' => 'Hello',
@@ -179,7 +179,7 @@ class ClientsControllerTest extends AbstractTestCase
         $this->withPermissions(PermissionName::CLIENT_UPDATE);
         $industry = Industry::factory()->create();
         $user     = User::factory()->create();
-        $client = Client::factory()->create([
+        $client   = Client::factory()->create([
             'vat'          => '9999999999',
             'company_type' => 'A/S',
             'company_name' => 'NoPrimary Co',

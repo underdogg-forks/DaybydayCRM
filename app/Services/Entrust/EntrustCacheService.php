@@ -2,6 +2,7 @@
 
 namespace App\Services\Entrust;
 
+use Exception;
 use Illuminate\Cache\TaggableStore;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -41,12 +42,14 @@ class EntrustCacheService
                 Cache::tags(Config::get('entrust.permission_role_table'))->flush();
                 Cache::tags(Config::get('entrust.role_user_table'))->flush();
             }
+
             // For non-taggable drivers: Entrust skips the cache entirely (direct DB queries),
             // so there is nothing to flush. Do NOT call Cache::flush() here, as that would
             // wipe unrelated application data (sessions, API responses, etc.).
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to clear Entrust cache: ' . $e->getMessage());
+
             return false;
         }
     }
@@ -71,4 +74,3 @@ class EntrustCacheService
         }
     }
 }
-

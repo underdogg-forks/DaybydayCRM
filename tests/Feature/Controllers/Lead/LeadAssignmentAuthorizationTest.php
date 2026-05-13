@@ -5,7 +5,6 @@ namespace Tests\Feature\Controllers\Lead;
 use App\Enums\PermissionName;
 use App\Models\Client;
 use App\Models\Lead;
-use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
@@ -47,7 +46,7 @@ class LeadAssignmentAuthorizationTest extends AbstractTestCase
     {
         /* Arrange */
         $originalAssignee = $this->lead->user_assigned_id;
-        $this->user = $this->authorizedUser;
+        $this->user       = $this->authorizedUser;
         $this->withPermissions(PermissionName::LEAD_ASSIGN);
         $this->user = $this->user->fresh();
         $this->assertTrue($this->user->can('can-assign-new-user-to-lead'));

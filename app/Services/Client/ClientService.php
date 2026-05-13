@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 class ClientService
 {
     /**
-     * Get clients with optimized eager loading for datatables
+     * Get clients with optimized eager loading for datatables.
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
@@ -20,9 +20,10 @@ class ClientService
     }
 
     /**
-     * Get client with all necessary relationships for detail view
+     * Get client with all necessary relationships for detail view.
      *
      * @param string $external_id
+     *
      * @return Client
      */
     public function getClientWithRelations(string $external_id): Client
@@ -32,16 +33,17 @@ class ClientService
             'primaryContact',    // Primary contact
             'industry',          // Industry relationship
             'documents',         // Documents
-            'appointments'       // Appointments
+            'appointments',       // Appointments
         ])
-        ->where('external_id', $external_id)
-        ->firstOrFail();
+            ->where('external_id', $external_id)
+            ->firstOrFail();
     }
 
     /**
-     * Get tasks for client with optimized eager loading
+     * Get tasks for client with optimized eager loading.
      *
      * @param Client $client
+     *
      * @return Collection
      */
     public function getTasksWithRelations(Client $client): Collection
@@ -49,25 +51,26 @@ class ClientService
         return $client->tasks()
             ->with([
                 'status',        // Task status for color/title
-                'user'           // User assigned to task (fixes N+1 on assigned_user->name)
+                'user',           // User assigned to task (fixes N+1 on assigned_user->name)
             ])
             ->select([
-                'id', 
-                'external_id', 
-                'title', 
-                'created_at', 
-                'deadline', 
-                'user_assigned_id', 
-                'client_id', 
-                'status_id'
+                'id',
+                'external_id',
+                'title',
+                'created_at',
+                'deadline',
+                'user_assigned_id',
+                'client_id',
+                'status_id',
             ])
             ->get();
     }
 
     /**
-     * Get projects for client with optimized eager loading
+     * Get projects for client with optimized eager loading.
      *
      * @param Client $client
+     *
      * @return Collection
      */
     public function getProjectsWithRelations(Client $client): Collection
@@ -75,25 +78,26 @@ class ClientService
         return $client->projects()
             ->with([
                 'status',        // Project status for color/title
-                'assignee'       // User assigned to project (fixes N+1 on assignee->name)
+                'assignee',       // User assigned to project (fixes N+1 on assignee->name)
             ])
             ->select([
-                'id', 
-                'external_id', 
-                'title', 
-                'created_at', 
-                'deadline', 
-                'user_assigned_id', 
-                'client_id', 
-                'status_id'
+                'id',
+                'external_id',
+                'title',
+                'created_at',
+                'deadline',
+                'user_assigned_id',
+                'client_id',
+                'status_id',
             ])
             ->get();
     }
 
     /**
-     * Get leads for client with optimized eager loading
+     * Get leads for client with optimized eager loading.
      *
      * @param Client $client
+     *
      * @return Collection
      */
     public function getLeadsWithRelations(Client $client): Collection
@@ -101,26 +105,27 @@ class ClientService
         return $client->leads()
             ->with([
                 'status',        // Lead status for color/title
-                'user'           // User assigned to lead (fixes N+1 on assigned_user->name)
+                'user',           // User assigned to lead (fixes N+1 on assigned_user->name)
             ])
             ->select([
-                'id', 
-                'external_id', 
-                'title', 
-                'created_at', 
-                'deadline', 
-                'user_assigned_id', 
-                'client_id', 
-                'status_id'
+                'id',
+                'external_id',
+                'title',
+                'created_at',
+                'deadline',
+                'user_assigned_id',
+                'client_id',
+                'status_id',
             ])
             ->get();
     }
 
     /**
      * Get invoices query for client with optimized eager loading
-     * Returns a Builder for DataTables server-side processing
+     * Returns a Builder for DataTables server-side processing.
      *
      * @param Client $client
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getInvoicesWithRelations(Client $client)
@@ -128,19 +133,20 @@ class ClientService
         return $client->invoices()
             ->with(['invoiceLines'])  // Eager load invoice lines for calculations
             ->select([
-                'id', 
-                'external_id', 
-                'sent_at', 
-                'status', 
+                'id',
+                'external_id',
+                'sent_at',
+                'status',
                 'invoice_number',
-                'client_id'
+                'client_id',
             ]);
     }
 
     /**
-     * Get all invoices for a client (for show page)
+     * Get all invoices for a client (for show page).
      *
      * @param Client $client
+     *
      * @return Collection
      */
     public function getInvoices(Client $client): Collection
@@ -149,9 +155,10 @@ class ClientService
     }
 
     /**
-     * Get client by external ID
+     * Get client by external ID.
      *
      * @param string $external_id
+     *
      * @return Client
      */
     public function findByExternalId(string $external_id): Client

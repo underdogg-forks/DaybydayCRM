@@ -17,7 +17,7 @@ class CanUserUpdate
      */
     public function handle($request, Closure $next)
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $message = __("You don't have permission to update a user");
 
         if ( ! $user?->can(PermissionName::USER_UPDATE->value)) {
@@ -26,6 +26,7 @@ class CanUserUpdate
             }
 
             session()->flash('flash_message_warning', $message);
+
             return redirect()->route('users.index');
         }
 

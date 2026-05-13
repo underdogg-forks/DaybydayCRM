@@ -21,16 +21,16 @@ class ProjectServiceTest extends AbstractTestCase
     public function it_covers_project_service_methods(): void
     {
         $service = new ProjectService();
-        $user = User::factory()->create();
-        $client = Client::factory()->create();
-        $status = Status::factory()->create(['source_type' => Project::class]);
+        $user    = User::factory()->create();
+        $client  = Client::factory()->create();
+        $status  = Status::factory()->create(['source_type' => Project::class]);
 
         $project = $service->create([
-            'title' => 'P',
-            'description' => 'D',
-            'user_assigned_id' => $user->id,
-            'deadline' => '2026-02-01 12:00:00',
-            'status_id' => $status->id,
+            'title'              => 'P',
+            'description'        => 'D',
+            'user_assigned_id'   => $user->id,
+            'deadline'           => '2026-02-01 12:00:00',
+            'status_id'          => $status->id,
             'client_external_id' => $client->external_id,
         ], $user->id);
 
@@ -43,11 +43,11 @@ class ProjectServiceTest extends AbstractTestCase
 
         $this->assertNull($service->create([
             'client_external_id' => 'missing',
-            'title' => 'x',
-            'description' => 'x',
-            'user_assigned_id' => $user->id,
-            'deadline' => '2026-01-01',
-            'status_id' => $status->id,
+            'title'              => 'x',
+            'description'        => 'x',
+            'user_assigned_id'   => $user->id,
+            'deadline'           => '2026-01-01',
+            'status_id'          => $status->id,
         ], $user->id));
     }
 }

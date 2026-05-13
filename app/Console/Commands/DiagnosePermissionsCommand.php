@@ -70,17 +70,17 @@ class DiagnosePermissionsCommand extends Command
         $extra   = array_diff($dbPermissions, $enumPermissions);
 
         if (empty($missing)) {
-            $this->line("   ✓ All " . count($enumPermissions) . " permissions exist in the database");
+            $this->line('   ✓ All ' . count($enumPermissions) . ' permissions exist in the database');
         } else {
             $this->issues++;
-            $this->warn("   ✗ " . count($missing) . " permissions are MISSING from the database:");
+            $this->warn('   ✗ ' . count($missing) . ' permissions are MISSING from the database:');
             foreach ($missing as $perm) {
                 $this->line("       - {$perm}");
             }
         }
 
-        if (!empty($extra)) {
-            $this->line("   ℹ  " . count($extra) . " extra permission(s) in DB not in enum (OK if custom):");
+        if ( ! empty($extra)) {
+            $this->line('   ℹ  ' . count($extra) . ' extra permission(s) in DB not in enum (OK if custom):');
             foreach ($extra as $perm) {
                 $this->line("       ~ {$perm}");
             }
@@ -116,6 +116,7 @@ class DiagnosePermissionsCommand extends Command
 
         if ($roles->isEmpty()) {
             $this->warn('   ✗ No owner/administrator roles found — skipping');
+
             return;
         }
 
@@ -137,7 +138,7 @@ class DiagnosePermissionsCommand extends Command
                     $this->line("       - {$perm}");
                 }
                 if (count($missingPerms) > 5) {
-                    $this->line("       ... and " . (count($missingPerms) - 5) . " more");
+                    $this->line('       ... and ' . (count($missingPerms) - 5) . ' more');
                 }
             }
         }
@@ -159,8 +160,9 @@ class DiagnosePermissionsCommand extends Command
             $user = User::first();
         }
 
-        if (!$user) {
+        if ( ! $user) {
             $this->warn('   ✗ No user found');
+
             return;
         }
 
@@ -173,8 +175,8 @@ class DiagnosePermissionsCommand extends Command
             $this->warn('   ✗ User has NO roles assigned!');
         } else {
             $this->line('   ✓ User roles: ' . implode(', ', $roles));
-            $hasPrivileged = !empty(array_intersect($roles, ['owner', 'administrator']));
-            if (!$hasPrivileged) {
+            $hasPrivileged = ! empty(array_intersect($roles, ['owner', 'administrator']));
+            if ( ! $hasPrivileged) {
                 $this->issues++;
                 $this->warn("   ✗ User is not assigned to 'owner' or 'administrator' role!");
             } else {
@@ -205,7 +207,7 @@ class DiagnosePermissionsCommand extends Command
         $this->line('  Creating missing permissions...');
         $created = 0;
         foreach (PermissionName::allPermissions() as $name => $data) {
-            if (!Permission::where('name', $name)->exists()) {
+            if ( ! Permission::where('name', $name)->exists()) {
                 Permission::create([
                     'external_id'  => Str::uuid()->toString(),
                     'display_name' => $data['display_name'],
@@ -225,17 +227,17 @@ class DiagnosePermissionsCommand extends Command
         $attached   = 0;
         foreach (['owner', 'administrator'] as $roleName) {
             $role = Role::where('name', $roleName)->first();
-            if (!$role) {
+            if ( ! $role) {
                 $this->warn("  ✗ Role '{$roleName}' not found — skipping");
                 continue;
             }
             $existing = $role->perms()->pluck('id')->toArray();
             $missing  = array_diff($allPermIds, $existing);
-            if (!empty($missing)) {
+            if ( ! empty($missing)) {
                 // Use syncWithoutDetaching to prevent duplicate key errors (consistent with UpgradeCommand)
                 $role->perms()->syncWithoutDetaching($missing);
                 $attached += count($missing);
-                $this->line("  + Attached " . count($missing) . " permissions to '{$roleName}'");
+                $this->line('  + Attached ' . count($missing) . " permissions to '{$roleName}'");
             } else {
                 $this->line("  ✓ '{$roleName}' already has all permissions");
             }
@@ -250,4 +252,3 @@ class DiagnosePermissionsCommand extends Command
         $this->info('✅ All fixes applied! Please log out and log back in.');
     }
 }
-

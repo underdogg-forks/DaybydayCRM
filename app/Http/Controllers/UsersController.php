@@ -256,8 +256,8 @@ class UsersController extends Controller
      */
     public function update($external_id, UpdateUserRequest $request, UserUpdateService $userUpdateService)
     {
-        $user = $this->findByExternalId($external_id);
-        $validated = $request->validated();
+        $user       = $this->findByExternalId($external_id);
+        $validated  = $request->validated();
         $role       = $validated['role'];
         $department = $validated['department'];
 

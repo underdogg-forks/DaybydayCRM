@@ -108,8 +108,8 @@ class ProjectsControllerTest extends AbstractTestCase
     public function it_can_update_status()
     {
         /* Arrange */
-        $project = Project::factory()->create();
-        $status  = Status::factory()->create(['source_type' => Project::class]);
+        $project    = Project::factory()->create();
+        $status     = Status::factory()->create(['source_type' => Project::class]);
         $permission = \App\Models\Permission::firstOrCreate([
             'name' => 'project-update-status',
         ], [
@@ -144,7 +144,7 @@ class ProjectsControllerTest extends AbstractTestCase
     {
         /* Arrange */
         $this->withoutExceptionHandling();
-        $project = Project::factory()->create();
+        $project    = Project::factory()->create();
         $role       = \App\Models\Role::factory()->create();
         $permission = \App\Models\Permission::firstOrCreate([
             'name' => 'project-update-deadline',

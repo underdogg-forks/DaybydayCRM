@@ -157,7 +157,7 @@ class GoogleDrive implements FilesystemIntegration
 
     private function get($file, $options)
     {
-        $document = $file;
+        $document  = $file;
         $driveFile = $this->driveService->files->get($document->integration_id, $options);
 
         if ( ! $driveFile) {

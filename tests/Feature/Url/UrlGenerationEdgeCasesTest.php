@@ -213,9 +213,9 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm/public']);
-        $phpUrl = url('/products/creator');
+        $phpUrl    = url('/products/creator');
         $jsBaseUrl = config('app.url');
-        $jsUrl = $jsBaseUrl . '/products/creator';
+        $jsUrl     = $jsBaseUrl . '/products/creator';
 
         /* Act and Assert */
         $this->assertEquals($phpUrl, $jsUrl);
@@ -266,7 +266,7 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
     {
         /* Arrange */
         config(['app.url' => 'http://localhost/crm']);
-        $type = 'task';
+        $type       = 'task';
         $externalId = 'abc123';
 
         /* Act */

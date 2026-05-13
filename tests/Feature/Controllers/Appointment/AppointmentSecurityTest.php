@@ -5,8 +5,6 @@ namespace Tests\Feature\Controllers\Appointment;
 use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Appointment;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;

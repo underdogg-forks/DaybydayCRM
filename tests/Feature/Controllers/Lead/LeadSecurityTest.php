@@ -5,8 +5,6 @@ namespace Tests\Feature\Controllers\Lead;
 use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Lead;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;

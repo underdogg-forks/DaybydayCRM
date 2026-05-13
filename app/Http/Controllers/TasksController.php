@@ -140,7 +140,7 @@ class TasksController extends Controller
     public function store(StoreTaskRequest $request) // uses __contrust request
     {
         $validated = $request->validated();
-        $task = $this->taskService->create($validated, auth()->id());
+        $task      = $this->taskService->create($validated, auth()->id());
 
         $insertedExternalId = $task->external_id;
 

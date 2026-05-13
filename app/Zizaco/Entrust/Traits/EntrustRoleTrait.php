@@ -41,8 +41,8 @@ trait EntrustRoleTrait
     // Big block of caching functionality.
     public function cachedPermissions()
     {
-        $rolePrimaryKey = $this->primaryKey;
-        $cacheKey       = 'entrust_permissions_for_role_' . $this->{$rolePrimaryKey};
+        $rolePrimaryKey  = $this->primaryKey;
+        $cacheKey        = 'entrust_permissions_for_role_' . $this->{$rolePrimaryKey};
         $permissionModel = Config::get('entrust.permission');
 
         if (Cache::getStore() instanceof TaggableStore) {
@@ -193,6 +193,7 @@ trait EntrustRoleTrait
 
         if (is_array($permission)) {
             $this->attachPermissions($permission);
+
             return;
         }
 
@@ -225,6 +226,7 @@ trait EntrustRoleTrait
 
         if (is_array($permission)) {
             $this->detachPermissions($permission);
+
             return;
         }
 
@@ -288,7 +290,7 @@ trait EntrustRoleTrait
      */
     public function detachPermissions($permissions = null)
     {
-        if (!$permissions) {
+        if ( ! $permissions) {
             $permissions = $this->perms()->get();
         }
 

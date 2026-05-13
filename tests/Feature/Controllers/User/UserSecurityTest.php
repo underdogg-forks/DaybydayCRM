@@ -108,7 +108,7 @@ class UserSecurityTest extends AbstractTestCase
     public function it_user_update_prevents_password_change_without_permission()
     {
         /* Arrange */
-        $manager = User::factory()->withRole('manager')->create();
+        $manager    = User::factory()->withRole('manager')->create();
         $this->user = $manager;
         $this->withPermissions(PermissionName::USER_UPDATE);
         $originalPassword = $this->targetUser->password;

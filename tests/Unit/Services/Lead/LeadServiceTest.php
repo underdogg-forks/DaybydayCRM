@@ -29,18 +29,18 @@ class LeadServiceTest extends AbstractTestCase
     #[Test]
     public function it_covers_lead_service_methods(): void
     {
-        $user = User::factory()->create();
+        $user   = User::factory()->create();
         $client = Client::factory()->create();
-        $open = Status::factory()->create(['source_type' => Lead::class, 'title' => 'Open']);
+        $open   = Status::factory()->create(['source_type' => Lead::class, 'title' => 'Open']);
         $closed = Status::factory()->create(['source_type' => Lead::class, 'title' => 'Closed']);
 
         $lead = $this->service->create([
-            'title' => 'L1',
-            'description' => 'desc',
-            'user_assigned_id' => $user->id,
-            'deadline' => '2026-01-01',
-            'contact_time' => '12:15',
-            'status_id' => $open->id,
+            'title'              => 'L1',
+            'description'        => 'desc',
+            'user_assigned_id'   => $user->id,
+            'deadline'           => '2026-01-01',
+            'contact_time'       => '12:15',
+            'status_id'          => $open->id,
             'client_external_id' => $client->external_id,
         ], $user->id);
 

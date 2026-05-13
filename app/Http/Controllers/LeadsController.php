@@ -7,8 +7,8 @@ use App\Events\LeadAction;
 use App\Http\Requests\Lead\StoreLeadRequest;
 use App\Http\Requests\Lead\UpdateLeadAssignRequest;
 use App\Http\Requests\Lead\UpdateLeadDeadlineRequest;
-use App\Http\Requests\Lead\UpdateLeadStatusRequest;
 use App\Http\Requests\Lead\UpdateLeadFollowUpRequest;
+use App\Http\Requests\Lead\UpdateLeadStatusRequest;
 use App\Models\Client;
 use App\Models\Lead;
 use App\Models\Setting;
@@ -81,7 +81,7 @@ class LeadsController extends Controller
                 return $lead->user ? $lead->user->name : '';
             })
             ->editColumn('status_id', function ($lead) {
-                if (! $lead->status) {
+                if ( ! $lead->status) {
                     return '';
                 }
 
@@ -278,7 +278,7 @@ class LeadsController extends Controller
         }
         $lead = $this->findByExternalId($external_id);
 
-        if (! $this->leadService->updateStatus($lead, $request->validated())) {
+        if ( ! $this->leadService->updateStatus($lead, $request->validated())) {
             session()->flash('flash_message_warning', __('Invalid status for lead'));
 
             return redirect()->back();

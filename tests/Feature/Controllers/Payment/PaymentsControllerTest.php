@@ -26,7 +26,7 @@ class PaymentsControllerTest extends AbstractTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $role = Role::firstOrCreate(['name' => 'owner'], ['display_name' => 'Owner']);
+        $role       = Role::firstOrCreate(['name' => 'owner'], ['display_name' => 'Owner']);
         $permission = \App\Models\Permission::firstOrCreate(['name' => 'payment-delete']);
         if ( ! $role->hasPermission('payment-delete')) {
             $role->attachPermission($permission);

@@ -13,16 +13,22 @@ use Tests\AbstractTestCase;
 class ClearEntrustCacheCommandTest extends AbstractTestCase
 {
     #[Test]
-    public function command_executes_successfully()
+    public function it_command_executes_successfully()
     {
+        /* Arrange */
+
+        /* Act */
         $exit = $this->artisan('entrust:cache-clear');
+
+        /* Assert */
         $this->assertTrue($exit === 0);
     }
 
     #[Test]
-    public function command_clears_permission_role_cache()
+    public function it_command_clears_permission_role_cache()
     {
-        if (!Cache::getStore() instanceof TaggableStore) {
+        /* Arrange */
+        if ( ! Cache::getStore() instanceof TaggableStore) {
             $this->markTestSkipped('Cache driver does not support tags');
         }
 
@@ -30,14 +36,18 @@ class ClearEntrustCacheCommandTest extends AbstractTestCase
         Cache::tags($tag)->put('test_key', 'test_value', 60);
         $this->assertEquals('test_value', Cache::tags($tag)->get('test_key'));
 
+        /* Act */
         $this->artisan('entrust:cache-clear');
+
+        /* Assert */
         $this->assertNull(Cache::tags($tag)->get('test_key'));
     }
 
     #[Test]
-    public function command_clears_role_user_cache()
+    public function it_command_clears_role_user_cache()
     {
-        if (!Cache::getStore() instanceof TaggableStore) {
+        /* Arrange */
+        if ( ! Cache::getStore() instanceof TaggableStore) {
             $this->markTestSkipped('Cache driver does not support tags');
         }
 
@@ -45,47 +55,65 @@ class ClearEntrustCacheCommandTest extends AbstractTestCase
         Cache::tags($tag)->put('test_key', 'test_value', 60);
         $this->assertEquals('test_value', Cache::tags($tag)->get('test_key'));
 
+        /* Act */
         $this->artisan('entrust:cache-clear');
+
+        /* Assert */
         $this->assertNull(Cache::tags($tag)->get('test_key'));
     }
 
     #[Test]
-    public function command_clears_general_cache()
+    public function it_command_clears_general_cache()
     {
+        /* Arrange */
         Cache::put('test_key_general', 'test_value', 60);
         $this->assertEquals('test_value', Cache::get('test_key_general'));
 
+        /* Act */
         $this->artisan('entrust:cache-clear');
+
+        /* Assert */
         $this->assertNull(Cache::get('test_key_general'));
     }
 
     #[Test]
-    public function command_displays_success_message()
+    public function it_command_displays_success_message()
     {
+        /* Arrange */
+
+        /* Act & Assert */
         $this->artisan('entrust:cache-clear')
             ->expectOutputToContain('cleared successfully');
     }
 
     #[Test]
-    public function command_with_verbose_option_shows_details()
+    public function it_command_with_verbose_option_shows_details()
     {
+        /* Arrange */
+
+        /* Act & Assert */
         $this->artisan('entrust:cache-clear', ['--verbose' => true])
             ->expectOutputToContain('Cache driver');
     }
 
     #[Test]
-    public function command_is_idempotent_safe_to_run_multiple_times()
+    public function it_command_is_idempotent_safe_to_run_multiple_times()
     {
+        /* Arrange */
+
+        /* Act */
         for ($i = 0; $i < 3; $i++) {
             $exit = $this->artisan('entrust:cache-clear');
+            /* Assert */
             $this->assertTrue($exit === 0);
         }
     }
 
     #[Test]
-    public function command_clears_multiple_cache_entries()
+    public function it_command_clears_multiple_cache_entries()
     {
-        if (!Cache::getStore() instanceof TaggableStore) {
+        /* Arrange */
+        if ( ! Cache::getStore() instanceof TaggableStore) {
             $this->markTestSkipped('Cache driver does not support tags');
         }
 
@@ -93,16 +121,23 @@ class ClearEntrustCacheCommandTest extends AbstractTestCase
         Cache::tags($tag)->put('role_1_perms', ['perm1', 'perm2'], 60);
         Cache::tags($tag)->put('role_2_perms', ['perm3', 'perm4'], 60);
 
+        /* Act */
         $this->artisan('entrust:cache-clear');
 
+        /* Assert */
         $this->assertNull(Cache::tags($tag)->get('role_1_perms'));
         $this->assertNull(Cache::tags($tag)->get('role_2_perms'));
     }
 
     #[Test]
-    public function command_returns_success_exit_code()
+    public function it_command_returns_success_exit_code()
     {
+        /* Arrange */
+
+        /* Act */
         $exit = $this->artisan('entrust:cache-clear');
+
+        /* Assert */
         $this->assertSame(0, $exit);
     }
 }

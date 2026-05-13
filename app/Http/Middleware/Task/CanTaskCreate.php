@@ -17,7 +17,7 @@ class CanTaskCreate
      */
     public function handle($request, Closure $next)
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $message = __("You don't have permission to create a task");
 
         if ( ! $user?->can(PermissionName::TASK_CREATE->value)) {
@@ -26,6 +26,7 @@ class CanTaskCreate
             }
 
             session()->flash('flash_message_warning', $message);
+
             return redirect()->route('tasks.index');
         }
 

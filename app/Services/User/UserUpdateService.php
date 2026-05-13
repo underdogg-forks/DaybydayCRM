@@ -19,7 +19,6 @@ class UserUpdateService
         }
 
         if (isset($input['password']) && $input['password'] !== '') {
-        if (isset($input['password']) && $input['password'] !== '') {
             $input['password'] = Hash::make($input['password']);
         } else {
             unset($input['password'], $input['password_confirmation']);
@@ -31,7 +30,7 @@ class UserUpdateService
                 throw new RuntimeException('No company settings found. Please configure company settings or contact support if this persists.');
             }
 
-            $companyExternalId = $setting->external_id;
+            $companyExternalId   = $setting->external_id;
             $input['image_path'] = Storage::put($companyExternalId, $imageFile);
         }
 

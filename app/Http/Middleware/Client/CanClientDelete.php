@@ -17,7 +17,7 @@ class CanClientDelete
      */
     public function handle($request, Closure $next)
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $message = __("You don't have permission to delete a client");
 
         if ( ! $user?->can(PermissionName::CLIENT_DELETE->value)) {
@@ -26,6 +26,7 @@ class CanClientDelete
             }
 
             session()->flash('flash_message_warning', $message);
+
             return redirect()->route('clients.index');
         }
 

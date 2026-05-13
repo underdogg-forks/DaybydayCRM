@@ -46,7 +46,7 @@ class LeadObserverDeleteTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_deletes_leadsoft_deletes_relations()
+    public function it_deletes_lead_soft_deletes_relations()
     {
         /* Arrange */
 

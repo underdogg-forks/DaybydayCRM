@@ -17,7 +17,7 @@ class CanTaskUpdateStatus
      */
     public function handle($request, Closure $next)
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $message = __("You don't have the right permission for this action");
 
         if ( ! $user?->can(PermissionName::TASK_UPDATE_STATUS->value)) {
@@ -26,6 +26,7 @@ class CanTaskUpdateStatus
             }
 
             session()->flash('flash_message_warning', $message);
+
             return redirect()->back();
         }
 

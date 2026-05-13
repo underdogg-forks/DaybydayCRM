@@ -114,7 +114,7 @@ class RolesController extends Controller
     {
         $role = Role::query()->where('external_id', $external_id)->first();
 
-        if (! $this->roleService->destroy($role)) {
+        if ( ! $this->roleService->destroy($role)) {
             Session::flash('flash_message_warning', __("Can't delete role with users, please remove users"));
 
             return redirect()->route('roles.index');

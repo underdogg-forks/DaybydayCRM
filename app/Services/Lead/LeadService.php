@@ -12,19 +12,19 @@ class LeadService
     public function create(array $validated, int $userId): Lead
     {
         $clientId = null;
-        if (!empty($validated['client_external_id'])) {
-            $client = Client::query()->where('external_id', $validated['client_external_id'])->first();
+        if ( ! empty($validated['client_external_id'])) {
+            $client   = Client::query()->where('external_id', $validated['client_external_id'])->first();
             $clientId = $client ? $client->id : null;
         }
 
         return Lead::query()->create([
-            'title' => $validated['title'],
-            'description' => clean($validated['description']),
+            'title'            => $validated['title'],
+            'description'      => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],
-            'deadline' => Carbon::parse($this->buildDeadline($validated['deadline'], $validated['contact_time'] ?? null)),
-            'status_id' => $validated['status_id'],
-            'user_created_id' => $userId,
-            'client_id' => $clientId,
+            'deadline'         => Carbon::parse($this->buildDeadline($validated['deadline'], $validated['contact_time'] ?? null)),
+            'status_id'        => $validated['status_id'],
+            'user_created_id'  => $userId,
+            'client_id'        => $clientId,
         ]);
     }
 
@@ -59,15 +59,15 @@ class LeadService
 
     public function updateStatus(Lead $lead, array $validated): bool
     {
-        if (!empty($validated['closeLead'])) {
+        if ( ! empty($validated['closeLead'])) {
             return $this->updateStatusByTitle($lead, 'Closed');
         }
 
-        if (!empty($validated['openLead'])) {
+        if ( ! empty($validated['openLead'])) {
             return $this->updateStatusByTitle($lead, 'Open');
         }
 
-        if (!empty($validated['status_id']) && Status::query()->where('source_type', Lead::class)->where('id', $validated['status_id'])->exists()) {
+        if ( ! empty($validated['status_id']) && Status::query()->where('source_type', Lead::class)->where('id', $validated['status_id'])->exists()) {
             $lead->status_id = $validated['status_id'];
             $lead->save();
 
@@ -80,7 +80,7 @@ class LeadService
     private function updateStatusByTitle(Lead $lead, string $title): bool
     {
         $status = Status::query()->where('source_type', Lead::class)->where('title', $title)->first();
-        if (!$status) {
+        if ( ! $status) {
             return false;
         }
 

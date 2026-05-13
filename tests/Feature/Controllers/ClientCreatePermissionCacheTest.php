@@ -7,7 +7,6 @@ use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Cache\ArrayStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -133,4 +132,3 @@ class ClientCreatePermissionCacheTest extends AbstractTestCase
         $response3->assertStatus(200);
     }
 }
-

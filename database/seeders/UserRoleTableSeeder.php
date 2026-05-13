@@ -18,8 +18,9 @@ class UserRoleTableSeeder extends Seeder
         $ownerRole = Role::where('name', 'owner')->first();
         $adminUser = User::orderBy('id')->first();
 
-        if (! $ownerRole || ! $adminUser) {
+        if ( ! $ownerRole || ! $adminUser) {
             $this->command->warn('UserRoleTableSeeder: owner role or first user not found, skipping.');
+
             return;
         }
 

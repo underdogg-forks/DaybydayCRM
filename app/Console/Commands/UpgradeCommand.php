@@ -46,10 +46,12 @@ class UpgradeCommand extends Command
 
         if ( ! $ok) {
             $this->error('❌ Verification FAILED. Run `php artisan entrust:diagnose` for details.');
+
             return Command::FAILURE;
         }
 
         $this->info('✅ Upgrade complete and verified!');
+
         return Command::SUCCESS;
     }
 
@@ -97,6 +99,7 @@ class UpgradeCommand extends Command
 
         if ($roles->isEmpty()) {
             $this->warn('   ⚠ No owner/administrator roles found — skipping');
+
             return 0;
         }
 
@@ -107,9 +110,9 @@ class UpgradeCommand extends Command
             if ( ! empty($missing)) {
                 $role->perms()->syncWithoutDetaching($missing);
                 $syncedCount += count($missing);
-                $this->line("   + Added " . count($missing) . " permissions to '{$role->name}'");
+                $this->line('   + Added ' . count($missing) . " permissions to '{$role->name}'");
             } else {
-                $this->line("   ✓ '{$role->name}' already has all " . count($allPermIds) . " permissions");
+                $this->line("   ✓ '{$role->name}' already has all " . count($allPermIds) . ' permissions');
             }
         }
 
@@ -123,12 +126,14 @@ class UpgradeCommand extends Command
         $ownerRole = Role::where('name', 'owner')->first();
         if ( ! $ownerRole) {
             $this->warn('   ⚠ Owner role not found — skipping');
+
             return;
         }
 
         $firstUser = User::orderBy('id')->first();
         if ( ! $firstUser) {
             $this->warn('   ⚠ No users found — skipping');
+
             return;
         }
 
@@ -175,13 +180,13 @@ class UpgradeCommand extends Command
         // 2. Owner role has it
         $ownerRole = Role::where('name', 'owner')->first();
         if ( ! $ownerRole) {
-            $this->error("   ✗ Owner role does not exist");
+            $this->error('   ✗ Owner role does not exist');
             $ok = false;
         } elseif ( ! $ownerRole->perms()->where('name', $check)->exists()) {
             $this->error("   ✗ Owner role does NOT have '{$check}' in permission_role pivot");
             $ok = false;
         } else {
-            $total = $ownerRole->perms()->count();
+            $total    = $ownerRole->perms()->count();
             $expected = count(PermissionName::cases());
             $this->line("   ✓ Owner role has {$total}/{$expected} permissions (including '{$check}')");
         }
@@ -189,7 +194,7 @@ class UpgradeCommand extends Command
         // 3. First user has owner role
         $firstUser = User::orderBy('id')->first();
         if ( ! $firstUser) {
-            $this->error("   ✗ No users in the database");
+            $this->error('   ✗ No users in the database');
             $ok = false;
         } elseif ( ! $firstUser->roles()->where('name', 'owner')->exists()) {
             $this->error("   ✗ First user '{$firstUser->email}' is NOT assigned to the owner role");
@@ -225,7 +230,7 @@ class UpgradeCommand extends Command
         $this->info('Re-attaching all permissions...');
         foreach ($roles as $role) {
             $role->perms()->syncWithoutDetaching($allPermIds);
-            $this->line("   + Attached " . count($allPermIds) . " permissions to '{$role->name}'");
+            $this->line('   + Attached ' . count($allPermIds) . " permissions to '{$role->name}'");
         }
     }
 }

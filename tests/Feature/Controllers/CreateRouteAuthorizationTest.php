@@ -31,6 +31,16 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
         $this->withoutMiddleware(VerifyCsrfToken::class);
     }
 
+    public static function createRoutes(): array
+    {
+        return [
+            'clients.create' => ['clients.create'],
+            'tasks.create'   => ['tasks.create'],
+            'leads.create'   => ['leads.create'],
+            'users.create'   => ['users.create'],
+        ];
+    }
+
     // ─────────────────────────────────────────────
     //  Owner can access every /create route
     // ─────────────────────────────────────────────
@@ -214,15 +224,4 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
 
         $response->assertRedirect(route('login'));
     }
-
-    public static function createRoutes(): array
-    {
-        return [
-            'clients.create' => ['clients.create'],
-            'tasks.create'   => ['tasks.create'],
-            'leads.create'   => ['leads.create'],
-            'users.create'   => ['users.create'],
-        ];
-    }
 }
-

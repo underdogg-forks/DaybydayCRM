@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\Entrust\EntrustCacheService;
+use Exception;
 use Illuminate\Cache\TaggableStore;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -27,8 +28,8 @@ class ClearEntrustCacheCommand extends Command
             if ($verbose) {
                 $cacheStore = Cache::getStore();
                 $isTaggable = $cacheStore instanceof TaggableStore;
-                $this->line("Cache driver: " . config('cache.default'));
-                $this->line("Taggable: " . ($isTaggable ? 'Yes' : 'No'));
+                $this->line('Cache driver: ' . config('cache.default'));
+                $this->line('Taggable: ' . ($isTaggable ? 'Yes' : 'No'));
 
                 if ($isTaggable) {
                     $this->line('  • Clearing tag: ' . Config::get('entrust.permission_role_table'));
@@ -45,11 +46,10 @@ class ClearEntrustCacheCommand extends Command
             $this->line('Users with cached roles will see updated permissions on next login.');
 
             return Command::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('Error clearing cache: ' . $e->getMessage());
 
             return Command::FAILURE;
         }
     }
 }
-

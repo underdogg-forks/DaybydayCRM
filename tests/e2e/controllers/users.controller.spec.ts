@@ -28,11 +28,10 @@ guestTest.describe('UsersController guest restrictions', () => {
       guestExpect(response).not.toBeNull();
       const status = response!.status();
       const isAuthDenial = status === 401 || status === 403;
-      const isRedirect = status === 302 || status === 303 || status === 301;
-      if (isRedirect) {
-        const location = response!.headers()['location'];
-        const finalUrl = page.url();
-        guestExpect(finalUrl !== originalUrl || (location && location !== endpoint)).toBe(true);
+      const finalPathname = new URL(page.url()).pathname;
+
+      if (!isAuthDenial) {
+        guestExpect(finalPathname).toBe('/login');
       } else {
         guestExpect(isAuthDenial).toBe(true);
       }

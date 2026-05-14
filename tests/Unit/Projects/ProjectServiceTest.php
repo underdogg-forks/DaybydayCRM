@@ -103,7 +103,7 @@ class ProjectServiceTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_prepares_show_data_without_tasks_missing_assignees(): void
+    public function it_filters_out_tasks_without_assignees_from_show_data(): void
     {
         $service  = new ProjectService();
         $assignee = User::factory()->create();
@@ -128,9 +128,9 @@ class ProjectServiceTest extends AbstractTestCase
 
         $prepared = $service->prepareShowCollaboratorsAndTasks($project);
 
-        $this->assertCount(1, $prepared['tasks']);
-        $this->assertNotNull($prepared['tasks']->first()->user);
-        $this->assertCount(2, $prepared['collaborators']);
+        $this->assertCount(1, $prepared['tasks'], 'Only tasks with an assigned user should be kept.');
+        $this->assertNotNull($prepared['tasks']->first()->user, 'The remaining task should have a loaded assignee.');
+        $this->assertCount(2, $prepared['collaborators'], 'Collaborators should include project assignee and task assignee.');
     }
 
     #[Test]

@@ -179,10 +179,9 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
         /* Act */
         $result = $this->paymentService->deletePayment($payment);
 
-        /* Assert – soft delete, not hard delete */
+        /* Assert – soft delete, not hard delete (assertSoftDeleted confirms record exists with non-null deleted_at) */
         $this->assertTrue($result);
         $this->assertSoftDeleted('payments', ['id' => $payment->id]);
-        $this->assertDatabaseHas('payments', ['id' => $payment->id]); // still exists in DB
     }
 
     #[Test]

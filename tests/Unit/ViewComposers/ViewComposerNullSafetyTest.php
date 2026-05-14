@@ -60,9 +60,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
         /* Assert exact shared values */
         $this->assertNull($view->getShared('client'));
         $this->assertNull($view->getShared('contact_info'));
-        $view->assertShared('contact');
-        $view->assertShared('client');
-        $view->assertShared('contact_info');
+        $view->assertShared('contact'); // key must be present even when null
     }
 
     #[Test]

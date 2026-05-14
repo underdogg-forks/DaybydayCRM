@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\OfferStatus;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\InvoiceLine;
 use App\Models\Lead;
@@ -48,14 +49,26 @@ class OffersController extends Controller
         }
     }
 
-    public function create(Request $request, Lead $lead)
+    public function create(Request $request, string $external_id)
+    {
+        $lead = Lead::query()->where('external_id', $external_id)->first();
+        if ($lead) {
+            return $this->createOfferForSource($request, $lead->id, $lead->client_id, Lead::class);
+        }
+
+        $client = Client::query()->where('external_id', $external_id)->firstOrFail();
+
+        return $this->createOfferForSource($request, $client->id, $client->id, Client::class);
+    }
+
+    private function createOfferForSource(Request $request, int $sourceId, int $clientId, string $sourceType)
     {
         $offer = Offer::query()->create([
             'status'      => OfferStatus::inProgress()->getStatus(),
-            'client_id'   => $lead->client_id,
+            'client_id'   => $clientId,
             'external_id' => Uuid::uuid4()->toString(),
-            'source_id'   => $lead->id,
-            'source_type' => Lead::class,
+            'source_id'   => $sourceId,
+            'source_type' => $sourceType,
         ]);
 
         foreach ($request->all() as $line) {

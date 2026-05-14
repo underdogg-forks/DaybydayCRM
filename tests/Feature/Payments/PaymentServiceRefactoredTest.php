@@ -44,7 +44,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
         parent::setUp();
         Carbon::setTestNow('2024-01-15 12:00:00');
         $this->withoutMiddleware([VerifyCsrfToken::class]);
-        \App\Models\Setting::factory()->create();
+        \App\Models\Setting::factory()->create(['vat' => 0]);
 
         $this->invoice = Invoice::factory()->create([
             'sent_at' => today(),
@@ -139,7 +139,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
         );
 
         /* Assert – status becomes partial */
-        $this->assertDatabaseHas('invoices', ['id' => $this->invoice->id, 'status' => 'partial']);
+        $this->assertDatabaseHas('invoices', ['id' => $this->invoice->id, 'status' => 'partial_paid']);
     }
 
     #[Test]

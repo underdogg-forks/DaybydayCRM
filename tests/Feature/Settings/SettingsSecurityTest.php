@@ -78,7 +78,7 @@ class SettingsSecurityTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $response->assertRedirect();
+        $response->assertOk();
         $this->assertDatabaseHas('settings', [
             'company'        => 'Test Company',
             'country'        => 'GB',

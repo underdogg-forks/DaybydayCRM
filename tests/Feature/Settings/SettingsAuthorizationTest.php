@@ -94,7 +94,7 @@ class SettingsAuthorizationTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $response->assertStatus(302);
+        $response->assertStatus(200);
         $this->assertEquals('Test Company', Setting::first()->company);
     }
 

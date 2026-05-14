@@ -84,7 +84,7 @@ class OffersControllerTest extends AbstractTestCase
         $client = Client::factory()->create();
 
         /* Act */
-        $this->json('POST', route('create.offer', $client->external_id), [
+        $response = $this->json('POST', route('create.offer', $client->external_id), [
             [
                 'title'    => 'client offer line',
                 'price'    => 1000,
@@ -96,10 +96,28 @@ class OffersControllerTest extends AbstractTestCase
         ]);
 
         /* Assert */
+        $response->assertStatus(200);
         $this->assertDatabaseHas('offers', [
             'client_id'   => $client->id,
             'source_id'   => $client->id,
             'source_type' => Client::class,
+        ]);
+
+        $offer = Offer::query()
+            ->where('client_id', $client->id)
+            ->where('source_id', $client->id)
+            ->where('source_type', Client::class)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($offer);
+        $this->assertDatabaseHas('invoice_lines', [
+            'offer_id'  => $offer->id,
+            'title'     => 'client offer line',
+            'type'      => 'pieces',
+            'quantity'  => 1,
+            'price'     => 100000,
+            'comment'   => 'Client level offer',
         ]);
     }
 

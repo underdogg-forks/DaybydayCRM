@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\OfferStatus;
+use App\Http\Requests\Offer\CreateOfferRequest;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\InvoiceLine;
@@ -49,10 +50,14 @@ class OffersController extends Controller
         }
     }
 
-    public function create(Request $request, string $external_id)
+    public function create(CreateOfferRequest $request, string $external_id)
     {
         $lead = Lead::query()->where('external_id', $external_id)->first();
         if ($lead) {
+            if (! $lead->client_id) {
+                return response()->json(['message' => 'Lead must have a client'], 422);
+            }
+
             return $this->createOfferForSource($request, $lead->id, $lead->client_id, Lead::class);
         }
 
@@ -61,7 +66,7 @@ class OffersController extends Controller
         return $this->createOfferForSource($request, $client->id, $client->id, Client::class);
     }
 
-    private function createOfferForSource(Request $request, int $sourceId, int $clientId, string $sourceType)
+    private function createOfferForSource(CreateOfferRequest $request, int $sourceId, int $clientId, string $sourceType)
     {
         $offer = Offer::query()->create([
             'status'      => OfferStatus::inProgress()->getStatus(),
@@ -71,11 +76,7 @@ class OffersController extends Controller
             'source_type' => $sourceType,
         ]);
 
-        foreach ($request->all() as $line) {
-            if ( ! $line['title'] || ! $line['type'] || ! $line['price'] || ! $line['quantity']) {
-                return response('missing fields', 422);
-            }
-
+        foreach ($request->validated() as $line) {
             $invoiceLine = InvoiceLine::make([
                 'title'      => $line['title'],
                 'type'       => $line['type'],

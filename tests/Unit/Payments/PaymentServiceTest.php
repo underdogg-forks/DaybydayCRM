@@ -58,6 +58,7 @@ class PaymentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertEquals($description, $payment->description);
+        $this->assertEquals('bank', $payment->payment_source);
     }
 
     #[Test]
@@ -71,6 +72,7 @@ class PaymentServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertEquals(9999, $payment->amount);
+        $this->assertEquals('bank', $payment->payment_source);
     }
 
     #[Test]

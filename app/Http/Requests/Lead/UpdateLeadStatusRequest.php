@@ -14,7 +14,7 @@ class UpdateLeadStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            // Keep existence checks in the controller/service so invalid IDs follow the legacy redirect flow.
+            // Keep existence checks in LeadsController::updateStatus()/LeadService::updateStatus() for the legacy redirect flow.
             'status_id' => ['nullable', 'integer', 'prohibits:closeLead,openLead'],
             'closeLead' => ['nullable', 'boolean', 'prohibits:status_id,openLead'],
             'openLead'  => ['nullable', 'boolean', 'prohibits:status_id,closeLead'],

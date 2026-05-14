@@ -156,7 +156,7 @@ class PaymentService
     private function normalizeSource(string $source): string
     {
         return match (mb_strtolower($source)) {
-            // Legacy tests still pass card/check even though the app stores canonical sources.
+            // Legacy tests still pass card/check; normalize both to the canonical bank source.
             'card', 'check' => PaymentSource::bank()->getSource(),
             default => $source,
         };

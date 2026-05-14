@@ -2,7 +2,9 @@ import { test as guestTest, expect as guestExpect } from '@playwright/test';
 import { test as authTest, expect as authExpect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 import { fetchCsrfToken } from '../helpers/csrf';
-import { interpolateRoutePath, isLikelyJsonPath, loadPhpUnitHttpCalls } from '../helpers/route-coverage';
+import { loadPhpUnitHttpCalls } from '../helpers/route-cases';
+import { isLikelyJsonPath } from '../helpers/route-expectations';
+import { interpolateRoutePath } from '../helpers/route-paths';
 import { callRouteSmoke } from '../helpers/request-smoke';
 
 const allPhpUnitHttpCalls = loadPhpUnitHttpCalls();

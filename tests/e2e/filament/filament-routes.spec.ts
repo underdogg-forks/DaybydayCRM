@@ -1,6 +1,7 @@
 import { test as authTest, expect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
-import { interpolateRoutePath, loadWebRouteCases } from '../helpers/route-coverage';
+import { loadWebRouteCases } from '../helpers/route-cases';
+import { interpolateRoutePath } from '../helpers/route-paths';
 
 let cachedFilamentGetRoutes: ReturnType<typeof loadWebRouteCases> | null = null;
 

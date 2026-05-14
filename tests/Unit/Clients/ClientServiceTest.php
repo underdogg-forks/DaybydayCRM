@@ -436,7 +436,7 @@ class ClientServiceTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_contact_is_marked_as_primary()
+    public function it_marks_contact_as_primary()
     {
         /* Arrange */
         $industry = Industry::factory()->create();

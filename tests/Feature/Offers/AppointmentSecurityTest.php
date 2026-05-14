@@ -109,7 +109,7 @@ class AppointmentSecurityTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_appointment_update_requires_permission_check()
+    public function it_requires_permission_check_for_appointment_update()
     {
         /* Arrange */
         $this->user->roles()->detach();

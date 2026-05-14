@@ -31,7 +31,7 @@ class AppointmentsStoreRemovedTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_appointments_controller_does_not_have_store_method()
+    public function it_verifies_appointments_controller_does_not_have_store_method()
     {
         /* Arrange */
 
@@ -43,7 +43,7 @@ class AppointmentsStoreRemovedTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_appointments_controller_does_not_have_create_request_dependency()
+    public function it_verifies_appointments_controller_does_not_have_create_request_dependency()
     {
         /* Arrange */
         $reflector = new ReflectionClass(AppointmentsController::class);
@@ -69,7 +69,7 @@ class AppointmentsStoreRemovedTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_appointments_controller_retains_calendar_method()
+    public function it_verifies_appointments_controller_retains_calendar_method()
     {
         /* Arrange */
 
@@ -81,7 +81,7 @@ class AppointmentsStoreRemovedTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_appointments_controller_retains_update_method()
+    public function it_verifies_appointments_controller_retains_update_method()
     {
         /* Arrange */
 
@@ -93,7 +93,7 @@ class AppointmentsStoreRemovedTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_appointments_controller_retains_destroy_method()
+    public function it_verifies_appointments_controller_retains_destroy_method()
     {
         /* Arrange */
 
@@ -105,7 +105,7 @@ class AppointmentsStoreRemovedTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_appointments_controller_retains_appointments_json_method()
+    public function it_verifies_appointments_controller_retains_appointments_json_method()
     {
         /* Arrange */
 

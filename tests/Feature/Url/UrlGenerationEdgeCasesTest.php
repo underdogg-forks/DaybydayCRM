@@ -250,7 +250,7 @@ class UrlGenerationEdgeCasesTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_empty_subdirectory_path_works_as_root_installation()
+    public function it_works_with_empty_subdirectory_path_as_root_installation()
     {
         /* Arrange */
         config(['app.url' => 'http://localhost']);

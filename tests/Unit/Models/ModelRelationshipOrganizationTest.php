@@ -107,7 +107,7 @@ class ModelRelationshipOrganizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_invoice_line_all_relationship_methods_exist_after_reorganization()
+    public function it_verifies_all_invoice_line_relationship_methods_exist_after_reorganization()
     {
         /* Arrange */
         $invoiceLine = new InvoiceLine();
@@ -118,7 +118,7 @@ class ModelRelationshipOrganizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_invoice_line_invoice_returns_belongs_to_relationship()
+    public function it_returns_belongs_to_relationship_for_invoice_line_invoice()
     {
         /* Arrange */
         $invoice     = Invoice::factory()->create(['client_id' => $this->client->id]);

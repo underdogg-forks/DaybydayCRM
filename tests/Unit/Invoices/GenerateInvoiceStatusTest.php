@@ -334,7 +334,7 @@ class GenerateInvoiceStatusTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_draft_status_takes_precedence_when_not_sent()
+    public function it_verifies_draft_status_takes_precedence_when_not_sent()
     {
         /* Arrange */
         $this->invoice->sent_at = null;

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Offers;
 
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Models\Client;
 use App\Models\Lead;
 use App\Models\Offer;
 use App\Models\Permission;
@@ -74,6 +75,32 @@ class OffersControllerTest extends AbstractTestCase
 
         $this->assertEquals($this->lead->offers->first()->source_id, $this->lead->id);
         $this->assertEquals($this->lead->offers->first()->source_type, Lead::class);
+    }
+
+    #[Test]
+    public function it_can_create_offer_for_client()
+    {
+        /* Arrange */
+        $client = Client::factory()->create();
+
+        /* Act */
+        $this->json('POST', route('create.offer', $client->external_id), [
+            [
+                'title'    => 'client offer line',
+                'price'    => 1000,
+                'quantity' => 1,
+                'type'     => 'pieces',
+                'comment'  => 'Client level offer',
+                'product'  => '',
+            ],
+        ]);
+
+        /* Assert */
+        $this->assertDatabaseHas('offers', [
+            'client_id'   => $client->id,
+            'source_id'   => $client->id,
+            'source_type' => Client::class,
+        ]);
     }
 
     #[Test]

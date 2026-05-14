@@ -150,7 +150,7 @@ function fromWebPhpFallback(): RouteCase[] {
     { method: 'GET', path: '/register', dynamic: false, middleware: ['web'] },
     { method: 'POST', path: '/register', dynamic: false, middleware: ['web'] },
     { method: 'GET', path: '/password/reset', dynamic: false, middleware: ['web'] },
-    { method: 'POST', path: '/password/email', dynamic: false, middleware: ['web'] }
+    { method: 'POST', path: '/password/email', dynamic: false, middleware: ['web'] },
   );
 
   return routeCases;

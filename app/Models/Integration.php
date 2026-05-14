@@ -47,10 +47,10 @@ class Integration extends Model
     public function getApiClassAttribute()
     {
         // Integrations historically store either a fully-qualified class name or a short App\ class name.
-        $candidates = array_filter([
+        $candidates = [
             $this->name,
             'App\\' . ltrim($this->name, '\\'),
-        ]);
+        ];
 
         foreach ($candidates as $candidate) {
             if (class_exists($candidate)) {

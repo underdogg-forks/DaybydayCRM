@@ -48,6 +48,15 @@ class PaymentsController extends Controller
 
     public function addPayment(PaymentRequest $request, Invoice $invoice)
     {
+        if (! auth()->user()->can('payment-create')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => __("You don't have permission to add a payment")], 403);
+            }
+            session()->flash('flash_message', __("You don't have permission to add a payment"));
+
+            return redirect()->back();
+        }
+
         if (! $invoice->isSent()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => __("Can't add payment on Invoice")], 422);

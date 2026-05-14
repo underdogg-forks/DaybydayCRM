@@ -148,15 +148,18 @@ jobs:
           LOG_FILE="phpunit-output.log"
 
           if [ "$GROUP" = "full" ]; then
-            vendor/bin/phpunit --exclude-group flaky $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE"
+            vendor/bin/phpunit --exclude-group flaky $OUT_OPT $FAILFAST > "$LOG_FILE" 2>&1
           elif [ "$GROUP" = "custom" ]; then
-            vendor/bin/phpunit --exclude-group flaky --group="$CUSTOM_GROUP" $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE"
+            vendor/bin/phpunit --exclude-group flaky --group="$CUSTOM_GROUP" $OUT_OPT $FAILFAST > "$LOG_FILE" 2>&1
           else
-            vendor/bin/phpunit --exclude-group flaky --group="$GROUP" $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE"
+            vendor/bin/phpunit --exclude-group flaky --group="$GROUP" $OUT_OPT $FAILFAST > "$LOG_FILE" 2>&1
           fi
+          PHPUNIT_EXIT=$?
 
-          # Preserve the phpunit exit code (not the tee exit code)
-          exit "${PIPESTATUS[0]}"
+          echo "=== Failures / Errors (passing tests stripped) ==="
+          php .github/scripts/parse-phpunit.php < "$LOG_FILE" || true
+
+          exit $PHPUNIT_EXIT
 
       - name: Upload test log
         if: always()

@@ -29,6 +29,7 @@ enum PermissionName: string
 
     // Lead Management
     case LEAD_CREATE          = 'lead-create';
+    case LEAD_UPDATE          = 'lead-update';
     case LEAD_UPDATE_STATUS   = 'lead-update-status';
     case LEAD_DELETE          = 'lead-delete';
     case LEAD_VIEW            = 'lead-view';
@@ -43,6 +44,7 @@ enum PermissionName: string
     case OFFER_CREATE = 'offer-create';
     case OFFER_EDIT   = 'offer-edit';
     case OFFER_DELETE = 'offer-delete';
+    case OFFER_VIEW   = 'offer-view';
 
     // Project Management
     case PROJECT_CREATE            = 'project-create';
@@ -57,6 +59,7 @@ enum PermissionName: string
 
     // Task Management
     case TASK_CREATE                = 'task-create';
+    case TASK_UPDATE                = 'task-update';
     case TASK_DELETE                = 'task-delete';
     case TASK_VIEW                  = 'task-view';
     case TASK_UPDATE_STATUS         = 'task-update-status';
@@ -72,6 +75,9 @@ enum PermissionName: string
     case DOCUMENT_UPLOAD = 'document-upload';
 
     // Invoice Management
+    case INVOICE_CREATE       = 'invoice-create';
+    case INVOICE_UPDATE       = 'invoice-update';
+    case INVOICE_DELETE       = 'invoice-delete';
     case INVOICE_SEE          = 'invoice-see';
     case INVOICE_SEND         = 'invoice-send';
     case INVOICE_PAY          = 'invoice-pay';
@@ -81,6 +87,7 @@ enum PermissionName: string
     case PRODUCT_CREATE = 'product-create';
     case PRODUCT_EDIT   = 'product-edit';
     case PRODUCT_DELETE = 'product-delete';
+    case PRODUCT_VIEW   = 'product-view';
 
     /**
      * Generate permission metadata for seeders and upgrade command.
@@ -124,6 +131,7 @@ enum PermissionName: string
             self::CLIENT_DELETE              => 'Delete Client',
             self::CLIENT_VIEW                => 'View Client',
             self::LEAD_CREATE                => 'Create Lead',
+            self::LEAD_UPDATE                => 'Update Lead',
             self::LEAD_DELETE                => 'Delete Lead',
             self::LEAD_VIEW                  => 'View Lead',
             self::LEAD_UPDATE_STATUS         => 'Update Lead Status',
@@ -134,6 +142,7 @@ enum PermissionName: string
             self::OFFER_CREATE               => 'Create Offer',
             self::OFFER_EDIT                 => 'Edit Offer',
             self::OFFER_DELETE               => 'Delete Offer',
+            self::OFFER_VIEW                 => 'View Offer',
             self::PROJECT_CREATE             => 'Create Project',
             self::PROJECT_UPDATE             => 'Update Project',
             self::PROJECT_DELETE             => 'Delete Project',
@@ -144,6 +153,7 @@ enum PermissionName: string
             self::PROJECT_ASSIGN             => 'Assign Project',
             self::PROJECT_UPLOAD_FILES       => 'Upload Project Files',
             self::TASK_CREATE                => 'Create Task',
+            self::TASK_UPDATE                => 'Update Task',
             self::TASK_DELETE                => 'Delete Task',
             self::TASK_VIEW                  => 'View Task',
             self::TASK_UPDATE_STATUS         => 'Update Task Status',
@@ -155,6 +165,9 @@ enum PermissionName: string
             self::DOCUMENT_VIEW              => 'View Document',
             self::DOCUMENT_DELETE            => 'Delete Document',
             self::DOCUMENT_UPLOAD            => 'Upload Document',
+            self::INVOICE_CREATE             => 'Create Invoice',
+            self::INVOICE_UPDATE             => 'Update Invoice',
+            self::INVOICE_DELETE             => 'Delete Invoice',
             self::INVOICE_SEE                => 'View Invoice',
             self::INVOICE_SEND               => 'Send Invoice',
             self::INVOICE_PAY                => 'Set Invoice as Paid',
@@ -162,6 +175,7 @@ enum PermissionName: string
             self::PRODUCT_CREATE             => 'Create Product',
             self::PRODUCT_EDIT               => 'Edit Product',
             self::PRODUCT_DELETE             => 'Delete Product',
+            self::PRODUCT_VIEW               => 'View Product',
             default                          => ucfirst(str_replace('-', ' ', $this->value)),
         };
     }
@@ -188,6 +202,7 @@ enum PermissionName: string
             self::CLIENT_DELETE              => 'Permission to delete client',
             self::CLIENT_VIEW                => 'Permission to view clients',
             self::LEAD_CREATE                => 'Permission to create lead',
+            self::LEAD_UPDATE                => 'Permission to update lead',
             self::LEAD_DELETE                => 'Permission to delete a lead',
             self::LEAD_VIEW                  => 'Permission to view leads',
             self::LEAD_UPDATE_STATUS         => 'Permission to update lead status',
@@ -198,6 +213,7 @@ enum PermissionName: string
             self::OFFER_CREATE               => 'Be able to create an offer',
             self::OFFER_EDIT                 => 'Be able to edit an offer',
             self::OFFER_DELETE               => 'Be able to delete an offer',
+            self::OFFER_VIEW                 => 'Be able to view offers',
             self::PROJECT_CREATE             => 'Permission to create project',
             self::PROJECT_UPDATE             => 'Permission to update project',
             self::PROJECT_DELETE             => 'Permission to delete project',
@@ -208,6 +224,7 @@ enum PermissionName: string
             self::PROJECT_ASSIGN             => 'Permission to change the assigned user on a project',
             self::PROJECT_UPLOAD_FILES       => 'Allowed to upload files for a project',
             self::TASK_CREATE                => 'Permission to create task',
+            self::TASK_UPDATE                => 'Permission to update task',
             self::TASK_DELETE                => 'Permission to delete a task',
             self::TASK_VIEW                  => 'Permission to view tasks',
             self::TASK_UPDATE_STATUS         => 'Permission to update task status',
@@ -219,6 +236,9 @@ enum PermissionName: string
             self::DOCUMENT_VIEW              => 'Permission to view documents',
             self::DOCUMENT_DELETE            => 'Permission to delete a document associated with a client',
             self::DOCUMENT_UPLOAD            => 'Be able to upload a document associated with a client',
+            self::INVOICE_CREATE             => 'Permission to create invoices',
+            self::INVOICE_UPDATE             => 'Permission to update invoices',
+            self::INVOICE_DELETE             => 'Permission to delete invoices',
             self::INVOICE_SEE                => "Permission to see invoices on customer, and it's associated task",
             self::INVOICE_SEND               => 'Be able to set an invoice as send to an customer (Or Send it if billing integration is active)',
             self::INVOICE_PAY                => 'Be able to set an invoice as paid or not paid',
@@ -226,6 +246,7 @@ enum PermissionName: string
             self::PRODUCT_CREATE             => 'Be able to create an product',
             self::PRODUCT_EDIT               => 'Be able to edit an product',
             self::PRODUCT_DELETE             => 'Be able to delete an product',
+            self::PRODUCT_VIEW               => 'Be able to view products',
             default                          => ucfirst(str_replace('-', ' ', $this->value)),
         };
     }
@@ -239,15 +260,15 @@ enum PermissionName: string
             self::USER_CREATE, self::USER_UPDATE, self::USER_DELETE, self::USER_VIEW         => 'user',
             self::CLIENT_CREATE, self::CLIENT_UPDATE, self::CLIENT_DELETE, self::CLIENT_VIEW => 'client',
             self::DOCUMENT_VIEW, self::DOCUMENT_DELETE, self::DOCUMENT_UPLOAD                => 'document',
-            self::TASK_CREATE, self::TASK_DELETE, self::TASK_VIEW, self::TASK_UPDATE_STATUS, self::TASK_UPDATE_DEADLINE,
+            self::TASK_CREATE, self::TASK_UPDATE, self::TASK_DELETE, self::TASK_VIEW, self::TASK_UPDATE_STATUS, self::TASK_UPDATE_DEADLINE,
             self::TASK_UPDATE_ASSIGNMENT, self::TASK_UPDATE_LINKED_PROJECT, self::TASK_ASSIGN, self::TASK_UPLOAD_FILES                                                                                                      => 'task',
-            self::MODIFY_INVOICE_LINES, self::INVOICE_SEE, self::INVOICE_SEND, self::INVOICE_PAY                                                                                                                            => 'invoice',
-            self::LEAD_CREATE, self::LEAD_UPDATE_STATUS, self::LEAD_UPDATE_DEADLINE, self::LEAD_ASSIGN, self::LEAD_DELETE, self::LEAD_VIEW                                                                                  => 'lead',
+            self::MODIFY_INVOICE_LINES, self::INVOICE_CREATE, self::INVOICE_UPDATE, self::INVOICE_DELETE, self::INVOICE_SEE, self::INVOICE_SEND, self::INVOICE_PAY                                                                                                                            => 'invoice',
+            self::LEAD_CREATE, self::LEAD_UPDATE, self::LEAD_UPDATE_STATUS, self::LEAD_UPDATE_DEADLINE, self::LEAD_ASSIGN, self::LEAD_DELETE, self::LEAD_VIEW                                                                                  => 'lead',
             self::PROJECT_CREATE, self::PROJECT_VIEW, self::PROJECT_UPDATE_STATUS, self::PROJECT_UPDATE_DEADLINE, self::PROJECT_ASSIGN, self::PROJECT_UPLOAD_FILES, self::PROJECT_UPDATE, self::PROJECT_DELETE, self::PROJECT_UPDATE_ASSIGNMENT => 'project',
             self::PAYMENT_CREATE, self::PAYMENT_DELETE, self::PAYMENT_UPDATE                                                                                                                                                => 'payment',
             self::CALENDAR_VIEW, self::APPOINTMENT_CREATE, self::APPOINTMENT_EDIT, self::APPOINTMENT_DELETE                                                                                                                 => 'appointment',
-            self::PRODUCT_CREATE, self::PRODUCT_EDIT, self::PRODUCT_DELETE                                                                                                                                                  => 'product',
-            self::OFFER_CREATE, self::OFFER_EDIT, self::OFFER_DELETE                                                                                                                                                        => 'offer',
+            self::PRODUCT_CREATE, self::PRODUCT_EDIT, self::PRODUCT_DELETE, self::PRODUCT_VIEW                                                                                                                                                  => 'product',
+            self::OFFER_CREATE, self::OFFER_EDIT, self::OFFER_DELETE, self::OFFER_VIEW                                                                                                                                                        => 'offer',
             self::ABSENCE_MANAGE, self::ABSENCE_VIEW                                                                                                                                                                        => 'absence',
             default                                                                                                                                                                                                         => 'general',
         };

@@ -69,7 +69,7 @@ foreach ($lines as $line) {
 
 // Flush any trace that ran to the very end of the file
 if ( ! empty($currentTrace)) {
-    foreach (array_slice($currentTrace, -3) as $traceLine) {
+    foreach (array_slice($currentTrace, -5) as $traceLine) {
         $output[] = $traceLine;
     }
 }

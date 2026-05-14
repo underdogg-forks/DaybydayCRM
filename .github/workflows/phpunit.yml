@@ -1,3 +1,6 @@
+Here is the full phpunit.yml workflow, integrated with the log-cleaning script.
+This configuration assumes you place the PHP script provided in the previous turn at .github/scripts/parse-phpunit.php within your repository.
+```yaml
 name: phpunit
 
 on:
@@ -74,7 +77,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: ${{ matrix.php }}
           coverage: none
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
 
@@ -126,7 +129,7 @@ jobs:
             OUT_OPT="--testdox"
           fi
 
-          # Fail fast: for paratest --stop-on-failure, for phpunit --fail-on-incomplete --stop-on-risky --stop-on-failure
+          # Fail fast settings
           if [ "${{ github.event.inputs.fail_fast }}" = "true" ]; then
             PARATEST_FAILFAST="--stop-on-failure"
             PHPUNIT_FAILFAST="--fail-on-incomplete --stop-on-risky --stop-on-failure"
@@ -135,24 +138,30 @@ jobs:
             PHPUNIT_FAILFAST=""
           fi
 
-          # Set GROUP to input value, or default to "full" for push/PR events
+          # Set GROUP to input value, or default to "full"
           GROUP="${{ github.event.inputs.test_group }}"
           if [ -z "$GROUP" ]; then
             GROUP="full"
           fi
-          CUSTOM_GROUP="${{ github.event.inputs.custom_group_name }}"
+          
           echo "OUT_OPT=${OUT_OPT}" >> $GITHUB_ENV
           echo "PARATEST_FAILFAST=${PARATEST_FAILFAST}" >> $GITHUB_ENV
           echo "PHPUNIT_FAILFAST=${PHPUNIT_FAILFAST}" >> $GITHUB_ENV
           echo "GROUP=${GROUP}" >> $GITHUB_ENV
-          echo "CUSTOM_GROUP=${CUSTOM_GROUP}" >> $GITHUB_ENV
+          echo "CUSTOM_GROUP=${{ github.event.inputs.custom_group_name }}" >> $GITHUB_ENV
 
       - name: Run tests (selected group, style, fail fast)
+        shell: bash
         run: |
+          # Ensure cleaner script is executable
+          chmod +x .github/scripts/parse-phpunit.php
+
           if [ "$GROUP" = "full" ]; then
-            ./vendor/bin/phpunit --exclude-group flaky $PHPUNIT_FAILFAST $OUT_OPT
+            ./vendor/bin/phpunit --exclude-group flaky $PHPUNIT_FAILFAST $OUT_OPT | php .github/scripts/parse-phpunit.php
           elif [ "$GROUP" = "custom" ]; then
-            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$CUSTOM_GROUP" $OUT_OPT $PARATEST_FAILFAST
+            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$CUSTOM_GROUP" $OUT_OPT $PARATEST_FAILFAST | php .github/scripts/parse-phpunit.php
           else
-            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$GROUP" $OUT_OPT $PARATEST_FAILFAST
+            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$GROUP" $OUT_OPT $PARATEST_FAILFAST | php .github/scripts/parse-phpunit.php
           fi
+
+```

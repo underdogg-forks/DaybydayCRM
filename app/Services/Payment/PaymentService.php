@@ -76,15 +76,17 @@ class PaymentService
     {
         $api = $this->billing->driver();
 
-        if (! ($api instanceof NullBillingAdapter)) {
-            try {
-                $api->deletePayment($payment);
-            } catch (\Throwable $e) {
-                Log::warning('PaymentService: failed to delete payment from billing API', [
-                    'payment_id' => $payment->id,
-                    'error'      => $e->getMessage(),
-                ]);
-            }
+        if ($api instanceof NullBillingAdapter) {
+            return (bool) $payment->delete();
+        }
+
+        try {
+            $api->deletePayment($payment);
+        } catch (\Throwable $e) {
+            Log::warning('PaymentService: failed to delete payment from billing API', [
+                'payment_id' => $payment->id,
+                'error'      => $e->getMessage(),
+            ]);
         }
 
         return (bool) $payment->delete();

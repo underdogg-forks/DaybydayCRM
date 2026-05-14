@@ -63,7 +63,7 @@ class PaymentsControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function cant_delete_payment_if_no_permission()
+    public function it_cannot_delete_payment_if_no_permission()
     {
         /* Arrange */
         $this->actingAs(User::factory()->create());
@@ -79,7 +79,7 @@ class PaymentsControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function cant_create_payment_if_no_permission()
+    public function it_cannot_create_payment_if_no_permission()
     {
         /* Arrange */
         $this->actingAs(User::factory()->create());

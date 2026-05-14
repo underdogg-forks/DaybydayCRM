@@ -29,7 +29,7 @@ class TasksControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function can_create_task()
+    public function it_can_create_task()
     {
         /* Arrange */
         $this->withPermissions(['task-create']);

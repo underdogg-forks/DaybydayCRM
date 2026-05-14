@@ -16,7 +16,7 @@ class UsersControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function owner_can_update_user_role()
+    public function it_allows_owner_to_update_user_role()
     {
         /* Arrange */
         $this->asOwner();

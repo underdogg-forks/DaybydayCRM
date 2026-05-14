@@ -46,7 +46,7 @@ class UsersControllerCalendarTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function can_get_absences_within_time_slot()
+    public function it_can_get_absences_within_time_slot()
     {
         /* Arrange */
         $correctUser = null;

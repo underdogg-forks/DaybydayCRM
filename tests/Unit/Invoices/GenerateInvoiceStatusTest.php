@@ -75,7 +75,7 @@ class GenerateInvoiceStatusTest extends AbstractTestCase
 
     #[Test]
     #[Group('flaky')]
-    public function is_status_paid()
+    public function it_correctly_identifies_paid_status()
     {
         /* Arrange */
         $this->assertFalse($this->generateInvoiceStatus->isPaid());
@@ -104,7 +104,7 @@ class GenerateInvoiceStatusTest extends AbstractTestCase
 
     #[Test]
     #[Group('flaky')]
-    public function is_status_over_paid()
+    public function it_correctly_identifies_overpaid_status()
     {
         /* Arrange */
         $this->assertFalse($this->generateInvoiceStatus->isOverPaid());
@@ -152,7 +152,7 @@ class GenerateInvoiceStatusTest extends AbstractTestCase
 
     #[Test]
     #[Group('flaky')]
-    public function get_status_of_invoice()
+    public function it_returns_correct_status_of_invoice()
     {
         /* Arrange */
         $this->payment->forceDelete();
@@ -219,7 +219,7 @@ class GenerateInvoiceStatusTest extends AbstractTestCase
 
     #[Test]
     #[Group('flaky')]
-    public function is_only_partial_paid_if_values_is_between_invoice_amount()
+    public function it_identifies_partial_paid_only_when_payment_is_between_zero_and_invoice_amount()
     {
         /* Arrange & Assert */
         $this->assertTrue($this->generateInvoiceStatus->isPartialPaid());

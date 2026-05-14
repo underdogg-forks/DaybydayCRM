@@ -155,7 +155,7 @@ class AppointmentsControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('regression')]
-    public function user_appointments_relationship_returns_appointments_via_morph()
+    public function it_returns_user_appointments_via_morph_relationship()
     {
         /* Arrange */
 
@@ -172,7 +172,7 @@ class AppointmentsControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('regression')]
-    public function user_appointments_morph_does_not_return_appointments_for_other_source_types()
+    public function it_does_not_return_appointments_for_other_source_types_in_user_appointments_morph()
     {
         /* Arrange */
         $otherUser        = User::factory()->create();

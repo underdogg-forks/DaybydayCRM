@@ -129,7 +129,7 @@ class ProjectServiceTest extends AbstractTestCase
         $prepared = $service->prepareShowCollaboratorsAndTasks($project);
 
         $this->assertCount(1, $prepared['tasks']);
-        $this->assertTrue($prepared['tasks']->first()->user !== null);
+        $this->assertNotNull($prepared['tasks']->first()->user);
         $this->assertCount(2, $prepared['collaborators']);
     }
 

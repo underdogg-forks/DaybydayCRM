@@ -45,7 +45,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     // ─── TaskHeaderComposer ──────────────────────────────────────────────────
 
     #[Test]
-    public function it_task_header_composer_handles_task_without_client()
+    public function it_handles_task_without_client()
     {
         /* Arrange */
         $task = Task::factory()->create([

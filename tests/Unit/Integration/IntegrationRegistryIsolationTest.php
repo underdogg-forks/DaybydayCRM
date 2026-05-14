@@ -24,6 +24,13 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        app(StorageAdapterRegistry::class)->reset();
+    }
+
     // ─── Billing ────────────────────────────────────────────────────────────
 
     #[Test]
@@ -154,7 +161,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
         $driver   = $registry->driver();
 
         /* Assert – testing env always uses local */
-        $this->assertNotInstanceOf(NullStorageAdapter::class, $driver);
+        $this->assertSame('Local', class_basename($driver));
     }
 
     #[Test]

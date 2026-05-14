@@ -160,7 +160,8 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
         Integration::whereApiType('file')->delete();
 
         /* Act */
-        $registry = new StorageAdapterRegistry(); // fresh instance
+        $registry = app(StorageAdapterRegistry::class);
+         $driver   = $registry->driver();
         $driver   = $registry->driver();
 
         /* Assert – testing env always uses local */

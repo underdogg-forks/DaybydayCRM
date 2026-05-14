@@ -68,7 +68,7 @@ class UserServiceTest extends AbstractTestCase
         // (seeder and AbstractTestCase may have assigned owner roles to other users)
         $ownerRole = Role::where('name', RoleType::OWNER->value)->first();
         if ($ownerRole) {
-            \Illuminate\Support\Facades\DB::table('role_user')
+            DB::table('role_user')
                 ->where('role_id', $ownerRole->id)
                 ->delete();
         }

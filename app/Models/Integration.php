@@ -13,6 +13,26 @@ class Integration extends Model
 
     /**
      * @deprecated Use BillingIntegrationRegistry instead of calling this
+     *             static method directly. This method remains only for backward
+     *             compatibility with legacy code that still calls
+     *             Integration::getApi($type).
+     *
+     * @param  string|null  $type
+     * @return mixed|null
+     */
+    public static function getApi($type)
+    {
+        $type = is_string($type) ? strtolower(trim($type)) : null;
+
+        if ($type === 'billing') {
+            return self::initBillingIntegration();
+        }
+
+        return null;
+    }
+
+    /**
+     * @deprecated Use BillingIntegrationRegistry instead of calling this
      *             static method. It remains only for backward compatibility
      *             with legacy code that has not yet been migrated.
      */
@@ -23,10 +43,10 @@ class Integration extends Model
         /** @var \App\Services\Billing\BillingIntegrationRegistry $registry */
         $registry = app(\App\Services\Billing\BillingIntegrationRegistry::class);
 
-        if (! $registry->isConfigured()) {
-            return null;
-        }
+        // Preserve the historical shim behavior by returning a fresh adapter
+        // instance on every call instead of the registry's cached driver.
+        $driver = $registry->driver();
 
-        return $registry->driver();
+        return clone $driver;
     }
 }

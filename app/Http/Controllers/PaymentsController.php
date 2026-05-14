@@ -57,13 +57,22 @@ class PaymentsController extends Controller
             return redirect()->route('invoices.show', $invoice->external_id);
         }
 
-        $this->paymentService->addPayment(
-            $invoice,
-            (float) $request->amount,
-            $request->payment_date,
-            $request->source,
-            $request->description ?? null,
-        );
+        try {
+            $this->paymentService->addPayment(
+                $invoice,
+                (float) $request->amount,
+                $request->payment_date,
+                $request->source,
+                $request->description ?? null,
+            );
+        } catch (\InvalidArgumentException $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+            session()->flash('flash_message_warning', $e->getMessage());
+
+            return redirect()->route('invoices.show', $invoice->external_id);
+        }
 
         if ($request->expectsJson()) {
             return response()->json(['message' => __('Payment successfully added')], 201);

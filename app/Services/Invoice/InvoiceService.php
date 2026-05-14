@@ -55,10 +55,16 @@ class InvoiceService
 
                     // TODO: Only persist remote IDs after a successful bookInvoice() call.
                     // If bookInvoice() returns falsy below, the invoice is left in a
-                    // partially-synced state (remote IDs saved but invoice_number falls
-                    // back to a locally-generated value). Roll back or skip save() until
-                    // booking succeeds to fix this inconsistency.
-                    $invoice->save();
+                if ($results) {
+                    $invoice->integration_invoice_id = $results->invoiceId;
+                    $invoice->integration_type       = get_class($api);
+                    if (! $invoice->save()) {
+                        Log::warning('InvoiceService: failed to save integration metadata', [
+                            'invoice_id' => $invoice->id,
+                        ]);
+                    }
+
+                    $booked = $api->bookInvoice($results->invoiceId, $results->timestamp);
 
                     $booked = $api->bookInvoice($results->invoiceId, $results->timestamp);
 

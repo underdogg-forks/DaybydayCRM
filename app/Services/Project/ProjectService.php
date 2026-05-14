@@ -53,6 +53,7 @@ class ProjectService
     {
         $project->loadMissing(['assignee', 'tasks.user']);
 
+        // tasks.user is loaded above; keep only tasks that still resolve to a user.
         $tasks = $project->tasks->filter(static fn ($task) => $task->user !== null)->values();
 
         $collaborators = collect();

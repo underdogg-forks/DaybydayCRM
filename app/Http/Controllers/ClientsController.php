@@ -255,7 +255,7 @@ class ClientsController extends Controller
 
         // Use already eager-loaded collections to avoid duplicate queries
         $filteredDocuments = $client->documents->filter(
-            fn ($doc) => $doc->integration_type === $storageClass
+            fn ($document) => $document->integration_type === $storageClass
         )->values();
 
         $recentAppointments = $client->appointments

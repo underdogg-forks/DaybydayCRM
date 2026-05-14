@@ -3,7 +3,9 @@ import { test as authTest, expect as authExpect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 import { fetchCsrfToken } from '../helpers/csrf';
 import { callRouteSmoke } from '../helpers/request-smoke';
-import { expectedAuthMutationStatuses, interpolateRoutePath, isLikelyJsonPath, loadWebRouteCases } from '../helpers/route-coverage';
+import { loadWebRouteCases } from '../helpers/route-cases';
+import { expectedAuthMutationStatuses, isLikelyJsonPath } from '../helpers/route-expectations';
+import { interpolateRoutePath } from '../helpers/route-paths';
 
 function getCachedWebRouteCases() {
   const routeCoverageCache = globalThis as typeof globalThis & {

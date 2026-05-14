@@ -1,6 +1,7 @@
 import type { APIRequestContext } from '@playwright/test';
 import { PLAYWRIGHT_BASE_URL } from './config';
-import { interpolateRoutePath, type HttpMethod } from './route-coverage';
+import type { HttpMethod } from './route-cases';
+import { interpolateRoutePath } from './route-paths';
 
 export async function callRouteSmoke(
   request: APIRequestContext,

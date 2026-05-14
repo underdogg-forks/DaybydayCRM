@@ -12,7 +12,6 @@ export interface RouteCase {
 }
 
 const SUPPORTED_METHODS = new Set<HttpMethod>(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
-const JSON_PATH_MATCHERS = ['/data', '/users/users', '/calendar-users'];
 let cachedWebRouteCases: RouteCase[] | null = null;
 let cachedPhpUnitHttpCalls: RouteCase[] | null = null;
 
@@ -151,7 +150,7 @@ function fromWebPhpFallback(): RouteCase[] {
     { method: 'GET', path: '/register', dynamic: false, middleware: ['web'] },
     { method: 'POST', path: '/register', dynamic: false, middleware: ['web'] },
     { method: 'GET', path: '/password/reset', dynamic: false, middleware: ['web'] },
-    { method: 'POST', path: '/password/email', dynamic: false, middleware: ['web'] },
+    { method: 'POST', path: '/password/email', dynamic: false, middleware: ['web'] }
   );
 
   return routeCases;
@@ -186,47 +185,6 @@ export function loadWebRouteCases(): RouteCase[] {
   }
 
   return cachedWebRouteCases;
-}
-
-export function interpolateRoutePath(rawPath: string): string {
-  return rawPath.replace(/\{([^}]+)\??\}/g, (_fullMatch, token: string) => {
-    const key = token.toLowerCase();
-    if (key === 'external_id' || key.endsWith('_external_id') || key === 'uuid' || key.endsWith('_uuid')) {
-      return '00000000-0000-0000-0000-000000000001';
-    }
-
-    if (key === 'query' || key.endsWith('_query')) {
-      return 'search-term';
-    }
-
-    if (key === 'type' || key.endsWith('_type')) {
-      return 'task';
-    }
-
-    return '1';
-  });
-}
-
-export function malformedInterpolatedRoutePath(rawPath: string): string {
-  return rawPath.replace(/\{([^}]+)\??\}/g, 'invalid-@@@');
-}
-
-export function isLikelyJsonPath(path: string): boolean {
-  return JSON_PATH_MATCHERS.some((matcher) => path.includes(matcher) || path.endsWith(matcher));
-}
-
-export function expectedAuthMutationStatuses(method: string): number[] {
-  switch (method) {
-    case 'POST':
-      return [200, 201, 302, 303, 400, 401, 403, 404, 419, 422];
-    case 'PUT':
-    case 'PATCH':
-      return [200, 302, 303, 400, 401, 403, 404, 405, 419, 422];
-    case 'DELETE':
-      return [200, 202, 204, 302, 303, 400, 401, 403, 404, 405, 419];
-    default:
-      return [200, 302, 303, 400, 401, 403, 404, 405, 419, 422];
-  }
 }
 
 export function loadPhpUnitHttpCalls(): RouteCase[] {

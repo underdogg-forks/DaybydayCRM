@@ -3,7 +3,8 @@ import { test as authTest, expect as authExpect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 import { fetchCsrfToken } from '../helpers/csrf';
 import { callRouteSmoke } from '../helpers/request-smoke';
-import { interpolateRoutePath, loadWebRouteCases } from '../helpers/route-coverage';
+import { loadWebRouteCases } from '../helpers/route-cases';
+import { interpolateRoutePath } from '../helpers/route-paths';
 
 type WebRouteCase = ReturnType<typeof loadWebRouteCases>[number];
 

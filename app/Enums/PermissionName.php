@@ -48,6 +48,7 @@ enum PermissionName: string
     case PROJECT_CREATE            = 'project-create';
     case PROJECT_UPDATE            = 'project-update';
     case PROJECT_DELETE            = 'project-delete';
+    case PROJECT_VIEW              = 'project-view';
     case PROJECT_UPDATE_STATUS     = 'project-update-status';
     case PROJECT_UPDATE_DEADLINE   = 'project-update-deadline';
     case PROJECT_UPDATE_ASSIGNMENT = 'project-update-assignment';
@@ -57,6 +58,7 @@ enum PermissionName: string
     // Task Management
     case TASK_CREATE                = 'task-create';
     case TASK_DELETE                = 'task-delete';
+    case TASK_VIEW                  = 'task-view';
     case TASK_UPDATE_STATUS         = 'task-update-status';
     case TASK_UPDATE_DEADLINE       = 'task-update-deadline';
     case TASK_UPDATE_ASSIGNMENT     = 'task-update-assignment';
@@ -135,6 +137,7 @@ enum PermissionName: string
             self::PROJECT_CREATE             => 'Create Project',
             self::PROJECT_UPDATE             => 'Update Project',
             self::PROJECT_DELETE             => 'Delete Project',
+            self::PROJECT_VIEW               => 'View Project',
             self::PROJECT_UPDATE_STATUS      => 'Update Project Status',
             self::PROJECT_UPDATE_DEADLINE    => 'Update Project Deadline',
             self::PROJECT_UPDATE_ASSIGNMENT  => 'Update Project Assignment',
@@ -142,6 +145,7 @@ enum PermissionName: string
             self::PROJECT_UPLOAD_FILES       => 'Upload Project Files',
             self::TASK_CREATE                => 'Create Task',
             self::TASK_DELETE                => 'Delete Task',
+            self::TASK_VIEW                  => 'View Task',
             self::TASK_UPDATE_STATUS         => 'Update Task Status',
             self::TASK_UPDATE_DEADLINE       => 'Update Task Deadline',
             self::TASK_UPDATE_ASSIGNMENT     => 'Update Task Assignment',
@@ -197,6 +201,7 @@ enum PermissionName: string
             self::PROJECT_CREATE             => 'Permission to create project',
             self::PROJECT_UPDATE             => 'Permission to update project',
             self::PROJECT_DELETE             => 'Permission to delete project',
+            self::PROJECT_VIEW               => 'Permission to view projects',
             self::PROJECT_UPDATE_STATUS      => 'Permission to update project status',
             self::PROJECT_UPDATE_DEADLINE    => 'Permission to update a projects deadline',
             self::PROJECT_UPDATE_ASSIGNMENT  => 'Permission to update project assignment',
@@ -204,6 +209,7 @@ enum PermissionName: string
             self::PROJECT_UPLOAD_FILES       => 'Allowed to upload files for a project',
             self::TASK_CREATE                => 'Permission to create task',
             self::TASK_DELETE                => 'Permission to delete a task',
+            self::TASK_VIEW                  => 'Permission to view tasks',
             self::TASK_UPDATE_STATUS         => 'Permission to update task status',
             self::TASK_UPDATE_DEADLINE       => 'Permission to update a tasks deadline',
             self::TASK_UPDATE_ASSIGNMENT     => 'Permission to update task assignment',
@@ -233,11 +239,11 @@ enum PermissionName: string
             self::USER_CREATE, self::USER_UPDATE, self::USER_DELETE, self::USER_VIEW         => 'user',
             self::CLIENT_CREATE, self::CLIENT_UPDATE, self::CLIENT_DELETE, self::CLIENT_VIEW => 'client',
             self::DOCUMENT_VIEW, self::DOCUMENT_DELETE, self::DOCUMENT_UPLOAD                => 'document',
-            self::TASK_CREATE, self::TASK_DELETE, self::TASK_UPDATE_STATUS, self::TASK_UPDATE_DEADLINE,
+            self::TASK_CREATE, self::TASK_DELETE, self::TASK_VIEW, self::TASK_UPDATE_STATUS, self::TASK_UPDATE_DEADLINE,
             self::TASK_UPDATE_ASSIGNMENT, self::TASK_UPDATE_LINKED_PROJECT, self::TASK_ASSIGN, self::TASK_UPLOAD_FILES                                                                                                      => 'task',
             self::MODIFY_INVOICE_LINES, self::INVOICE_SEE, self::INVOICE_SEND, self::INVOICE_PAY                                                                                                                            => 'invoice',
             self::LEAD_CREATE, self::LEAD_UPDATE_STATUS, self::LEAD_UPDATE_DEADLINE, self::LEAD_ASSIGN, self::LEAD_DELETE, self::LEAD_VIEW                                                                                  => 'lead',
-            self::PROJECT_CREATE, self::PROJECT_UPDATE_STATUS, self::PROJECT_UPDATE_DEADLINE, self::PROJECT_ASSIGN, self::PROJECT_UPLOAD_FILES, self::PROJECT_UPDATE, self::PROJECT_DELETE, self::PROJECT_UPDATE_ASSIGNMENT => 'project',
+            self::PROJECT_CREATE, self::PROJECT_VIEW, self::PROJECT_UPDATE_STATUS, self::PROJECT_UPDATE_DEADLINE, self::PROJECT_ASSIGN, self::PROJECT_UPLOAD_FILES, self::PROJECT_UPDATE, self::PROJECT_DELETE, self::PROJECT_UPDATE_ASSIGNMENT => 'project',
             self::PAYMENT_CREATE, self::PAYMENT_DELETE, self::PAYMENT_UPDATE                                                                                                                                                => 'payment',
             self::CALENDAR_VIEW, self::APPOINTMENT_CREATE, self::APPOINTMENT_EDIT, self::APPOINTMENT_DELETE                                                                                                                 => 'appointment',
             self::PRODUCT_CREATE, self::PRODUCT_EDIT, self::PRODUCT_DELETE                                                                                                                                                  => 'product',

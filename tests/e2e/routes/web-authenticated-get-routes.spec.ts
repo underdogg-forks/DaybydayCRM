@@ -11,7 +11,7 @@ const authRequiredGetRoutes = loadWebRouteCases().filter(
 
 authTest.describe('web.php authenticated GET routes', () => {
   for (const routeCase of authRequiredGetRoutes) {
-    authTest(`authenticated GET: ${routeCase.path}`, async ({ page, request }) => {
+    authTest(`authenticated can load ${routeCase.path}`, async ({ page, request }) => {
       const targetUrl = `${PLAYWRIGHT_BASE_URL}${interpolateRoutePath(routeCase.path)}`;
 
       if (isLikelyJsonPath(routeCase.path)) {
@@ -30,7 +30,7 @@ authTest.describe('web.php authenticated GET routes', () => {
       const response = await page.goto(targetUrl);
       authExpect(response, `Expected response for ${routeCase.path}`).not.toBeNull();
       authExpect(response!.status(), `Unexpected status for ${routeCase.path}`).toBeLessThan(500);
-      authExpect(new URL(page.url()).pathname, `${routeCase.method} ${routeCase.path}`).not.toContain('/login');
+      authExpect(new URL(page.url()).pathname, `Expected ${routeCase.path} to stay out of the login screen`).not.toContain('/login');
     });
   }
 });

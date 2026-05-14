@@ -21,7 +21,7 @@ class ProjectServiceTest extends AbstractTestCase
     #[Test]
     public function it_creates_project_with_valid_data(): void
     {
-        $service = new ProjectService();
+        $service = $this->app->make(ProjectService::class);
         $user    = User::factory()->create();
         $client  = Client::factory()->create();
         $status  = Status::factory()->create(['source_type' => Project::class]);
@@ -44,7 +44,7 @@ class ProjectServiceTest extends AbstractTestCase
     #[Test]
     public function it_assigns_user_to_project(): void
     {
-        $service = new ProjectService();
+        $service = $this->app->make(ProjectService::class);
         $user    = User::factory()->create();
         $project = Project::factory()->create();
 
@@ -56,7 +56,7 @@ class ProjectServiceTest extends AbstractTestCase
     #[Test]
     public function it_updates_project_deadline(): void
     {
-        $service = new ProjectService();
+        $service = $this->app->make(ProjectService::class);
         $project = Project::factory()->create();
 
         $service->updateDeadline($project, '2026-03-01');
@@ -67,7 +67,7 @@ class ProjectServiceTest extends AbstractTestCase
     #[Test]
     public function it_returns_null_when_client_external_id_missing(): void
     {
-        $service = new ProjectService();
+        $service = $this->app->make(ProjectService::class);
         $user    = User::factory()->create();
         $status  = Status::factory()->create(['source_type' => Project::class]);
 
@@ -86,7 +86,7 @@ class ProjectServiceTest extends AbstractTestCase
     #[Test]
     public function it_returns_null_when_client_not_found(): void
     {
-        $service = new ProjectService();
+        $service = $this->app->make(ProjectService::class);
         $user    = User::factory()->create();
         $status  = Status::factory()->create(['source_type' => Project::class]);
 
@@ -105,7 +105,7 @@ class ProjectServiceTest extends AbstractTestCase
     #[Test]
     public function it_filters_out_tasks_without_assignees_from_show_data(): void
     {
-        $service  = new ProjectService();
+        $service  = $this->app->make(ProjectService::class);
         $assignee = User::factory()->create();
         $client   = Client::factory()->create();
         $project  = Project::factory()->create([
@@ -138,7 +138,7 @@ class ProjectServiceTest extends AbstractTestCase
     #[Test]
     public function it_prepares_unique_collaborators_when_assignee_and_task_user_are_same(): void
     {
-        $service  = new ProjectService();
+        $service  = $this->app->make(ProjectService::class);
         $user     = User::factory()->create();
         $client   = Client::factory()->create();
         $project  = Project::factory()->create([

@@ -113,6 +113,9 @@ class DocumentsController extends Controller
     public function upload(Request $request, $external_id)
     {
         if ( ! auth()->user()->can('document-upload')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => __('You do not have permission to upload a document')], 403);
+            }
             session()->flash('flash_message_warning', __('You do not have permission to upload a document'));
 
             return redirect()->route('tasks.show', $external_id);

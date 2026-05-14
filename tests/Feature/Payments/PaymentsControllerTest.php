@@ -67,7 +67,7 @@ class PaymentsControllerTest extends AbstractTestCase
         $response = $this->json('delete', route('payment.destroy', $payment->external_id));
 
         /* Assert */
-        $response->assertStatus(302);
+        $response->assertStatus(403);
         $this->assertNotNull(Payment::find($payment->id));
     }
 

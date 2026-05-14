@@ -43,10 +43,14 @@ class Integration extends Model
         /** @var \App\Services\Billing\BillingIntegrationRegistry $registry */
         $registry = app(\App\Services\Billing\BillingIntegrationRegistry::class);
 
-        // Preserve the historical shim behavior by returning a fresh adapter
-        // instance on every call instead of the registry's cached driver.
-        $driver = $registry->driver();
+        // Preserve the historical shim behavior: return null when no real
+        // billing integration is configured (i.e. the registry falls back to
+        // NullBillingAdapter). Legacy callers that checked for null rely on this.
+        if (! $registry->isConfigured()) {
+            return null;
+        }
 
-        return clone $driver;
+        // Return a fresh clone so callers cannot mutate the shared driver.
+        return clone $registry->driver();
     }
 }

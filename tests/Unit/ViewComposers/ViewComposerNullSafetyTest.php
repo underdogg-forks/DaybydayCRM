@@ -48,7 +48,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     public function it_handles_task_without_client()
     {
         /* Arrange */
-        $task = Task::factory()->create([
+        $task = Task::factory()->make([
             'client_id'        => null,
             'user_assigned_id' => $this->user->id,
         ]);
@@ -68,7 +68,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     {
         /* Arrange */
         $client = Client::factory()->create();
-        $task   = Task::factory()->create([
+        $task   = Task::factory()->make([
             'client_id'        => $client->id,
             'user_assigned_id' => null,
         ]);
@@ -127,7 +127,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     public function it_handles_lead_without_client()
     {
         /* Arrange */
-        $lead = Lead::factory()->create([
+        $lead = Lead::factory()->make([
             'client_id'        => null,
             'user_assigned_id' => $this->user->id,
         ]);
@@ -183,7 +183,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     public function it_handles_invoice_without_client()
     {
         /* Arrange */
-        $invoice = Invoice::factory()->create(['client_id' => null]);
+        $invoice = Invoice::factory()->make(['client_id' => null]);
         $view    = new FakeView(['invoice' => $invoice]);
 
         /* Act */

@@ -64,7 +64,7 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($isEmpty);
-        $response->assertStatus(302);
+        $response->assertStatus(201);
         $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
     }
 
@@ -84,7 +84,7 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($isEmpty);
-        $response->assertStatus(302);
+        $response->assertStatus(201);
         $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
     }
 
@@ -104,7 +104,7 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($isEmpty);
-        $response->assertStatus(302);
+        $response->assertStatus(201);
         $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
     }
 
@@ -124,7 +124,7 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
 
         /* Assert */
         $this->assertEquals('unpaid', $invoiceStatus);
-        $response->assertStatus(302);
+        $response->assertStatus(201);
         $this->assertEquals('paid', $this->invoice->refresh()->status);
     }
 
@@ -201,7 +201,7 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
 
         /* Assert */
         $this->assertTrue($isEmpty);
-        $response->assertStatus(302);
+        $response->assertStatus(201);
         $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
         $this->assertEquals(-5000, $this->invoice->refresh()->payments->first()->amount);
     }
@@ -223,7 +223,7 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
         /* Assert */
         $this->assertTrue($isEmpty);
         $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
-        $response->assertStatus(302);
+        $response->assertStatus(201);
     }
 
     #[Test]
@@ -243,7 +243,7 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
         /* Assert */
         $this->assertTrue($isEmpty);
         $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
-        $response->assertStatus(302);
+        $response->assertStatus(201);
     }
 
     #[Test]

@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\User;
+namespace Tests\Unit\Users;
 
 use App\Enums\RoleType;
 use App\Models\Department;

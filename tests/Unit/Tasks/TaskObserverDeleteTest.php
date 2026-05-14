@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Task;
+namespace Tests\Unit\Tasks;
 
 use App\Models\Task;
 use Carbon\Carbon;

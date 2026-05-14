@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Absences;
+namespace Tests\Unit\Absences;
 
 use App\Models\Absence;
 use App\Models\Permission;

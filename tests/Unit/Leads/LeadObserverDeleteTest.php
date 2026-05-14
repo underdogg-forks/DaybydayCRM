@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Lead;
+namespace Tests\Unit\Leads;
 
 use App\Models\Lead;
 use App\Models\Offer;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Offer;
+namespace Tests\Unit\Offers;
 
 use App\Models\Appointment;
 use App\Models\User;

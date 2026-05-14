@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Payments;
+namespace Tests\Unit\Payments;
 
 use App\Models\Invoice;
 use App\Models\Payment;

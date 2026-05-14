@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\User;
+namespace Tests\Unit\Users;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

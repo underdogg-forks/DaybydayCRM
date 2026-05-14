@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Integration;
+namespace Tests\Unit\Integration;
 
 use App\Models\Integration;
 use App\Services\Integration\IntegrationService;

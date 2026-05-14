@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Client;
+namespace Tests\Unit\Clients;
 
 use App\Models\Client;
 use App\Models\Setting;

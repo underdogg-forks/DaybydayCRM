@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Project;
+namespace Tests\Unit\Projects;
 
 use App\Models\Client;
 use App\Models\Invoice;

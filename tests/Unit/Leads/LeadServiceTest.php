@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Leads;
+namespace Tests\Unit\Leads;
 
 use App\Models\Client;
 use App\Models\Lead;

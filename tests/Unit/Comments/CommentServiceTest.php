@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\Comment;
+namespace Tests\Unit\Comments;
 
 use App\Models\Comment;
 use App\Models\Lead;

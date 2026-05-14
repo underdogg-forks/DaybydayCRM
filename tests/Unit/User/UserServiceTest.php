@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\User\UserUpdateService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -61,9 +62,17 @@ class UserServiceTest extends AbstractTestCase
     public function it_prevents_changing_last_owner_role(): void
     {
         // Arrange
-        $service    = new UserUpdateService();
-        // Remove the test user's owner role so the factory-created owner is the LAST owner
-        $this->user->roles()->detach();
+        $service = new UserUpdateService();
+
+        // Clear ALL existing owner role assignments to ensure test isolation
+        // (seeder and AbstractTestCase may have assigned owner roles to other users)
+        $ownerRole = Role::where('name', RoleType::OWNER->value)->first();
+        if ($ownerRole) {
+            \Illuminate\Support\Facades\DB::table('role_user')
+                ->where('role_id', $ownerRole->id)
+                ->delete();
+        }
+
         $owner      = User::factory()->withRole(RoleType::OWNER->value)->create();
         $newRole    = Role::factory()->create(['name' => RoleType::USER->value, 'display_name' => 'User']);
         $department = Department::factory()->create();

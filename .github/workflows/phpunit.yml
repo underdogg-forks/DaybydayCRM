@@ -107,11 +107,9 @@ jobs:
           php artisan config:clear
           php artisan cache:clear
 
-      - name: Create test DBs for parallel
+      - name: Create test database
         run: |
-          for i in {1..8}; do
-            mysql -h 127.0.0.1 -uroot -ppassword -e "CREATE DATABASE IF NOT EXISTS daybyday_test_$i CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-          done
+          mysql -h 127.0.0.1 -uroot -ppassword -e "CREATE DATABASE IF NOT EXISTS daybyday_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
       - name: Run migrations
         run: php artisan migrate:fresh --seed
@@ -119,18 +117,18 @@ jobs:
       - name: Set test run options
         id: opts
         run: |
-          # Output style flag (for paratest only)
+          # Output style flag
           if [ "${{ github.event.inputs.output }}" = "pao" ]; then
-            OUT_OPT="--pao"
+            OUT_OPT=""
           else
             OUT_OPT="--testdox"
           fi
 
           # Fail fast settings
           if [ "${{ github.event.inputs.fail_fast }}" = "true" ]; then
-            PARATEST_FAILFAST="--stop-on-failure"
+            FAILFAST="--stop-on-failure"
           else
-            PARATEST_FAILFAST=""
+            FAILFAST=""
           fi
 
           # Set GROUP to input value, or default to "full"
@@ -138,34 +136,33 @@ jobs:
           if [ -z "$GROUP" ]; then
             GROUP="full"
           fi
-          
+
           echo "OUT_OPT=${OUT_OPT}" >> $GITHUB_ENV
-          echo "PARATEST_FAILFAST=${PARATEST_FAILFAST}" >> $GITHUB_ENV
+          echo "FAILFAST=${FAILFAST}" >> $GITHUB_ENV
           echo "GROUP=${GROUP}" >> $GITHUB_ENV
           echo "CUSTOM_GROUP=${{ github.event.inputs.custom_group_name }}" >> $GITHUB_ENV
 
-      - name: Run tests (selected group, style, fail fast)
+      - name: Run tests
         shell: bash
         run: |
-          # Ensure cleaner script is executable
-          chmod +x .github/scripts/parse-phpunit.php
-
-          RAW=$(mktemp)
-          trap 'rm -f "$RAW"' EXIT
+          LOG_FILE="phpunit-output.log"
 
           if [ "$GROUP" = "full" ]; then
-            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner $OUT_OPT $PARATEST_FAILFAST 2>&1 | tee "$RAW" | php .github/scripts/parse-phpunit.php
+            vendor/bin/phpunit --exclude-group flaky $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE"
           elif [ "$GROUP" = "custom" ]; then
-            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$CUSTOM_GROUP" $OUT_OPT $PARATEST_FAILFAST 2>&1 | tee "$RAW" | php .github/scripts/parse-phpunit.php
+            vendor/bin/phpunit --exclude-group flaky --group="$CUSTOM_GROUP" $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE"
           else
-            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$GROUP" $OUT_OPT $PARATEST_FAILFAST 2>&1 | tee "$RAW" | php .github/scripts/parse-phpunit.php
-          fi
-          PIPE_STATUS=("${PIPESTATUS[@]}")
-
-          # If the test runner failed and tee or the parser also failed, dump raw output as fallback
-          if [ "${PIPE_STATUS[0]}" -ne 0 ] && ([ "${PIPE_STATUS[1]}" -ne 0 ] || [ "${PIPE_STATUS[2]}" -ne 0 ]); then
-            echo "=== Raw test output (fallback) ==="
-            cat "$RAW"
+            vendor/bin/phpunit --exclude-group flaky --group="$GROUP" $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE"
           fi
 
-          exit "${PIPE_STATUS[0]}"
+          # Preserve the phpunit exit code (not the tee exit code)
+          exit "${PIPESTATUS[0]}"
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpunit-log-php${{ matrix.php }}
+          path: phpunit-output.log
+          retention-days: 7
+

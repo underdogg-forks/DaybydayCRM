@@ -246,8 +246,18 @@ class UsersController extends Controller
      */
     public function edit($external_id)
     {
+        $user = $this->findByExternalId($external_id);
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'user'        => $user->only(['id', 'name', 'email']),
+                'roles'       => $this->allRoles()->pluck('display_name', 'id'),
+                'departments' => Department::query()->pluck('name', 'id'),
+            ]);
+        }
+
         return view('users.edit')
-            ->withUser($this->findByExternalId($external_id))
+            ->withUser($user)
             ->withRoles($this->allRoles()->pluck('display_name', 'id'))
             ->withDepartments(Department::query()->pluck('name', 'id'));
     }

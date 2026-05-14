@@ -249,17 +249,31 @@ class ClientsController extends Controller
     {
         $client = $this->clientService->getClientWithRelations($external_id);
 
-        // dd($client->appointments);
+        // Fetch integration once and reuse for both filesystem_integration and document filtering
+        $filesystemIntegration = Integration::whereApiType('file')->first();
+        $storageClass          = get_class(GetStorageProvider::fromIntegration($filesystemIntegration));
+
+        // Use already eager-loaded collections to avoid duplicate queries
+        $filteredDocuments = $client->documents->filter(
+            fn ($doc) => $doc->integration_type === $storageClass
+        )->values();
+
+        $recentAppointments = $client->appointments
+            ->where('end_at', '>', now()->subMonths(3))
+            ->sortByDesc('start_at')
+            ->take(7)
+            ->values();
+
         return view('clients.show')
             ->withClient($client)
             ->withCompanyname(Setting::first()->company)
             ->withInvoices($this->clientService->getInvoices($client))
             ->withUsers(User::with('department')->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
-            ->with('filesystem_integration', Integration::whereApiType('file')->first())
-            ->with('documents', $client->documents()->where('integration_type', get_class(GetStorageProvider::getStorage()))->get())
+            ->with('filesystem_integration', $filesystemIntegration)
+            ->with('documents', $filteredDocuments)
             ->with('lead_statuses', Status::typeOfLead()->get())
             ->with('task_statuses', Status::typeOfTask()->get())
-            ->withRecentAppointments($client->appointments()->orderBy('start_at', 'desc')->where('end_at', '>', now()->subMonths(3))->limit(7)->get());
+            ->withRecentAppointments($recentAppointments);
     }
 
     /**

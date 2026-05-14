@@ -122,4 +122,15 @@ abstract class AbstractTestCase extends BaseTestCase
             $this->fail('Test failed with a 302 Redirect. Session Message: ' . $message);
         }
     }
+
+    /**
+     * Set the application URL for the duration of a single test.
+     * Updates both the config repository and the URL generator so that
+     * url() / route() calls respect the new value immediately.
+     */
+    protected function setAppUrl(string $url): void
+    {
+        config(['app.url' => $url]);
+        app('url')->forceRootUrl($url);
+    }
 }

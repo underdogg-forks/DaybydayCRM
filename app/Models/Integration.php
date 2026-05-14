@@ -49,7 +49,6 @@ class Integration extends Model
         $candidates = array_filter([
             $this->name,
             'App\\' . ltrim($this->name, '\\'),
-            'App\\Services\\Billing\\' . ltrim($this->name, '\\'),
         ]);
 
         foreach ($candidates as $candidate) {

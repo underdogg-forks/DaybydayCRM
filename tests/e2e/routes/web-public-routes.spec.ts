@@ -1,6 +1,7 @@
 import { test as guestTest, expect as guestExpect } from '@playwright/test';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 import { loadWebRouteCases } from '../helpers/route-cases';
+import { expectedGuestMutationStatuses } from '../helpers/route-expectations';
 import { fetchCsrfToken } from '../helpers/csrf';
 import { callRouteSmoke } from '../helpers/request-smoke';
 
@@ -28,7 +29,7 @@ guestTest.describe('web.php public mutation routes', () => {
       const csrfToken = await fetchCsrfToken(page);
       const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
-      guestExpect([200, 302, 303, 422].includes(response.status()), `${routeCase.method} ${routeCase.path}`).toBe(true);
+      guestExpect(expectedGuestMutationStatuses().includes(response.status()), `${routeCase.method} ${routeCase.path}`).toBe(true);
     });
   }
 });

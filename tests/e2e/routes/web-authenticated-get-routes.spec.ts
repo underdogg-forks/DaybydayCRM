@@ -1,7 +1,7 @@
 import { test as authTest, expect as authExpect } from '../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 import { loadWebRouteCases } from '../helpers/route-cases';
-import { isLikelyJsonPath } from '../helpers/route-expectations';
+import { expectedAuthGetStatuses, isLikelyJsonPath } from '../helpers/route-expectations';
 import { interpolateRoutePath } from '../helpers/route-paths';
 
 const guestAccessible = new Set(['/login', '/register', '/password/reset']);
@@ -16,7 +16,7 @@ authTest.describe('web.php authenticated GET routes', () => {
 
       if (isLikelyJsonPath(routeCase.path)) {
         const response = await request.get(targetUrl, { failOnStatusCode: false });
-        authExpect([200, 401, 403, 404, 422].includes(response.status()), `${routeCase.method} ${routeCase.path}`).toBe(true);
+        authExpect(expectedAuthGetStatuses().includes(response.status()), `${routeCase.method} ${routeCase.path}`).toBe(true);
 
         if (response.status() === 200) {
           authExpect(response.headers()['content-type'] ?? '').toContain('application/json');

@@ -177,4 +177,86 @@ class DocumentAccessHelperTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(403);
     }
+
+    #[Test]
+    public function it_unrelated_user_cannot_download_document_they_have_no_connection_to()
+    {
+        /* Arrange */
+        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
+        $task        = Task::factory()->create([
+            'user_created_id'  => $this->creator->id,
+            'user_assigned_id' => $this->assignee->id,
+            'client_id'        => $otherClient->id,
+        ]);
+        $document = Document::factory()->create([
+            'source_type' => Task::class,
+            'source_id'   => $task->id,
+            'mime'        => 'text/plain',
+            'path'        => 'fake/path.txt',
+        ]);
+        $this->actingAs($this->unrelated);
+
+        /* Act – download uses the same canAccessDocument gate as view */
+        $response = $this->get(route('document.download', $document->external_id));
+
+        /* Assert – redirected with warning (no 403, same pattern as view) */
+        $response->assertStatus(302);
+        $this->assertTrue(
+            session()->has('flash_message_warning'),
+            'Unrelated user should see a warning flash message on download'
+        );
+    }
+
+    #[Test]
+    public function it_json_download_request_returns_403_for_unauthorized_user()
+    {
+        /* Arrange */
+        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
+        $task        = Task::factory()->create([
+            'user_created_id'  => $this->creator->id,
+            'user_assigned_id' => $this->assignee->id,
+            'client_id'        => $otherClient->id,
+        ]);
+        $document = Document::factory()->create([
+            'source_type' => Task::class,
+            'source_id'   => $task->id,
+            'mime'        => 'text/plain',
+            'path'        => 'fake/path.txt',
+        ]);
+        $this->actingAs($this->unrelated);
+
+        /* Act */
+        $response = $this->getJson(route('document.download', $document->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+    }
+
+    #[Test]
+    public function it_authorization_is_checked_before_storage_access_on_view()
+    {
+        /* Arrange – no storage configured but still expect auth to run first */
+        \App\Models\Integration::whereApiType('file')->delete();
+        app(\App\Services\Storage\StorageAdapterRegistry::class)->reset();
+
+        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
+        $task        = Task::factory()->create([
+            'user_created_id'  => $this->creator->id,
+            'user_assigned_id' => $this->assignee->id,
+            'client_id'        => $otherClient->id,
+        ]);
+        $document = Document::factory()->create([
+            'source_type' => Task::class,
+            'source_id'   => $task->id,
+            'mime'        => 'text/plain',
+            'path'        => 'fake/path.txt',
+        ]);
+        $this->actingAs($this->unrelated);
+
+        /* Act */
+        $response = $this->getJson(route('document.view', $document->external_id));
+
+        /* Assert – unauthorized user gets 403, not a storage error */
+        $response->assertStatus(403);
+    }
 }

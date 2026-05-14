@@ -76,11 +76,12 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
         /* Arrange */
         $adapter = new NullBillingAdapter();
 
-        /* Act & Assert */
+        /* Act & Assert – every method returns a safe non-throwing default */
         $this->assertSame([], $adapter->getContacts());
         $this->assertSame([], $adapter->getProductMapping());
         $this->assertNull($adapter->getClient());
         $this->assertNull($adapter->createInvoice([]));
+        $this->assertNull($adapter->createPayment(\App\Models\Payment::factory()->make()));
         $this->assertFalse($adapter->sendInvoice(
             \App\Models\Invoice::factory()->make(),
             'subject',
@@ -88,6 +89,28 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
             'test@example.com'
         ));
         $this->assertTrue($adapter->deletePayment(\App\Models\Payment::factory()->make()));
+    }
+
+    #[Test]
+    public function it_null_billing_adapter_book_invoice_returns_null()
+    {
+        /* Arrange */
+        $adapter = new NullBillingAdapter();
+
+        /* Assert – bookInvoice should never throw */
+        $result = $adapter->bookInvoice('some-guid', now()->toDateTimeString());
+        $this->assertNull($result);
+    }
+
+    #[Test]
+    public function it_null_billing_adapter_get_primary_contact_returns_null()
+    {
+        /* Arrange */
+        $adapter = new NullBillingAdapter();
+        $client  = \App\Models\Client::factory()->make();
+
+        /* Assert */
+        $this->assertNull($adapter->getPrimaryContact($client));
     }
 
     #[Test]

@@ -12,14 +12,17 @@ use App\Models\Setting;
 use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\View\View;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
+use Tests\Support\FakeView;
 
 /**
  * Verifies that all three header view composers degrade gracefully when
  * related models (client, contact, assignee) are null instead of crashing.
+ *
+ * Uses FakeView (a state-based fake) instead of Mockery mocks so that
+ * assertions verify actual outcomes (shared data) rather than call counts.
  */
 #[Group('view-composers')]
 class ViewComposerNullSafetyTest extends AbstractTestCase
@@ -49,19 +52,17 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
             'client_id'        => null,
             'user_assigned_id' => $this->user->id,
         ]);
-
-        $view    = $this->makeView(['tasks' => $task]);
-        $shared  = [];
-        $view->shouldReceive('with')->andReturnUsing(function ($key, $value) use (&$shared) {
-            $shared[$key] = $value;
-        });
+        $view = new FakeView(['tasks' => $task]);
 
         /* Act – must not throw */
         (new TaskHeaderComposer())->compose($view);
 
-        /* Assert */
-        $this->assertNull($shared['client']);
-        $this->assertNull($shared['contact_info']);
+        /* Assert exact shared values */
+        $this->assertNull($view->getShared('client'));
+        $this->assertNull($view->getShared('contact_info'));
+        $view->assertShared('contact');
+        $view->assertShared('client');
+        $view->assertShared('contact_info');
     }
 
     #[Test]
@@ -73,37 +74,53 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
             'client_id'        => $client->id,
             'user_assigned_id' => null,
         ]);
-
-        $view   = $this->makeView(['tasks' => $task]);
-        $shared = [];
-        $view->shouldReceive('with')->andReturnUsing(function ($key, $value) use (&$shared) {
-            $shared[$key] = $value;
-        });
+        $view = new FakeView(['tasks' => $task]);
 
         /* Act */
         (new TaskHeaderComposer())->compose($view);
 
         /* Assert */
-        $this->assertNull($shared['contact']);
-        $this->assertSame($client->id, $shared['client']->id);
+        $this->assertNull($view->getShared('contact'));
+        $this->assertSame($client->id, $view->getShared('client')->id);
+        $view->assertShared('contact_info');
     }
 
     #[Test]
     public function it_task_header_composer_handles_missing_task_in_view_data()
     {
         /* Arrange – no 'tasks' key at all */
-        $view   = $this->makeView([]);
-        $shared = [];
-        $view->shouldReceive('with')->andReturnUsing(function ($key, $value) use (&$shared) {
-            $shared[$key] = $value;
-        });
+        $view = new FakeView([]);
 
         /* Act – must not throw */
         (new TaskHeaderComposer())->compose($view);
 
-        /* Assert */
-        $this->assertNull($shared['contact'] ?? null);
-        $this->assertNull($shared['client'] ?? null);
+        /* Assert all three keys are pushed, all null */
+        $this->assertNull($view->getShared('contact'));
+        $this->assertNull($view->getShared('client'));
+        $this->assertNull($view->getShared('contact_info'));
+    }
+
+    #[Test]
+    public function it_task_header_composer_populates_all_three_keys_when_task_is_complete()
+    {
+        /* Arrange */
+        $client = Client::factory()->create();
+        $task   = Task::factory()->create([
+            'client_id'        => $client->id,
+            'user_assigned_id' => $this->user->id,
+        ]);
+        $view = new FakeView(['tasks' => $task]);
+
+        /* Act */
+        (new TaskHeaderComposer())->compose($view);
+
+        /* Assert that assigned user IS shared as contact */
+        $shared = $view->getShared();
+        $this->assertArrayHasKey('contact', $shared);
+        $this->assertArrayHasKey('client', $shared);
+        $this->assertArrayHasKey('contact_info', $shared);
+        $this->assertSame($this->user->id, $shared['contact']->id);
+        $this->assertSame($client->id, $shared['client']->id);
     }
 
     // ─── LeadHeaderComposer ──────────────────────────────────────────────────
@@ -116,37 +133,50 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
             'client_id'        => null,
             'user_assigned_id' => $this->user->id,
         ]);
-
-        $view   = $this->makeView(['lead' => $lead]);
-        $shared = [];
-        $view->shouldReceive('with')->andReturnUsing(function ($key, $value) use (&$shared) {
-            $shared[$key] = $value;
-        });
+        $view = new FakeView(['lead' => $lead]);
 
         /* Act */
         (new LeadHeaderComposer())->compose($view);
 
         /* Assert */
-        $this->assertNull($shared['client']);
-        $this->assertNull($shared['contact_info']);
+        $this->assertNull($view->getShared('client'));
+        $this->assertNull($view->getShared('contact_info'));
+        $view->assertShared('contact');
     }
 
     #[Test]
     public function it_lead_header_composer_handles_missing_lead_in_view_data()
     {
         /* Arrange */
-        $view   = $this->makeView([]);
-        $shared = [];
-        $view->shouldReceive('with')->andReturnUsing(function ($key, $value) use (&$shared) {
-            $shared[$key] = $value;
-        });
+        $view = new FakeView([]);
+
+        /* Act */
+        (new LeadHeaderComposer())->compose($view);
+
+        /* Assert all three keys present, all null */
+        $this->assertNull($view->getShared('contact'));
+        $this->assertNull($view->getShared('client'));
+        $this->assertNull($view->getShared('contact_info'));
+    }
+
+    #[Test]
+    public function it_lead_header_composer_populates_contact_when_user_is_assigned()
+    {
+        /* Arrange */
+        $client = Client::factory()->create();
+        $lead   = Lead::factory()->create([
+            'client_id'        => $client->id,
+            'user_assigned_id' => $this->user->id,
+        ]);
+        $view = new FakeView(['lead' => $lead]);
 
         /* Act */
         (new LeadHeaderComposer())->compose($view);
 
         /* Assert */
-        $this->assertNull($shared['contact'] ?? null);
-        $this->assertNull($shared['client'] ?? null);
+        $shared = $view->getShared();
+        $this->assertSame($this->user->id, $shared['contact']->id);
+        $this->assertSame($client->id, $shared['client']->id);
     }
 
     // ─── InvoiceHeaderComposer ───────────────────────────────────────────────
@@ -156,52 +186,45 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     {
         /* Arrange */
         $invoice = Invoice::factory()->create(['client_id' => null]);
-
-        $view   = $this->makeView(['invoice' => $invoice]);
-        $shared = [];
-        $view->shouldReceive('with')->andReturnUsing(function ($key, $value) use (&$shared) {
-            $shared[$key] = $value;
-        });
+        $view    = new FakeView(['invoice' => $invoice]);
 
         /* Act */
         (new InvoiceHeaderComposer())->compose($view);
 
         /* Assert */
-        $this->assertNull($shared['client']);
-        $this->assertNull($shared['contact_info']);
+        $this->assertNull($view->getShared('client'));
+        $this->assertNull($view->getShared('contact_info'));
+        $view->assertShared('client');
+        $view->assertShared('contact_info');
     }
 
     #[Test]
     public function it_invoice_header_composer_handles_missing_invoice_in_view_data()
     {
         /* Arrange */
-        $view   = $this->makeView([]);
-        $shared = [];
-        $view->shouldReceive('with')->andReturnUsing(function ($key, $value) use (&$shared) {
-            $shared[$key] = $value;
-        });
+        $view = new FakeView([]);
+
+        /* Act */
+        (new InvoiceHeaderComposer())->compose($view);
+
+        /* Assert both keys present and null */
+        $this->assertNull($view->getShared('client'));
+        $this->assertNull($view->getShared('contact_info'));
+    }
+
+    #[Test]
+    public function it_invoice_header_composer_populates_client_when_invoice_has_client()
+    {
+        /* Arrange */
+        $client  = Client::factory()->create();
+        $invoice = Invoice::factory()->create(['client_id' => $client->id]);
+        $view    = new FakeView(['invoice' => $invoice]);
 
         /* Act */
         (new InvoiceHeaderComposer())->compose($view);
 
         /* Assert */
-        $this->assertNull($shared['client'] ?? null);
-        $this->assertNull($shared['contact_info'] ?? null);
-    }
-
-    // ─── Helpers ─────────────────────────────────────────────────────────────
-
-    /**
-     * Create a minimal Mockery View partial that exposes getData() and
-     * accepts with() calls.
-     */
-    private function makeView(array $data): \Mockery\MockInterface
-    {
-        $mock = \Mockery::mock(View::class);
-        $mock->shouldReceive('getData')->andReturn($data);
-        // 'with' may or may not be called – allow any number of calls.
-        $mock->shouldReceive('with')->andReturn($mock);
-
-        return $mock;
+        $this->assertSame($client->id, $view->getShared('client')->id);
     }
 }
+

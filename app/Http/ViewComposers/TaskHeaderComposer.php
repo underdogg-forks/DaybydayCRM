@@ -3,7 +3,7 @@
 namespace App\Http\ViewComposers;
 
 use App\Models\Task;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 class TaskHeaderComposer
 {

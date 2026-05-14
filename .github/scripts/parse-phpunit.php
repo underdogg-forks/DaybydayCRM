@@ -55,7 +55,7 @@ foreach ($lines as $line) {
 
     // Flush the buffered trace: keep only the last 3 frames for context
     if ($isBufferingTrace && ($trimmedLine === '' || preg_match('/^\d+\)/', $trimmedLine))) {
-        foreach (array_slice($currentTrace, -3) as $traceLine) {
+        foreach (array_slice($currentTrace, -5) as $traceLine) {
             $output[] = $traceLine;
         }
         $currentTrace     = [];

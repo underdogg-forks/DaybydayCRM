@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Projects;
+namespace Tests\Feature\Projects;
 
 use App\Enums\PermissionName;
 use App\Models\Lead;

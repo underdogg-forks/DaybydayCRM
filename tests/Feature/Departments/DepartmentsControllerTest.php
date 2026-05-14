@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Departments;
+namespace Tests\Feature\Departments;
 
 use App\Models\Department;
 use Carbon\Carbon;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Offers;
+namespace Tests\Feature\Offers;
 
 use App\Http\Controllers\AppointmentsController;
 use App\Http\Requests\Appointment\CreateAppointmentCalendarRequest;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Leads;
+namespace Tests\Feature\Leads;
 
 use App\Enums\OfferStatus;
 use App\Enums\PermissionName;

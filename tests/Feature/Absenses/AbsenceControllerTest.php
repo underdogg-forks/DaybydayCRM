@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Absenses;
+namespace Tests\Feature\Absenses;
 
 use App\Enums\PermissionName;
 use App\Models\User;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Tasks;
+namespace Tests\Feature\Tasks;
 
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Permission;

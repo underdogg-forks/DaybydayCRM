@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Leads;
+namespace Tests\Feature\Leads;
 
 use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;

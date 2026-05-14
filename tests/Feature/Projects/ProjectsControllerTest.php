@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Projects;
+namespace Tests\Feature\Projects;
 
 use App\Models\Client;
 use App\Models\Project;

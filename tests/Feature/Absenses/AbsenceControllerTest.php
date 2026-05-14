@@ -30,7 +30,7 @@ class AbsenceControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function can_create_absence_for_other_user()
+    public function it_can_create_absence_for_other_user()
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -58,7 +58,7 @@ class AbsenceControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function not_providing_user_external_id_creates_absence_for_authenticated_user()
+    public function it_creates_absence_for_authenticated_user_when_user_external_id_not_provided()
     {
         /* Arrange */
 
@@ -78,7 +78,7 @@ class AbsenceControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function creating_absence_for_other_users_without_permission_creates_for_user_it_self()
+    public function it_creates_absence_for_authenticated_user_when_attempting_to_create_for_other_user_without_permission()
     {
         /* Arrange */
         $this->user = User::factory()->create();

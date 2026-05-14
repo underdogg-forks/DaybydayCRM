@@ -48,7 +48,7 @@ class InvoiceStatusEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function invoice_status_contains_both_display_and_status_value()
+    public function it_verifies_invoice_status_contains_both_display_and_status_value()
     {
         /* Arrange */
 

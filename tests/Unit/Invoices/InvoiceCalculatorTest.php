@@ -75,7 +75,7 @@ class InvoiceCalculatorTest extends AbstractTestCase
 
     #[Test]
     #[Group('flaky')]
-    public function get_amount_due()
+    public function it_calculates_amount_due_correctly()
     {
         /* Arrange */
 

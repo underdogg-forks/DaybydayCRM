@@ -29,7 +29,7 @@ class ProjectsControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function can_create_project()
+    public function it_can_create_project()
     {
         /* Arrange */
         $this->withPermissions(['project-create']);

@@ -32,7 +32,7 @@ class ClientCreatePermissionCacheTest extends AbstractTestCase
     }
 
     #[Test]
-    public function clients_create_route_works_after_multiple_requests()
+    public function it_allows_clients_create_route_to_work_after_multiple_requests()
     {
         // This test would catch the bug if cachedPermissions() returned incomplete objects
         // Make multiple requests - if caching is broken, 2nd+ requests would fail
@@ -50,7 +50,7 @@ class ClientCreatePermissionCacheTest extends AbstractTestCase
     }
 
     #[Test]
-    public function owner_can_access_clients_create_with_cached_permissions()
+    public function it_allows_owner_to_access_clients_create_with_cached_permissions()
     {
         // Verify that cachedPermissions() returns usable Permission objects
         $owner = Role::where('name', 'owner')->first();
@@ -72,7 +72,7 @@ class ClientCreatePermissionCacheTest extends AbstractTestCase
     }
 
     #[Test]
-    public function user_can_check_permissions_across_multiple_requests()
+    public function it_allows_user_to_check_permissions_across_multiple_requests()
     {
         $user = $this->user;
 
@@ -91,7 +91,7 @@ class ClientCreatePermissionCacheTest extends AbstractTestCase
     }
 
     #[Test]
-    public function task_create_route_works_consistently()
+    public function it_allows_task_create_route_to_work_consistently()
     {
         // Same test for tasks to ensure the bug fix works across all create routes
         $response1 = $this->get(route('tasks.create'));
@@ -105,7 +105,7 @@ class ClientCreatePermissionCacheTest extends AbstractTestCase
     }
 
     #[Test]
-    public function lead_create_route_works_consistently()
+    public function it_allows_lead_create_route_to_work_consistently()
     {
         // Same test for leads
         $response1 = $this->get(route('leads.create'));
@@ -119,7 +119,7 @@ class ClientCreatePermissionCacheTest extends AbstractTestCase
     }
 
     #[Test]
-    public function user_create_route_works_consistently()
+    public function it_allows_user_create_route_to_work_consistently()
     {
         // Same test for users
         $response1 = $this->get(route('users.create'));

@@ -51,7 +51,7 @@ class OffersControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('keeps_failing')]
-    public function can_create_offer()
+    public function it_can_create_offer()
     {
         /* Arrange */
         /* Act */
@@ -78,7 +78,7 @@ class OffersControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('keeps_failing')]
-    public function can_update_offer()
+    public function it_can_update_offer()
     {
         /* Arrange */
         $this->assertCount(0, $this->offer->invoiceLines);

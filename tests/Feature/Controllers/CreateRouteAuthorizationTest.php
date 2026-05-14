@@ -46,28 +46,28 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     // ─────────────────────────────────────────────
 
     #[Test]
-    public function owner_can_access_client_create_page()
+    public function it_allows_owner_to_access_client_create_page()
     {
         $response = $this->get(route('clients.create'));
         $response->assertStatus(200);
     }
 
     #[Test]
-    public function owner_can_access_task_create_page()
+    public function it_allows_owner_to_access_task_create_page()
     {
         $response = $this->get(route('tasks.create'));
         $response->assertStatus(200);
     }
 
     #[Test]
-    public function owner_can_access_lead_create_page()
+    public function it_allows_owner_to_access_lead_create_page()
     {
         $response = $this->get(route('leads.create'));
         $response->assertStatus(200);
     }
 
     #[Test]
-    public function owner_can_access_user_create_page()
+    public function it_allows_owner_to_access_user_create_page()
     {
         $response = $this->get(route('users.create'));
         $response->assertStatus(200);
@@ -78,7 +78,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     // ─────────────────────────────────────────────
 
     #[Test]
-    public function user_without_client_create_permission_is_redirected()
+    public function it_redirects_user_without_client_create_permission()
     {
         $this->actingAs(User::factory()->create());
 
@@ -89,7 +89,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function user_without_task_create_permission_is_redirected()
+    public function it_redirects_user_without_task_create_permission()
     {
         $this->actingAs(User::factory()->create());
 
@@ -100,7 +100,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function user_without_lead_create_permission_is_redirected()
+    public function it_redirects_user_without_lead_create_permission()
     {
         $this->actingAs(User::factory()->create());
 
@@ -111,7 +111,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function user_without_user_create_permission_is_redirected()
+    public function it_redirects_user_without_user_create_permission()
     {
         $this->actingAs(User::factory()->create());
 
@@ -170,7 +170,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     // ─────────────────────────────────────────────
 
     #[Test]
-    public function user_with_only_client_create_permission_can_access_client_create()
+    public function it_allows_user_with_only_client_create_permission_to_access_client_create()
     {
         $this->withPermissions([PermissionName::CLIENT_CREATE]);
 
@@ -180,7 +180,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function user_with_only_task_create_permission_can_access_task_create()
+    public function it_allows_user_with_only_task_create_permission_to_access_task_create()
     {
         $this->withPermissions([PermissionName::TASK_CREATE]);
 
@@ -190,7 +190,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function user_with_only_lead_create_permission_can_access_lead_create()
+    public function it_allows_user_with_only_lead_create_permission_to_access_lead_create()
     {
         $this->withPermissions([PermissionName::LEAD_CREATE]);
 
@@ -200,7 +200,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function user_with_only_user_create_permission_can_access_user_create()
+    public function it_allows_user_with_only_user_create_permission_to_access_user_create()
     {
         $this->withPermissions([PermissionName::USER_CREATE]);
 
@@ -215,7 +215,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
 
     #[Test]
     #[DataProvider('createRoutes')]
-    public function unauthenticated_user_is_redirected_to_login(string $routeName)
+    public function it_redirects_unauthenticated_user_to_login(string $routeName)
     {
         // Explicitly log out so there is no authenticated user
         auth()->logout();

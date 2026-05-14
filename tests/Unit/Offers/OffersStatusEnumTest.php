@@ -36,7 +36,7 @@ class OffersStatusEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function offer_status_contains_both_display_and_source_value()
+    public function it_verifies_offer_status_contains_both_display_and_source_value()
     {
         /* Arrange */
 

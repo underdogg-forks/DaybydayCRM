@@ -25,7 +25,7 @@ class PaymentSourceEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function getting_source_returns_instance_of_payment_source()
+    public function it_returns_instance_of_payment_source_when_getting_source()
     {
         /* Arrange */
 
@@ -38,7 +38,7 @@ class PaymentSourceEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function payment_source_contains_both_display_and_source_value()
+    public function it_verifies_payment_source_contains_both_display_and_source_value()
     {
         /* Arrange */
 
@@ -52,7 +52,7 @@ class PaymentSourceEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function get_display_value_from_source()
+    public function it_gets_display_value_from_source()
     {
         /* Arrange */
 
@@ -65,7 +65,7 @@ class PaymentSourceEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function source_returns_correct_source_in_instance()
+    public function it_returns_correct_source_in_instance()
     {
         /* Arrange */
 
@@ -78,7 +78,7 @@ class PaymentSourceEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function get_source_from_display_value()
+    public function it_gets_source_from_display_value()
     {
         /* Arrange */
 
@@ -91,7 +91,7 @@ class PaymentSourceEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function get_validation_rules_for_payment_source()
+    public function it_gets_validation_rules_for_payment_source()
     {
         /* Arrange */
 
@@ -105,7 +105,7 @@ class PaymentSourceEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function throws_exception_if_source_is_not_known()
+    public function it_throws_exception_if_source_is_not_known()
     {
         /* Arrange */
 
@@ -116,7 +116,7 @@ class PaymentSourceEnumTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function throws_exception_if_display_value_is_not_known()
+    public function it_throws_exception_if_display_value_is_not_known()
     {
         /* Arrange */
 

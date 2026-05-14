@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Settings;
+namespace Tests\Feature\Settings;
 
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\User;

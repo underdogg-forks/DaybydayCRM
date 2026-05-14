@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Offers;
+namespace Tests\Feature\Offers;
 
 use App\Enums\PermissionName;
 use App\Models\Appointment;

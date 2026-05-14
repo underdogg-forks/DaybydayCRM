@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Offers;
+namespace Tests\Feature\Offers;
 
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Lead;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Users;
+namespace Tests\Feature\Users;
 
 use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Tasks;
+namespace Tests\Feature\Tasks;
 
 use App\Models\Client;
 use App\Models\Permission;

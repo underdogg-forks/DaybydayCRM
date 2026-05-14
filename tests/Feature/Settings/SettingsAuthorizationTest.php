@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Settings;
+namespace Tests\Feature\Settings;
 
 use App\Models\BusinessHour;
 use App\Models\Setting;

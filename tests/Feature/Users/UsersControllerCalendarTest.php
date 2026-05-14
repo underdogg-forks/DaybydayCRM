@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Users;
+namespace Tests\Feature\Users;
 
 use App\Models\Absence;
 use App\Models\User;

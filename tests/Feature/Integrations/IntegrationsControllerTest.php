@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Integrations;
+namespace Tests\Feature\Integrations;
 
 use App\Models\Integration;
 use Tests\AbstractTestCase;

@@ -159,12 +159,18 @@ class SettingsController extends Controller
         }
 
         if ( ! app(ClientNumberValidator::class)->validateClientNumber((int) $request->client_number)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => __('Client number invalid')], 422);
+            }
             Session::flash('flash_message_warning', __('Client number invalid'));
 
             return redirect()->back();
         }
 
         if ( ! app(InvoiceNumberValidator::class)->validateInvoiceNumber((int) $request->invoice_number)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => __('Invoice number invalid')], 422);
+            }
             Session::flash('flash_message_warning', __('Invoice number invalid'));
 
             return redirect()->back();
@@ -212,6 +218,10 @@ class SettingsController extends Controller
         $setting->save();
 
         cache()->delete(GetDateFormat::CACHE_KEY);
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => __('Overall settings successfully updated')], 200);
+        }
 
         Session::flash('flash_message', __('Overall settings successfully updated'));
 

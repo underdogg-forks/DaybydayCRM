@@ -8,7 +8,7 @@ use App\Models\Lead;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
-use App\Services\Storage\GetStorageProvider;
+use App\Services\Storage\StorageAdapterRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Ramsey\Uuid\Uuid;
@@ -20,7 +20,7 @@ class DocumentsController extends Controller
      */
     private const ASSIGNABLE_TYPES = [Task::class, Project::class, Lead::class];
 
-    public function __construct()
+    public function __construct(private StorageAdapterRegistry $storage)
     {
         $this->middleware('filesystem.is.enabled');
     }
@@ -50,7 +50,7 @@ class DocumentsController extends Controller
             return redirect()->back();
         }
 
-        $fileSystem = GetStorageProvider::getStorage();
+        $fileSystem = $this->storage->driver();
         $file       = $fileSystem->view($document);
 
         if ( ! $file) {
@@ -90,7 +90,7 @@ class DocumentsController extends Controller
             return redirect()->back();
         }
 
-        $fileSystem = GetStorageProvider::getStorage();
+        $fileSystem = $this->storage->driver();
         $file       = $fileSystem->download($document);
 
         if ( ! $file) {
@@ -134,7 +134,7 @@ class DocumentsController extends Controller
         }
 
         $client_folder = $client->external_id;
-        $fileSystem    = GetStorageProvider::getStorage();
+        $fileSystem    = $this->storage->driver();
         $fileData      = $fileSystem->upload($client_folder, $filename, $file);
         $input         = array_replace(
             $request->all(),
@@ -192,7 +192,7 @@ class DocumentsController extends Controller
                 }
 
                 $folder     = $external_id;
-                $fileSystem = GetStorageProvider::getStorage();
+                $fileSystem = $this->storage->driver();
                 $fileData   = $fileSystem->upload($folder, $filename, $file);
 
                 Document::query()->create([
@@ -252,7 +252,7 @@ class DocumentsController extends Controller
 
                 $folder = $external_id;
 
-                $fileSystem = GetStorageProvider::getStorage();
+                $fileSystem = $this->storage->driver();
 
                 $fileData = $fileSystem->upload($folder, $filename, $file);
 

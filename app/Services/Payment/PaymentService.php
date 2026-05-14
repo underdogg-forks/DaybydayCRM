@@ -3,12 +3,12 @@
 namespace App\Services\Payment;
 
 use App\Enums\PaymentSource;
-use App\Models\Integration;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\Billing\BillingIntegrationRegistry;
+use App\Services\Billing\NullBillingAdapter;
 use App\Services\Invoice\GenerateInvoiceStatus;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
@@ -16,6 +16,8 @@ use RuntimeException;
 
 class PaymentService
 {
+    public function __construct(private BillingIntegrationRegistry $billing) {}
+
     /**
      * Add a payment to an invoice.
      *
@@ -27,7 +29,8 @@ class PaymentService
      *
      * @return Payment The created payment
      *
-     * @throws RuntimeException If invoice is not sent
+     * @throws RuntimeException        If invoice is not sent
+     * @throws InvalidArgumentException If payment source is invalid
      */
     public function addPayment(
         Invoice $invoice,
@@ -36,52 +39,52 @@ class PaymentService
         string $source,
         ?string $description = null
     ): Payment {
-        // Verify invoice is sent
-        if ( ! $invoice->isSent()) {
+        if (! $invoice->isSent()) {
             throw new RuntimeException('Cannot add payment to unsent invoice');
         }
 
-        // Validate payment source
-        $source       = $this->normalizeSource($source);
+        // Validate payment source using the enum as single source of truth.
         $validSources = array_keys(PaymentSource::values());
         if (! in_array($source, $validSources, true)) {
             throw new InvalidArgumentException("Invalid payment source: {$source}");
         }
 
-        // Create the payment with UUID and amount in cents
         $payment = Payment::query()->create([
             'external_id'    => Uuid::uuid4()->toString(),
-            'amount'         => (int) ($amount * 100), // Convert to cents
+            'amount'         => (int) ($amount * 100),
             'payment_date'   => Carbon::parse($paymentDate),
             'payment_source' => $source,
             'description'    => $description,
             'invoice_id'     => $invoice->id,
         ]);
 
-        // Sync with billing API if configured
         $this->syncWithBillingAPI($payment, $invoice);
 
-        // Update invoice status
         app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
 
         return $payment;
     }
 
     /**
-     * Delete a payment.
+     * Delete a payment (soft-delete).
      *
      * @param Payment $payment The payment to delete
      *
      * @return bool True if deletion was successful
-     *
-     * @throws RuntimeException If sync with API fails
      */
     public function deletePayment(Payment $payment): bool
     {
-        // Delete from billing API if configured
-        $api = Integration::initBillingIntegration();
-        if ($api) {
-            $api->deletePayment($payment);
+        $api = $this->billing->driver();
+
+        if (! ($api instanceof NullBillingAdapter)) {
+            try {
+                $api->deletePayment($payment);
+            } catch (\Throwable $e) {
+                Log::warning('PaymentService: failed to delete payment from billing API', [
+                    'payment_id' => $payment->id,
+                    'error'      => $e->getMessage(),
+                ]);
+            }
         }
 
         return (bool) $payment->delete();
@@ -89,10 +92,6 @@ class PaymentService
 
     /**
      * Get payment by external ID.
-     *
-     * @param string $externalId The payment external ID
-     *
-     * @return Payment|null The payment or null if not found
      */
     public function findByExternalId(string $externalId): ?Payment
     {
@@ -101,10 +100,6 @@ class PaymentService
 
     /**
      * Get all payments for an invoice.
-     *
-     * @param Invoice $invoice The invoice
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getPaymentsForInvoice(Invoice $invoice)
     {
@@ -114,8 +109,6 @@ class PaymentService
     /**
      * Calculate total payments for an invoice.
      *
-     * @param Invoice $invoice The invoice
-     *
      * @return int Total payments in cents
      */
     public function calculateTotalPayments(Invoice $invoice): int
@@ -124,15 +117,13 @@ class PaymentService
     }
 
     /**
-     * Sync payment with billing API.
-     *
-     * @param Payment $payment The payment to sync
-     * @param Invoice $invoice The related invoice
+     * Sync payment with billing API if available.
      */
     private function syncWithBillingAPI(Payment $payment, Invoice $invoice): void
     {
-        $api = Integration::initBillingIntegration();
-        if ( ! $api || ! $invoice->integration_invoice_id) {
+        $api = $this->billing->driver();
+
+        if ($api instanceof NullBillingAdapter || ! $invoice->integration_invoice_id) {
             return;
         }
 
@@ -144,21 +135,11 @@ class PaymentService
                 $payment->integration_type       = get_class($api);
                 $payment->save();
             }
-        } catch (Exception $e) {
-            // Log error but don't throw - payment should still be created locally
-            Log::warning('Failed to sync payment with billing API', [
+        } catch (\Throwable $e) {
+            Log::warning('PaymentService: failed to sync payment with billing API', [
                 'payment_id' => $payment->id,
                 'error'      => $e->getMessage(),
             ]);
         }
-    }
-
-    private function normalizeSource(string $source): string
-    {
-        return match (mb_strtolower($source)) {
-            // Legacy tests still pass card/check; normalize both to the canonical bank source.
-            'card', 'check' => PaymentSource::bank()->getSource(),
-            default => $source,
-        };
     }
 }

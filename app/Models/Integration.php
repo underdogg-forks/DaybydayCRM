@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,51 +12,21 @@ class Integration extends Model
     protected $fillable = ['name', 'client_id', 'client_secret', 'api_key', 'org_id', 'api_type', 'user_id'];
 
     /**
-     * @return mixed
-     *
-     * @throws Exception
+     * @deprecated Use BillingIntegrationRegistry instead of calling this
+     *             static method. It remains only for backward compatibility
+     *             with legacy code that has not yet been migrated.
      */
-    public static function getApi($type)
-    {
-        $integration = self::query()->where([
-            'api_type' => $type,
-        ])->first();
-        if ($integration) {
-            $className = ucfirst($integration->name);
-
-            call_user_func_array(['App\\' . $className, 'initialize'], [$integration]);
-            $apiInstance = call_user_func_array(['App\\' . $className, 'getInstance'], []);
-
-            return $apiInstance;
-        }
-
-        return false;
-    }
-
     public static function initBillingIntegration()
     {
-        $integration = self::whereApiType('billing')->first();
-        if ( ! $integration) {
+        // Delegate to the container-resolved registry to avoid re-introducing
+        // the service-locator anti-pattern here.
+        /** @var \App\Services\Billing\BillingIntegrationRegistry $registry */
+        $registry = app(\App\Services\Billing\BillingIntegrationRegistry::class);
+
+        if (! $registry->isConfigured()) {
             return null;
         }
 
-        return $integration->api_class;
-    }
-
-    public function getApiClassAttribute()
-    {
-        // Integrations historically store either a fully-qualified class name or a short App\ class name.
-        $candidates = [
-            $this->name,
-            'App\\' . ltrim($this->name, '\\'),
-        ];
-
-        foreach ($candidates as $candidate) {
-            if (class_exists($candidate)) {
-                return new $candidate();
-            }
-        }
-
-        return null;
+        return $registry->driver();
     }
 }

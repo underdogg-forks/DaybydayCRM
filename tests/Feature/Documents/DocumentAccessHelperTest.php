@@ -56,9 +56,12 @@ class DocumentAccessHelperTest extends AbstractTestCase
 
     /**
      * Create a document that $this->unrelated has no connection to.
-     * The task is created by $this->creator and assigned to $this->assignee,
-     * both of which are different users.  The client belongs to a third owner,
-     * so $this->unrelated has no path to the document.
+     *
+     * The document is owned by $this->creator (as task creator) and
+     * $this->assignee (as task assignee), while its client belongs to
+     * $this->creator (not $this->clientOwner).  This means $this->unrelated
+     * has no path to the document through any of the three ownership checks
+     * (creator / assignee / client owner).
      */
     private function createUnownedDocument(): Document
     {

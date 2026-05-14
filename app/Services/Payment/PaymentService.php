@@ -51,6 +51,8 @@ class PaymentService
 
         $payment = Payment::query()->create([
             'external_id'    => Uuid::uuid4()->toString(),
+            // Amounts are stored as integer cents (× 100). round() prevents
+            // floating-point truncation artifacts (e.g. 10.29 → 1028 without it).
             'amount'         => (int) round($amount * 100),
             'payment_date'   => Carbon::parse($paymentDate),
             'payment_source' => $source,

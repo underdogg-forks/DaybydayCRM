@@ -7,6 +7,9 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSettingOverallRequest extends FormRequest
 {
+    /** Fallback locales used when no lang files can be scanned from disk. */
+    private const DEFAULT_LOCALES = ['en', 'dk'];
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -74,17 +77,22 @@ class UpdateSettingOverallRequest extends FormRequest
     private function availableLanguages(): array
     {
         $langPath = resource_path('lang');
-        $locales  = [];
 
-        foreach (glob("{$langPath}/*.json") as $file) {
+        if (! is_dir($langPath)) {
+            return self::DEFAULT_LOCALES;
+        }
+
+        $locales = [];
+
+        foreach (glob("{$langPath}/*.json") ?: [] as $file) {
             $locales[] = pathinfo($file, PATHINFO_FILENAME);
         }
 
-        foreach (glob("{$langPath}/*/", GLOB_ONLYDIR) as $dir) {
+        foreach (glob("{$langPath}/*/", GLOB_ONLYDIR) ?: [] as $dir) {
             $locales[] = basename(rtrim($dir, '/'));
         }
 
-        return ! empty($locales) ? array_unique($locales) : ['en', 'dk'];
+        return ! empty($locales) ? array_unique($locales) : self::DEFAULT_LOCALES;
     }
 
     /**

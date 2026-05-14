@@ -24,10 +24,10 @@ class PaymentsController extends Controller
      *
      * @return mixed
      */
-    public function destroy(Payment $payment)
+    public function destroy(Payment $payment, \Illuminate\Http\Request $request)
     {
         if (! auth()->user()->can('payment-delete')) {
-            if (request()->expectsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['message' => __("You don't have permission to delete a payment")], 403);
             }
             session()->flash('flash_message', __("You don't have permission to delete a payment"));
@@ -37,7 +37,7 @@ class PaymentsController extends Controller
 
         $this->paymentService->deletePayment($payment);
 
-        if (request()->expectsJson()) {
+        if ($request->expectsJson()) {
             return response()->json(['message' => __('Payment successfully deleted')], 200);
         }
 

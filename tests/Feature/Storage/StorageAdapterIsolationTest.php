@@ -2,9 +2,12 @@
 
 namespace Tests\Feature\Storage;
 
+use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Client;
 use App\Models\Document;
+use App\Repositories\FilesystemIntegration\FilesystemIntegration;
+use App\Services\Storage\NullStorageAdapter;
 use App\Services\Storage\StorageAdapterRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
@@ -54,9 +57,14 @@ class StorageAdapterIsolationTest extends AbstractTestCase
     #[Test]
     public function it_returns_422_json_when_upload_is_attempted_with_no_storage_enabled()
     {
-        /* Arrange – no file integration configured */
-        \App\Models\Integration::whereApiType('file')->delete();
+        /* Arrange – bind NullStorageAdapter so isEnabled() returns false,
+         * overriding the testing-env Local fallback in the registry. */
+        app()->instance(FilesystemIntegration::class, new NullStorageAdapter());
         app(StorageAdapterRegistry::class)->reset();
+
+        /* Authenticate with document-upload permission so auth doesn't block
+         * us before the storage middleware check. */
+        $this->withPermissions([PermissionName::DOCUMENT_UPLOAD]);
 
         $client = Client::factory()->create();
 

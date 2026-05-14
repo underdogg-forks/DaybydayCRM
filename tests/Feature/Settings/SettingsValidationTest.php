@@ -24,7 +24,6 @@ class SettingsValidationTest extends AbstractTestCase
     {
         parent::setUp();
         Carbon::setTestNow('2024-01-15 12:00:00');
-        $this->asAdmin();
         $this->withoutMiddleware([VerifyCsrfToken::class]);
 
         Setting::factory()->create([
@@ -44,6 +43,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_accepts_valid_settings_and_returns_200_json()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'company'        => 'My Company',
@@ -74,6 +76,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_missing_client_number_with_422()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'company'        => 'My Company',
@@ -89,6 +94,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_missing_invoice_number_with_422()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'company'        => 'My Company',
@@ -104,6 +112,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_non_integer_client_number()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 'abc',
@@ -118,6 +129,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_invalid_language()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
@@ -133,6 +147,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_invalid_currency()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
@@ -148,6 +165,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_vat_above_100_percent()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
@@ -163,6 +183,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_negative_vat()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
@@ -178,6 +201,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_invalid_time_format()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
@@ -193,6 +219,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_country_code_longer_than_two_characters()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act – 'GBR' is 3 chars, fails size:2 rule */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
@@ -208,6 +237,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_single_character_country_code()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act – 'G' is 1 char, fails size:2 rule */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
@@ -223,6 +255,9 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_client_number_below_minimum()
     {
+        /* Arrange */
+        $this->asAdmin();
+
         /* Act – min:1 rule */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 0,
@@ -237,7 +272,10 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_invalid_end_time_format()
     {
-        /* Act – the regex requires \d{1,2}:\d{2}, so free-form strings are rejected */
+        /* Arrange */
+        $this->asAdmin();
+
+        /* Act – date_format:H:i rejects free-form strings */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
             'invoice_number' => 10000,
@@ -247,6 +285,24 @@ class SettingsValidationTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['end_time']);
+    }
+
+    #[Test]
+    public function it_rejects_out_of_range_clock_value_for_start_time()
+    {
+        /* Arrange */
+        $this->asAdmin();
+
+        /* Act – date_format:H:i rejects semantically invalid hours/minutes */
+        $response = $this->json('PATCH', route('settings.updateOverall'), [
+            'client_number'  => 10000,
+            'invoice_number' => 10000,
+            'start_time'     => '29:99',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['start_time']);
     }
 
     // ─── Authorization ───────────────────────────────────────────────────────
@@ -274,6 +330,7 @@ class SettingsValidationTest extends AbstractTestCase
     public function it_persists_all_submitted_fields_without_silent_overrides()
     {
         /* Arrange */
+        $this->asAdmin();
         $before = Setting::first();
 
         /* Act */

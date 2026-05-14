@@ -18,12 +18,36 @@ class UpdateSettingOverallRequest extends FormRequest
     }
 
     /**
+     * Normalize fields before validation runs.
+     *
+     * - Currency codes are case-insensitive in user input; canonicalize to
+     *   uppercase so the `in:` rule matches the stored currency list.
+     * - Language codes are stored lowercase; ensure consistent casing.
+     */
+    protected function prepareForValidation(): void
+    {
+        $merge = [];
+
+        if ($this->has('currency') && $this->currency !== null) {
+            $merge['currency'] = strtoupper($this->currency);
+        }
+
+        if ($this->has('language') && $this->language !== null) {
+            $merge['language'] = strtolower($this->language);
+        }
+
+        if (! empty($merge)) {
+            $this->merge($merge);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
     {
         $validCurrencies = array_keys(Currency::getAllCurrencies());
-        $validLanguages  = ['en', 'dk'];
+        $validLanguages  = $this->availableLanguages();
 
         return [
             'client_number'  => ['required', 'integer', 'min:1'],
@@ -33,9 +57,34 @@ class UpdateSettingOverallRequest extends FormRequest
             'language'       => ['nullable', 'string', 'in:' . implode(',', $validLanguages)],
             'currency'       => ['nullable', 'string', 'in:' . implode(',', $validCurrencies)],
             'vat'            => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'start_time'     => ['nullable', 'regex:/^\d{1,2}:\d{2}$/'],
-            'end_time'       => ['nullable', 'regex:/^\d{1,2}:\d{2}$/'],
+            'start_time'     => ['nullable', 'date_format:H:i'],
+            'end_time'       => ['nullable', 'date_format:H:i'],
         ];
+    }
+
+    /**
+     * Derive the list of valid language codes from the translation files that
+     * are actually present in the application, so adding a new locale
+     * automatically makes it accepted without editing this class.
+     *
+     * Convention: a locale is considered available when either a JSON file
+     * (e.g. `resources/lang/dk.json`) or a subdirectory
+     * (e.g. `resources/lang/en/`) exists inside `resources/lang/`.
+     */
+    private function availableLanguages(): array
+    {
+        $langPath = resource_path('lang');
+        $locales  = [];
+
+        foreach (glob("{$langPath}/*.json") as $file) {
+            $locales[] = pathinfo($file, PATHINFO_FILENAME);
+        }
+
+        foreach (glob("{$langPath}/*/", GLOB_ONLYDIR) as $dir) {
+            $locales[] = basename(rtrim($dir, '/'));
+        }
+
+        return ! empty($locales) ? array_unique($locales) : ['en', 'dk'];
     }
 
     /**
@@ -56,8 +105,8 @@ class UpdateSettingOverallRequest extends FormRequest
             'vat.numeric'             => __('VAT must be a number.'),
             'vat.min'                 => __('VAT must be at least 0.'),
             'vat.max'                 => __('VAT cannot exceed 100%.'),
-            'start_time.regex'        => __('Start time must be in HH:MM format.'),
-            'end_time.regex'          => __('End time must be in HH:MM format.'),
+            'start_time.date_format'  => __('Start time must be in HH:MM format.'),
+            'end_time.date_format'    => __('End time must be in HH:MM format.'),
         ];
     }
 }

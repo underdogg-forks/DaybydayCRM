@@ -43,9 +43,33 @@ foreach ($lines as $line) {
         continue;
     }
 
-    // Identify the start of a verbose stack-trace frame
+    // While inside an active trace block, consume every line until the block ends.
+    // Doing this first ensures no app-code frames get silently dropped between
+    // vendor frames (which would happen if we only buffered lines that matched
+    // the trace-start pattern below).
+    if ($isBufferingTrace) {
+        // End of trace: blank line or the "N) TestClass::method" header of the next failure
+        if ($trimmedLine === '' || preg_match('/^\d+\)/', $trimmedLine)) {
+            // Flush only the last 5 frames — #0 often starts deep inside vendor,
+            // so the interesting app/test code is toward the bottom of the trace.
+            foreach (array_slice($currentTrace, -5) as $traceLine) {
+                $output[] = $traceLine;
+            }
+            $currentTrace     = [];
+            $isBufferingTrace = false;
+            $output[]         = $line; // keep the blank line / next-failure header
+        } else {
+            $currentTrace[] = $line; // buffer every trace line, vendor or app
+        }
+        continue;
+    }
+
+    // Identify the start of a verbose stack-trace block.
+    // Match numbered frames (#N /path.php(line):) regardless of any leading
+    // decoration (e.g. testdox's "│ " prefix), and also catch un-numbered
+    // phpunit-vendor lines that appear at the top of some trace formats.
     if (
-        preg_match('/^#\d+\s+.*\.php\(\d+\):/', $trimmedLine)
+        preg_match('/#\d+\s+.*\.php\(\d+\):/', $trimmedLine)
         || str_contains($trimmedLine, 'vendor/phpunit/phpunit')
     ) {
         $isBufferingTrace = true;
@@ -53,18 +77,7 @@ foreach ($lines as $line) {
         continue;
     }
 
-    // Flush the buffered trace: keep only the last 3 frames for context
-    if ($isBufferingTrace && ($trimmedLine === '' || preg_match('/^\d+\)/', $trimmedLine))) {
-        foreach (array_slice($currentTrace, -5) as $traceLine) {
-            $output[] = $traceLine;
-        }
-        $currentTrace     = [];
-        $isBufferingTrace = false;
-    }
-
-    if ( ! $isBufferingTrace) {
-        $output[] = $line;
-    }
+    $output[] = $line;
 }
 
 // Flush any trace that ran to the very end of the file

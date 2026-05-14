@@ -80,7 +80,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_null_billing_adapter_returns_safe_defaults()
+    public function it_returns_safe_defaults_from_null_billing_adapter()
     {
         /* Arrange */
         $adapter = new NullBillingAdapter();
@@ -101,7 +101,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_null_billing_adapter_book_invoice_returns_null()
+    public function it_returns_null_from_null_billing_adapter_on_book_invoice()
     {
         /* Arrange */
         $adapter = new NullBillingAdapter();
@@ -112,7 +112,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_null_billing_adapter_get_primary_contact_returns_null()
+    public function it_returns_null_from_null_billing_adapter_on_get_primary_contact()
     {
         /* Arrange */
         $adapter = new NullBillingAdapter();
@@ -123,7 +123,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_billing_registry_is_a_singleton()
+    public function it_resolves_the_billing_registry_as_a_singleton()
     {
         /* Act */
         $a = app(BillingIntegrationRegistry::class);
@@ -134,7 +134,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_billing_registry_reset_clears_cached_driver()
+    public function it_clears_the_cached_driver_after_billing_registry_reset()
     {
         /* Arrange */
         Integration::whereApiType('billing')->delete();
@@ -169,7 +169,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_null_storage_adapter_is_not_enabled()
+    public function it_reports_not_enabled_for_the_null_storage_adapter()
     {
         /* Arrange */
         $adapter = new NullStorageAdapter();
@@ -179,7 +179,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_null_storage_adapter_returns_safe_defaults()
+    public function it_returns_safe_defaults_from_null_storage_adapter()
     {
         /* Arrange */
         $adapter = new NullStorageAdapter();
@@ -195,7 +195,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_storage_registry_is_a_singleton()
+    public function it_resolves_the_storage_registry_as_a_singleton()
     {
         /* Act */
         $a = app(StorageAdapterRegistry::class);
@@ -208,7 +208,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
     // ─── Integration model backward compat ──────────────────────────────────
 
     #[Test]
-    public function it_integration_model_init_billing_returns_null_when_not_configured()
+    public function it_returns_null_from_init_billing_when_no_integration_is_configured()
     {
         /* Arrange */
         Integration::whereApiType('billing')->delete();

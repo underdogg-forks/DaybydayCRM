@@ -68,7 +68,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     // ─── PaymentService unit-ish ─────────────────────────────────────────────
 
     #[Test]
-    public function it_payment_service_uses_null_billing_adapter_when_no_integration_configured()
+    public function it_uses_null_billing_adapter_when_no_integration_is_configured()
     {
         /* Arrange */
         \App\Models\Integration::whereApiType('billing')->delete();
@@ -83,7 +83,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_creates_payment_record()
+    public function it_creates_a_payment_record()
     {
         /* Arrange */
         $this->assertDatabaseCount('payments', 0);
@@ -107,7 +107,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_updates_invoice_status_to_paid_when_full_amount_paid()
+    public function it_marks_invoice_as_paid_after_full_payment()
     {
         /* Arrange – invoice has one line of price=5000, qty=1 → total 5000 cents */
         $this->assertDatabaseHas('invoices', ['id' => $this->invoice->id, 'status' => 'unpaid']);
@@ -125,7 +125,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_updates_invoice_status_to_partial_paid_when_partially_paid()
+    public function it_marks_invoice_as_partial_after_a_partial_payment()
     {
         /* Arrange */
         $this->assertDatabaseHas('invoices', ['id' => $this->invoice->id, 'status' => 'unpaid']);
@@ -143,7 +143,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_throws_on_unsent_invoice()
+    public function it_throws_when_adding_payment_to_an_unsent_invoice()
     {
         /* Arrange */
         $invoice = Invoice::factory()->create(['sent_at' => null]);
@@ -154,7 +154,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_throws_on_invalid_source()
+    public function it_throws_when_the_payment_source_is_invalid()
     {
         /* Act & Assert */
         $this->expectException(\InvalidArgumentException::class);
@@ -167,7 +167,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_delete_payment_soft_deletes_the_record()
+    public function it_soft_deletes_the_payment_record()
     {
         /* Arrange */
         $payment = Payment::factory()->create([
@@ -185,7 +185,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_delete_payment_succeeds_even_when_no_billing_adapter_configured()
+    public function it_deletes_payment_when_no_billing_adapter_is_configured()
     {
         /* Arrange */
         \App\Models\Integration::whereApiType('billing')->delete();
@@ -208,7 +208,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     // ─── Controller HTTP layer ───────────────────────────────────────────────
 
     #[Test]
-    public function it_add_payment_controller_returns_json_201_for_json_request()
+    public function it_returns_201_json_when_payment_is_added()
     {
         /* Act */
         $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
@@ -224,7 +224,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_controller_rejects_unsent_invoice_with_422()
+    public function it_returns_422_when_payment_is_added_to_unsent_invoice()
     {
         /* Arrange */
         $unsent = Invoice::factory()->create(['sent_at' => null]);
@@ -242,7 +242,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_controller_rejects_zero_amount_with_422()
+    public function it_returns_422_when_payment_amount_is_zero()
     {
         /* Act – PaymentRequest has not_in:0 rule */
         $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
@@ -258,7 +258,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_controller_rejects_missing_payment_date_with_422()
+    public function it_returns_422_when_payment_date_is_missing()
     {
         /* Act */
         $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
@@ -274,7 +274,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_controller_rejects_invalid_source_with_422()
+    public function it_returns_422_when_payment_source_is_invalid()
     {
         /* Act */
         $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
@@ -290,7 +290,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_controller_accepts_comma_separated_decimal_amount()
+    public function it_accepts_comma_decimal_notation_for_payment_amount()
     {
         /* Act – prepareForValidation normalises "50,00" to "50.00" */
         $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
@@ -308,7 +308,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_destroy_payment_controller_returns_json_200_for_json_request()
+    public function it_returns_200_json_when_payment_is_deleted()
     {
         /* Arrange */
         $payment = Payment::factory()->create([
@@ -327,7 +327,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_destroy_payment_controller_returns_403_when_no_permission()
+    public function it_returns_403_when_deleting_payment_without_permission()
     {
         /* Arrange */
         $payment  = Payment::factory()->create([
@@ -347,7 +347,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_add_payment_controller_returns_403_when_no_permission()
+    public function it_returns_403_when_adding_payment_without_permission()
     {
         /* Arrange */
         $noPerms = \App\Models\User::factory()->create();

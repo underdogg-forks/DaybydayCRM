@@ -64,7 +64,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_task_header_composer_handles_task_without_assigned_user()
+    public function it_handles_task_without_assigned_user()
     {
         /* Arrange */
         $client = Client::factory()->create();
@@ -84,7 +84,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_task_header_composer_handles_missing_task_in_view_data()
+    public function it_handles_missing_task_in_view_data()
     {
         /* Arrange – no 'tasks' key at all */
         $view = new FakeView([]);
@@ -99,7 +99,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_task_header_composer_populates_all_three_keys_when_task_is_complete()
+    public function it_populates_contact_client_and_contact_info_when_task_is_complete()
     {
         /* Arrange */
         $client = Client::factory()->create();
@@ -124,7 +124,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     // ─── LeadHeaderComposer ──────────────────────────────────────────────────
 
     #[Test]
-    public function it_lead_header_composer_handles_lead_without_client()
+    public function it_handles_lead_without_client()
     {
         /* Arrange */
         $lead = Lead::factory()->create([
@@ -143,7 +143,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_lead_header_composer_handles_missing_lead_in_view_data()
+    public function it_handles_missing_lead_in_view_data()
     {
         /* Arrange */
         $view = new FakeView([]);
@@ -158,7 +158,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_lead_header_composer_populates_contact_when_user_is_assigned()
+    public function it_populates_contact_when_lead_has_assigned_user()
     {
         /* Arrange */
         $client = Client::factory()->create();
@@ -180,7 +180,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     // ─── InvoiceHeaderComposer ───────────────────────────────────────────────
 
     #[Test]
-    public function it_invoice_header_composer_handles_invoice_without_client()
+    public function it_handles_invoice_without_client()
     {
         /* Arrange */
         $invoice = Invoice::factory()->create(['client_id' => null]);
@@ -197,7 +197,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_invoice_header_composer_handles_missing_invoice_in_view_data()
+    public function it_handles_missing_invoice_in_view_data()
     {
         /* Arrange */
         $view = new FakeView([]);
@@ -211,7 +211,7 @@ class ViewComposerNullSafetyTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_invoice_header_composer_populates_client_when_invoice_has_client()
+    public function it_populates_client_when_invoice_has_a_client()
     {
         /* Arrange */
         $client  = Client::factory()->create();

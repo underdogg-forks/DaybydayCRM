@@ -160,7 +160,7 @@ class SettingsController extends Controller
 
         if ( ! app(ClientNumberValidator::class)->validateClientNumber((int) $request->client_number)) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => __('Client number invalid')], 422);
+                return response()->json(['message' => __('Client number invalid')], 400);
             }
             Session::flash('flash_message_warning', __('Client number invalid'));
 
@@ -169,7 +169,7 @@ class SettingsController extends Controller
 
         if ( ! app(InvoiceNumberValidator::class)->validateInvoiceNumber((int) $request->invoice_number)) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => __('Invoice number invalid')], 422);
+                return response()->json(['message' => __('Invoice number invalid')], 400);
             }
             Session::flash('flash_message_warning', __('Invoice number invalid'));
 

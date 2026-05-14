@@ -1,6 +1,3 @@
-Here is the full phpunit.yml workflow, integrated with the log-cleaning script.
-This configuration assumes you place the PHP script provided in the previous turn at .github/scripts/parse-phpunit.php within your repository.
-```yaml
 name: phpunit
 
 on:
@@ -163,5 +160,3 @@ jobs:
           else
             vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$GROUP" $OUT_OPT $PARATEST_FAILFAST | php .github/scripts/parse-phpunit.php
           fi
-
-```

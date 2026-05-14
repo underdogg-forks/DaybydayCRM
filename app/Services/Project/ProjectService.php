@@ -51,7 +51,10 @@ class ProjectService
      */
     public function prepareShowCollaboratorsAndTasks(Project $project): array
     {
-        $project->loadMissing(['assignee', 'tasks.user']);
+        $project->loadMissing([
+            'assignee',
+            'tasks' => static fn ($query) => $query->whereNotNull('user_assigned_id')->with('user'),
+        ]);
 
         // tasks.user is loaded above; keep only tasks that still resolve to a user.
         $tasks = $project->tasks->filter(static fn ($task) => $task->user !== null)->values();

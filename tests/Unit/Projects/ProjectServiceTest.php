@@ -124,8 +124,6 @@ class ProjectServiceTest extends AbstractTestCase
             'user_created_id'   => $assignee->id,
         ]);
 
-        $project = Project::query()->findOrFail($project->id);
-
         $prepared = $service->prepareShowCollaboratorsAndTasks($project);
 
         $this->assertCount(1, $prepared['tasks'], 'Only tasks with an assigned user should be kept.');
@@ -146,8 +144,6 @@ class ProjectServiceTest extends AbstractTestCase
             'user_assigned_id'  => $user->id,
             'user_created_id'   => $user->id,
         ]);
-
-        $project = Project::query()->findOrFail($project->id);
 
         $prepared = $service->prepareShowCollaboratorsAndTasks($project);
 

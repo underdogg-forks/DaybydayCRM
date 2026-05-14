@@ -154,9 +154,9 @@ jobs:
           chmod +x .github/scripts/parse-phpunit.php
 
           if [ "$GROUP" = "full" ]; then
-            ./vendor/bin/phpunit --exclude-group flaky $PHPUNIT_FAILFAST $OUT_OPT | php .github/scripts/parse-phpunit.php
+            ./vendor/bin/phpunit --exclude-group flaky $PHPUNIT_FAILFAST $OUT_OPT 2>&1 | php .github/scripts/parse-phpunit.php
           elif [ "$GROUP" = "custom" ]; then
-            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$CUSTOM_GROUP" $OUT_OPT $PARATEST_FAILFAST | php .github/scripts/parse-phpunit.php
+            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$CUSTOM_GROUP" $OUT_OPT $PARATEST_FAILFAST 2>&1 | php .github/scripts/parse-phpunit.php
           else
-            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$GROUP" $OUT_OPT $PARATEST_FAILFAST | php .github/scripts/parse-phpunit.php
+            vendor/bin/paratest --exclude-group flaky --processes=8 --runner=WrapperRunner --group="$GROUP" $OUT_OPT $PARATEST_FAILFAST 2>&1 | php .github/scripts/parse-phpunit.php
           fi

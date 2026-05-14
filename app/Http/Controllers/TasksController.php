@@ -200,9 +200,9 @@ class TasksController extends Controller
         return view('tasks.show')
             ->withTasks($task)
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
-            ->with('company_name', Setting::first()->company)
+            ->with('company_name', Setting::first()->company ?? '')
             ->withStatuses(Status::typeOfTask()->pluck('title', 'id'))
-            ->withProjects($task->client->projects()->pluck('title', 'external_id'))
+            ->withProjects($task->client ? $task->client->projects()->pluck('title', 'external_id') : collect())
             ->withFiles($task->documents)
             ->with('filesystem_integration', Integration::whereApiType('file')->first());
     }

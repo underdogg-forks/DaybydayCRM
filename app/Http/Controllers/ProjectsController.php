@@ -200,7 +200,7 @@ class ProjectsController extends Controller
             ->withStatuses(Status::typeOfProject()->get())
             ->withTasks($project->tasks)
             ->withCompletionPercentage($completionPercentage)
-            ->withCollaborators($collaborators->filter()->unique('id'))
+            ->withCollaborators($collaborators->reject(static fn ($collaborator) => $collaborator === null)->unique('id'))
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->withFiles($project->documents)
             ->with('filesystem_integration', Integration::whereApiType('file')->first());

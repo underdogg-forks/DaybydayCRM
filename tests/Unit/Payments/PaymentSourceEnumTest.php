@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Payment;
+namespace Tests\Unit\Payments;
 
 use App\Enums\PaymentSource;
 use Exception;

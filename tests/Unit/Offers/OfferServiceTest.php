@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Offers;
+namespace Tests\Unit\Offers;
 
 use App\Enums\OfferStatus;
 use App\Models\Invoice;

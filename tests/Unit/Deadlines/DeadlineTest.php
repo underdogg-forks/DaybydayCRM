@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Deadline;
+namespace Tests\Unit\Deadlines;
 
 use App\Models\Lead;
 use App\Models\Project;

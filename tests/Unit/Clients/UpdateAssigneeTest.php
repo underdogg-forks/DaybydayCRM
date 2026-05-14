@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Client;
+namespace Tests\Unit\Clients;
 
 use App\Events\ClientAction;
 use App\Models\Client;

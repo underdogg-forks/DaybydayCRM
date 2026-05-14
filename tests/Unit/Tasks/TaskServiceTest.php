@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Tasks;
+namespace Tests\Unit\Tasks;
 
 use App\Models\Client;
 use App\Models\Project;

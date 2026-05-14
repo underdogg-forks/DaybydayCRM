@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Invoices;
+namespace Tests\Unit\Invoices;
 
 use App\Models\Invoice;
 use App\Models\InvoiceLine;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Offer;
+namespace Tests\Unit\Offers;
 
 use App\Enums\OfferStatus;
 use Exception;

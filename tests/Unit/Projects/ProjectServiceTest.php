@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Projects;
+namespace Tests\Unit\Projects;
 
 use App\Models\Client;
 use App\Models\Project;

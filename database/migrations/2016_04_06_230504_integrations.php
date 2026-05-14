@@ -17,7 +17,7 @@ class Integrations extends Migration
             $table->string('name');
             $table->integer('client_id')->nullable();
             $table->integer('user_id')->nullable();
-            $table->integer('client_secret')->nullable();
+            $table->string('client_secret')->nullable();
             $table->string('api_key')->nullable();
             $table->string('api_type')->nullable();
             $table->string('org_id')->nullable();

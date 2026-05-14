@@ -70,7 +70,9 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
         ]);
 
         /* Act */
-        $registry = new BillingIntegrationRegistry(); // fresh instance, no cache
+        app(BillingIntegrationRegistry::class)->reset();
+        $registry = app(BillingIntegrationRegistry::class);
+         $driver   = $registry->driver();
         $driver   = $registry->driver();
 
         /* Assert */

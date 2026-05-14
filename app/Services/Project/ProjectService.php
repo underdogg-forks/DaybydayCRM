@@ -54,7 +54,6 @@ class ProjectService
         $project->loadMissing([
             'assignee',
             'tasks' => static fn ($query) => $query
-                ->whereNotNull('user_assigned_id')
                 ->whereHas('user')
                 ->with('user'),
         ]);

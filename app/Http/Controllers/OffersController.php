@@ -55,13 +55,16 @@ class OffersController extends Controller
         $lead = Lead::query()->where('external_id', $external_id)->first();
         if ($lead) {
             if (! $lead->client_id) {
-                return response()->json(['message' => 'Lead offer source must have a client'], 422);
+                return response()->json(['message' => 'This lead must be associated with a client before creating an offer'], 422);
             }
 
             return $this->createOfferForSource($request, $lead->id, $lead->client_id, Lead::class);
         }
 
-        $client = Client::query()->where('external_id', $external_id)->firstOrFail();
+        $client = Client::query()->where('external_id', $external_id)->first();
+        if (! $client) {
+            return response()->json(['message' => 'Offer source was not found'], 404);
+        }
 
         return $this->createOfferForSource($request, $client->id, $client->id, Client::class);
     }

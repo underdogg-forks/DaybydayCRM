@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Payments;
 
+use App\Enums\PermissionName;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Invoice;
 use App\Models\InvoiceLine;
 use App\Models\Payment;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
@@ -26,15 +26,7 @@ class PaymentsControllerTest extends AbstractTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $role       = Role::firstOrCreate(['name' => 'owner'], ['display_name' => 'Owner']);
-        $permission = \App\Models\Permission::firstOrCreate(['name' => 'payment-delete']);
-        if ( ! $role->hasPermission('payment-delete')) {
-            $role->attachPermission($permission);
-        }
-        $this->user->attachRole($role);
-        \Illuminate\Support\Facades\Cache::flush();
-        $this->user = $this->user->fresh(['roles', 'roles.permissions']);
-        $this->actingAs($this->user);
+        $this->withPermissions(PermissionName::PAYMENT_DELETE);
         $this->withoutMiddleware([VerifyCsrfToken::class]);
         $this->invoice = Invoice::factory()->create([
             'sent_at' => today(),

@@ -21,7 +21,7 @@ class GetStorageProvider
 
     public static function fromIntegration(?Integration $integration): object
     {
-        if (app()->environment('testing', 'local')) {
+        if (app()->environment('testing') || (app()->environment('local') && config('storage.force_local', true))) {
             return new Local();
         }
 

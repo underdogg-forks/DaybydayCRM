@@ -108,6 +108,18 @@ class EnvironmentConfigurationTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_verifies_storage_force_local_defaults_to_true(): void
+    {
+        /* Arrange */
+
+        /* Act */
+        $forceLocal = config('storage.force_local');
+
+        /* Assert */
+        $this->assertTrue($forceLocal);
+    }
+
+    #[Test]
     public function it_verifies_cache_driver_env_var_is_not_set_in_test_environment(): void
     {
         /* Arrange */

@@ -171,6 +171,7 @@ All tests must follow strict isolation rules to ensure reliability and performan
 - **Single Purpose:** One clear behavior per test, typically one HTTP request.
 - **Role Usage:** Use `$this->asOwner()` or `$this->asAdmin()` helpers from `AbstractTestCase` for elevated permission requirements.
 - **Cache Handling:** Use `$this->withPermissions([...])` which automatically flushes cache and reloads the user; never manually call `$user->fresh()` without also re-binding via `actingAs()`.
+- **Commit Linting:** Every commit must pass lint checks before push/PR. Minimum required command: `git ls-files '*.php' | xargs -n1 php -l` (also enforced in CI by the `php-lint` workflow).
 
 ### Key Test Helpers (AbstractTestCase)
 ```php

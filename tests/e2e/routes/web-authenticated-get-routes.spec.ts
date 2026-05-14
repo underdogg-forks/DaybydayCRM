@@ -16,7 +16,7 @@ authTest.describe('web.php authenticated GET routes', () => {
 
       if (isLikelyJsonPath(routeCase.path)) {
         const response = await request.get(targetUrl, { failOnStatusCode: false });
-        authExpect([200, 401, 403, 404, 422], `${routeCase.method} ${routeCase.path}`).toContain(response.status());
+        authExpect([200, 401, 403, 404, 422].includes(response.status()), `${routeCase.method} ${routeCase.path}`).toBe(true);
 
         if (response.status() === 200) {
           authExpect(response.headers()['content-type'] ?? '').toContain('application/json');

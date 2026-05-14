@@ -15,9 +15,10 @@ authTest.describe('web.php authenticated non-GET routes', () => {
       const csrfToken = await fetchCsrfToken(page);
       const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
-      authExpect(expectedAuthMutationStatuses(routeCase.method), `${routeCase.method} ${routeCase.path}`).toContain(
-        response.status()
-      );
+      authExpect(
+        expectedAuthMutationStatuses(routeCase.method).includes(response.status()),
+        `${routeCase.method} ${routeCase.path}`
+      ).toBe(true);
     });
   }
 });

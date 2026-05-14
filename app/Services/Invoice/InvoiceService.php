@@ -52,6 +52,12 @@ class InvoiceService
                 if ($results) {
                     $invoice->integration_invoice_id = $results->invoiceId;
                     $invoice->integration_type       = get_class($api);
+
+                    // TODO: Only persist remote IDs after a successful bookInvoice() call.
+                    // If bookInvoice() returns falsy below, the invoice is left in a
+                    // partially-synced state (remote IDs saved but invoice_number falls
+                    // back to a locally-generated value). Roll back or skip save() until
+                    // booking succeeds to fix this inconsistency.
                     $invoice->save();
 
                     $booked = $api->bookInvoice($results->invoiceId, $results->timestamp);
@@ -100,7 +106,7 @@ class InvoiceService
             activity('task')
                 ->performedOn($invoice)
                 ->withProperties(['action' => 'sent_invoice'])
-                ->log('user has send the invoice to the customer');
+                ->log('user has sent the invoice to the customer');
 
             return true;
         } catch (\Throwable $e) {

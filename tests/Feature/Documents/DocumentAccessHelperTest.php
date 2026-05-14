@@ -52,6 +52,33 @@ class DocumentAccessHelperTest extends AbstractTestCase
         $this->client      = Client::factory()->create(['user_id' => $this->clientOwner->id]);
     }
 
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Create a document that $this->unrelated has no connection to.
+     * The task is created by $this->creator and assigned to $this->assignee,
+     * both of which are different users.  The client belongs to a third owner,
+     * so $this->unrelated has no path to the document.
+     */
+    private function createUnownedDocument(): Document
+    {
+        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
+        $task        = Task::factory()->create([
+            'user_created_id'  => $this->creator->id,
+            'user_assigned_id' => $this->assignee->id,
+            'client_id'        => $otherClient->id,
+        ]);
+
+        return Document::factory()->create([
+            'source_type' => Task::class,
+            'source_id'   => $task->id,
+            'mime'        => 'text/plain',
+            'path'        => 'fake/path.txt',
+        ]);
+    }
+
+    // ─── Positive-path access ─────────────────────────────────────────────────
+
     #[Test]
     public function it_creator_of_task_can_view_task_document()
     {
@@ -72,8 +99,8 @@ class DocumentAccessHelperTest extends AbstractTestCase
         /* Act */
         $response = $this->get(route('document.view', $document->external_id));
 
-        /* Assert – access should not be denied (no 403) */
-        $this->assertNotEquals(403, $response->status(), 'Creator should have access via user_created_id');
+        /* Assert – creator must get a 200, not a redirect or error */
+        $response->assertStatus(200);
     }
 
     #[Test]
@@ -97,7 +124,7 @@ class DocumentAccessHelperTest extends AbstractTestCase
         $response = $this->get(route('document.view', $document->external_id));
 
         /* Assert */
-        $this->assertNotEquals(403, $response->status(), 'Assignee should have access via user_assigned_id');
+        $response->assertStatus(200);
     }
 
     #[Test]
@@ -121,25 +148,16 @@ class DocumentAccessHelperTest extends AbstractTestCase
         $response = $this->get(route('document.view', $document->external_id));
 
         /* Assert */
-        $this->assertNotEquals(403, $response->status(), 'Client owner should have access via client ownership');
+        $response->assertStatus(200);
     }
+
+    // ─── Negative-path access ─────────────────────────────────────────────────
 
     #[Test]
     public function it_unrelated_user_cannot_view_document_they_have_no_connection_to()
     {
         /* Arrange */
-        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
-        $task        = Task::factory()->create([
-            'user_created_id'  => $this->creator->id,
-            'user_assigned_id' => $this->assignee->id,
-            'client_id'        => $otherClient->id,
-        ]);
-        $document = Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
+        $document = $this->createUnownedDocument();
         $this->actingAs($this->unrelated);
 
         /* Act */
@@ -157,18 +175,7 @@ class DocumentAccessHelperTest extends AbstractTestCase
     public function it_json_request_returns_403_json_for_unauthorized_document_view()
     {
         /* Arrange */
-        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
-        $task        = Task::factory()->create([
-            'user_created_id'  => $this->creator->id,
-            'user_assigned_id' => $this->assignee->id,
-            'client_id'        => $otherClient->id,
-        ]);
-        $document = Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
+        $document = $this->createUnownedDocument();
         $this->actingAs($this->unrelated);
 
         /* Act */
@@ -182,18 +189,7 @@ class DocumentAccessHelperTest extends AbstractTestCase
     public function it_unrelated_user_cannot_download_document_they_have_no_connection_to()
     {
         /* Arrange */
-        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
-        $task        = Task::factory()->create([
-            'user_created_id'  => $this->creator->id,
-            'user_assigned_id' => $this->assignee->id,
-            'client_id'        => $otherClient->id,
-        ]);
-        $document = Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
+        $document = $this->createUnownedDocument();
         $this->actingAs($this->unrelated);
 
         /* Act – download uses the same canAccessDocument gate as view */
@@ -211,18 +207,7 @@ class DocumentAccessHelperTest extends AbstractTestCase
     public function it_json_download_request_returns_403_for_unauthorized_user()
     {
         /* Arrange */
-        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
-        $task        = Task::factory()->create([
-            'user_created_id'  => $this->creator->id,
-            'user_assigned_id' => $this->assignee->id,
-            'client_id'        => $otherClient->id,
-        ]);
-        $document = Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
+        $document = $this->createUnownedDocument();
         $this->actingAs($this->unrelated);
 
         /* Act */
@@ -239,18 +224,7 @@ class DocumentAccessHelperTest extends AbstractTestCase
         \App\Models\Integration::whereApiType('file')->delete();
         app(\App\Services\Storage\StorageAdapterRegistry::class)->reset();
 
-        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
-        $task        = Task::factory()->create([
-            'user_created_id'  => $this->creator->id,
-            'user_assigned_id' => $this->assignee->id,
-            'client_id'        => $otherClient->id,
-        ]);
-        $document = Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
+        $document = $this->createUnownedDocument();
         $this->actingAs($this->unrelated);
 
         /* Act */

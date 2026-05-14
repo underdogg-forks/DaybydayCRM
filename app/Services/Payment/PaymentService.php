@@ -51,7 +51,7 @@ class PaymentService
 
         $payment = Payment::query()->create([
             'external_id'    => Uuid::uuid4()->toString(),
-            'amount'         => (int) ($amount * 100),
+            'amount'         => (int) round($amount * 100),
             'payment_date'   => Carbon::parse($paymentDate),
             'payment_source' => $source,
             'description'    => $description,
@@ -66,7 +66,7 @@ class PaymentService
     }
 
     /**
-     * Delete a payment (soft-delete).
+     * Delete a payment (soft-delete) and recompute the owning invoice's status.
      *
      * @param Payment $payment The payment to delete
      *
@@ -74,12 +74,11 @@ class PaymentService
      */
     public function deletePayment(Payment $payment): bool
     {
-        $api = $this->billing->driver();
+        $invoice = $payment->invoice;
+        $api     = $this->billing->driver();
 
-        if ($api instanceof NullBillingAdapter) {
-            return (bool) $payment->delete();
-        }
-
+        // NullBillingAdapter::deletePayment() is a no-op that returns true, so
+        // we always run through the same path regardless of adapter type.
         try {
             $api->deletePayment($payment);
         } catch (\Throwable $e) {
@@ -89,7 +88,15 @@ class PaymentService
             ]);
         }
 
-        return (bool) $payment->delete();
+        $deleted = (bool) $payment->delete();
+
+        // Recompute invoice status after the payment is removed so that a
+        // previously-paid invoice reverts to partial/open as appropriate.
+        if ($deleted && $invoice) {
+            app(GenerateInvoiceStatus::class, ['invoice' => $invoice->fresh()])->createStatus();
+        }
+
+        return $deleted;
     }
 
     /**

@@ -157,7 +157,7 @@ class PaymentService
     }
 
     /**
-     * Normalize legacy aliases to canonical payment sources.
+     * Normalize legacy aliases from old UI inputs to canonical payment sources.
      */
     private function normalizeSource(string $source): string
     {

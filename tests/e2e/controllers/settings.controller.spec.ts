@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { PLAYWRIGHT_BASE_URL } from '../helpers/config';
 
-async function loginAsSeededAdmin(page: import('@playwright/test').Page) {
+async function loginAsSeededAdmin(page: Page) {
   await page.goto(`${PLAYWRIGHT_BASE_URL}/login`);
   await page.getByLabel(/email/i).fill('admin@admin.com');
   await page.getByLabel(/password/i).fill('admin123');
@@ -27,8 +27,8 @@ test.describe('SettingsController', () => {
     await loginAsSeededAdmin(page);
 
     /* Act */
-    const result = await page.evaluate(async () => {
-      const response = await fetch('/settings', {
+    const result = await page.evaluate(async (settingsUrl) => {
+      const response = await fetch(settingsUrl, {
         headers: {
           Accept: 'application/json',
         },
@@ -38,7 +38,7 @@ test.describe('SettingsController', () => {
         status: response.status,
         payload: await response.json(),
       };
-    });
+    }, `${PLAYWRIGHT_BASE_URL}/settings`);
 
     /* Assert */
     expect(result.status).toBe(200);

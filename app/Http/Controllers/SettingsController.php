@@ -159,17 +159,21 @@ class SettingsController extends Controller
         }
         if ($request->currency == $setting->currency && ! empty($request->vat)) {
             $setting->vat = $request->vat * 100;
-        } elseif (empty($request->vat)) {
-            $request->vat = $setting->vat;
-        } else {
+        } elseif ($request->currency != $setting->currency) {
+            // Currency is changing
             if (app(Currency::class, ['code' => $request->currency])->hasCurrency($request->currency)) {
                 $setting->currency = $request->currency;
-                if ($request->vat == $setting->vat / 100) {
+                if (empty($request->vat)) {
+                    // Use default VAT for new currency
                     $setting->vat = app(Currency::class, ['code' => $request->currency])->getCurrency($request->currency)['vatPercentage'];
                 } else {
+                    // Use provided VAT
                     $setting->vat = $request->vat * 100;
                 }
             }
+        } elseif (! empty($request->vat)) {
+            // Currency unchanged, but VAT provided
+            $setting->vat = $request->vat * 100;
         }
         $start_time = Carbon::parse('2020-01-01 ' . $request->start_time . ':00');
         $end_time   = Carbon::parse('2020-01-01 ' . $request->end_time . ':00');

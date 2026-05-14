@@ -53,19 +53,20 @@ class ProjectService
     {
         $project->loadMissing([
             'assignee',
-            'tasks' => static fn ($query) => $query->whereNotNull('user_assigned_id')->with('user'),
+            'tasks' => static fn ($query) => $query
+                ->whereNotNull('user_assigned_id')
+                ->whereHas('user')
+                ->with('user'),
         ]);
 
-        // tasks.user is loaded above; keep only tasks that still resolve to a user.
+        // Keep a guard for preloaded unconstrained tasks from calling code.
         $tasks = $project->tasks->filter(static fn ($task) => $task->user !== null)->values();
 
         $collaborators = collect();
         if ($project->assignee !== null) {
             $collaborators->push($project->assignee);
         }
-        foreach ($tasks as $task) {
-            $collaborators->push($task->user);
-        }
+        $collaborators = $collaborators->merge($tasks->pluck('user'));
 
         return [
             'tasks'         => $tasks,

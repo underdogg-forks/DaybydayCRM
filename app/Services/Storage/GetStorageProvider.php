@@ -3,7 +3,14 @@
 namespace App\Services\Storage;
 
 use App\Models\Integration;
+use App\Repositories\FilesystemIntegration\FilesystemIntegration;
 
+/**
+ * @deprecated Use StorageAdapterRegistry via dependency injection instead.
+ *
+ * This class is kept for backward compatibility.  All new code should inject
+ * StorageAdapterRegistry and call ->driver() on it.
+ */
 class GetStorageProvider
 {
     private static $storageProviders = [
@@ -12,14 +19,15 @@ class GetStorageProvider
         'googledrive' => GoogleDrive::class,
     ];
 
-    public static function getStorage()
+    /**
+     * @deprecated Inject StorageAdapterRegistry instead.
+     */
+    public static function getStorage(): FilesystemIntegration
     {
-        $integration = Integration::query()->where('api_type', 'file')->first();
-
-        return self::fromIntegration($integration);
+        return app(StorageAdapterRegistry::class)->driver();
     }
 
-    public static function fromIntegration(?Integration $integration): object
+    public static function fromIntegration(?Integration $integration): FilesystemIntegration
     {
         if (app()->environment('testing') || (app()->environment('local') && config('storage.force_local', true))) {
             return new Local();

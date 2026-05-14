@@ -34,8 +34,10 @@ class AppServiceProvider extends ServiceProvider
         Invoice::observe(InvoiceObserver::class);
         Document::observe(DocumentObserver::class);
 
-        // Force URL generation to respect APP_URL configuration
-        if ($appUrl = config('app.url')) {
+        // Force URL generation to respect APP_URL configuration.
+        // Only applied outside the testing environment to avoid polluting the
+        // test URL generator with production/staging values.
+        if (! $this->app->environment('testing') && $appUrl = config('app.url')) {
             URL::forceRootUrl($appUrl);
 
             if ($scheme = parse_url($appUrl, PHP_URL_SCHEME)) {

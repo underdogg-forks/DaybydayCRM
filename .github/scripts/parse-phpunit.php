@@ -8,6 +8,13 @@
 
 $input = file_get_contents('php://stdin');
 
+function hasTestFailures(string $output): bool
+{
+    return preg_match('/\b(FAILURES!|ERRORS!)\b/i', $output) === 1
+        || preg_match('/\b(Failures|Errors|Warnings|Risky|Incomplete):\s*[1-9]\d*/i', $output) === 1
+        || preg_match('/There (was 1|were \d+) (failure|error|warning|risky test|incomplete test)s?:/i', $output) === 1;
+}
+
 // 1. Remove ANSI escape codes (colors)
 $clean = preg_replace('/\x1b[[()#;?]*[0-9,.;\/]*[0-ac-m-pqrstvuwy]|[\x07\x08\x0c\x0e\x0f]/', '', $input);
 
@@ -62,10 +69,7 @@ if (!empty($currentTrace)) {
 $result = implode("\n", $output);
 $result = preg_replace("/\n{3,}/", "\n\n", $result);
 
-$hasErrors = preg_match('/\b(FAILURES!|ERRORS!)\b/i', $clean) === 1
-    || preg_match('/\b(Failures|Errors|Warnings|Risky|Incomplete):\s*[1-9]\d*/i', $clean) === 1
-    || str_contains($clean, 'There was 1 failure:')
-    || str_contains($clean, 'There were ');
+$hasErrors = hasTestFailures($clean);
 
 if ($hasErrors) {
     echo rtrim($clean) . "\n";

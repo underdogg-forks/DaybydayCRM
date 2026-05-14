@@ -28,7 +28,7 @@ class TaskService
             'title'            => $validated['title'],
             'description'      => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],
-            'deadline'         => Carbon::parse($validated['deadline'])->toDateString(),
+            'deadline'         => !empty($validated['deadline']) ? Carbon::parse($validated['deadline'])->toDateString() : null,
             'status_id'        => $validated['status_id'],
             'user_created_id'  => $userId,
             'client_id'        => $clientId,

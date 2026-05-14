@@ -31,7 +31,7 @@ class StorageAdapterIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_storage_registry_is_resolved_via_container()
+    public function it_resolves_the_storage_registry_via_the_container()
     {
         /* Act */
         $registry = app(StorageAdapterRegistry::class);
@@ -41,7 +41,7 @@ class StorageAdapterIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_storage_registry_singleton_is_same_instance_each_resolution()
+    public function it_returns_the_same_storage_registry_instance_on_each_resolution()
     {
         /* Act */
         $a = app(StorageAdapterRegistry::class);
@@ -52,7 +52,7 @@ class StorageAdapterIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_filesystem_middleware_returns_422_for_json_when_no_storage_enabled()
+    public function it_returns_422_json_when_upload_is_attempted_with_no_storage_enabled()
     {
         /* Arrange – no file integration configured */
         \App\Models\Integration::whereApiType('file')->delete();
@@ -73,7 +73,7 @@ class StorageAdapterIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_unauthorized_user_upload_gets_403_before_storage_boots()
+    public function it_returns_403_before_storage_initialises_for_an_unauthorized_upload()
     {
         /* Arrange */
         $user   = \App\Models\User::factory()->create(); // no permissions

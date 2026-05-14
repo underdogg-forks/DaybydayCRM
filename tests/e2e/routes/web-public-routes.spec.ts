@@ -28,7 +28,7 @@ guestTest.describe('web.php public mutation routes', () => {
       const csrfToken = await fetchCsrfToken(page);
       const response = await callRouteSmoke(request, routeCase.method, routeCase.path, csrfToken);
 
-      guestExpect([200, 302, 303, 422], `${routeCase.method} ${routeCase.path}`).toContain(response.status());
+      guestExpect([200, 302, 303, 422].includes(response.status()), `${routeCase.method} ${routeCase.path}`).toBe(true);
     });
   }
 });

@@ -15,7 +15,7 @@ class ProjectHeaderComposer
     {
         $project = $view->getData()['project'];
 
-        $contact      = $project->assignee;
+        $contact      = $project?->assignee;
         $client       = $project->client;
         $contact_info = $client?->contacts()->first();
 

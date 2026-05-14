@@ -12,7 +12,9 @@ class UpdateSettingOverallRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->user()?->hasRole('administrator') || auth()->user()?->hasRole('owner');
+        $user = auth()->user();
+
+        return $user?->hasRole('administrator') || $user?->hasRole('owner');
     }
 
     /**

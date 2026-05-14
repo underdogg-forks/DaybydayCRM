@@ -44,7 +44,7 @@ class InvoiceService
                 $results = $api->createInvoice([
                     'currency'            => $setting?->currency ?? 'USD',
                     'show_lines_incl_vat' => true,
-                    'description'         => optional($invoice->source)->title ?? '',
+                    'description'         => $invoice->source?->title ?? '',
                     'contact_id'          => $contactId,
                     'invoice_lines'       => $invoice->invoiceLines,
                 ]);

@@ -147,9 +147,9 @@ class DocumentAccessHelperTest extends AbstractTestCase
 
         /* Assert */
         $response->assertStatus(302); // redirects back with flash message
-        $this->assertFalse(
-            session()->has('flash_message') && ! session()->has('flash_message_warning'),
-            'Unrelated user should be blocked'
+        $this->assertTrue(
+            session()->has('flash_message_warning'),
+            'Unrelated user should see a warning flash message'
         );
     }
 

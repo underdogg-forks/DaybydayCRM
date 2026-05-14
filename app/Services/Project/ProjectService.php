@@ -45,11 +45,14 @@ class ProjectService
     /**
      * Prepare project show-page data by filtering out tasks without assignees and
      * building a unique collaborator list from project assignee and task users.
+     * Missing relations are lazy eager-loaded to avoid N+1 queries.
      *
      * @return array{tasks: \Illuminate\Support\Collection, collaborators: \Illuminate\Support\Collection}
      */
     public function prepareShowCollaboratorsAndTasks(Project $project): array
     {
+        $project->loadMissing(['assignee', 'tasks.user']);
+
         $tasks = $project->tasks->filter(static fn ($task) => $task->user !== null)->values();
 
         $collaborators = collect();

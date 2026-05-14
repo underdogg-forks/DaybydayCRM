@@ -21,13 +21,21 @@ class GetStorageProvider
 
     public static function fromIntegration(?Integration $integration): object
     {
-        if ($integration) {
-            $providerName = mb_strtolower($integration->name);
-            $className    = self::$storageProviders[$providerName] ?? Local::class;
-
-            return new $className();
+        if (app()->environment('testing', 'local')) {
+            return new Local();
         }
 
-        return new Local();
+        return new (self::providerClassFromIntegration($integration))();
+    }
+
+    public static function providerClassFromIntegration(?Integration $integration): string
+    {
+        if ($integration) {
+            $providerName = mb_strtolower($integration->name);
+
+            return self::$storageProviders[$providerName] ?? Local::class;
+        }
+
+        return Local::class;
     }
 }

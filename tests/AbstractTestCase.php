@@ -132,5 +132,8 @@ abstract class AbstractTestCase extends BaseTestCase
     {
         config(['app.url' => $url]);
         app('url')->forceRootUrl($url);
+        if ($scheme = parse_url($url, PHP_URL_SCHEME)) {
+            app('url')->forceScheme($scheme);
+        }
     }
 }

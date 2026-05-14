@@ -32,7 +32,9 @@ class PaymentsControllerTest extends AbstractTestCase
             $role->attachPermission($permission);
         }
         $this->user->attachRole($role);
-        \Illuminate\Support\Facades\Cache::tags('role_user')->flush();
+        \Illuminate\Support\Facades\Cache::flush();
+        $this->user = $this->user->fresh(['roles', 'roles.permissions']);
+        $this->actingAs($this->user);
         $this->withoutMiddleware([VerifyCsrfToken::class]);
         $this->invoice = Invoice::factory()->create([
             'sent_at' => today(),

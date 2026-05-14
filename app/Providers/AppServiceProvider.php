@@ -15,6 +15,7 @@ use App\Observers\LeadObserver;
 use App\Observers\ProjectObserver;
 use App\Observers\TaskObserver;
 use App\Repositories\Format\GetDateFormat;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -35,7 +36,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Force URL generation to respect APP_URL configuration
         if ($appUrl = config('app.url')) {
-            \Illuminate\Support\Facades\URL::forceRootUrl($appUrl);
+            URL::forceRootUrl($appUrl);
+
+            if ($scheme = parse_url($appUrl, PHP_URL_SCHEME)) {
+                URL::forceScheme($scheme);
+            }
         }
     }
 

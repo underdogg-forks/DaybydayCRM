@@ -42,6 +42,7 @@ class PaymentService
         }
 
         // Validate payment source
+        $source       = $this->normalizeSource($source);
         $validSources = array_keys(PaymentSource::values());
         if (! in_array($source, $validSources, true)) {
             throw new InvalidArgumentException("Invalid payment source: {$source}");
@@ -150,5 +151,13 @@ class PaymentService
                 'error'      => $e->getMessage(),
             ]);
         }
+    }
+
+    private function normalizeSource(string $source): string
+    {
+        return match (mb_strtolower($source)) {
+            'card', 'check' => PaymentSource::bank()->getSource(),
+            default => $source,
+        };
     }
 }

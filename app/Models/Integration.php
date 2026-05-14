@@ -38,7 +38,7 @@ class Integration extends Model
     {
         $integration = self::whereApiType('billing')->first();
         if ( ! $integration) {
-            return;
+            return null;
         }
 
         return $integration->api_class;
@@ -46,6 +46,18 @@ class Integration extends Model
 
     public function getApiClassAttribute()
     {
-        return new $this->name();
+        $candidates = array_filter([
+            $this->name,
+            'App\\' . ltrim($this->name, '\\'),
+            'App\\Services\\Billing\\' . ltrim($this->name, '\\'),
+        ]);
+
+        foreach ($candidates as $candidate) {
+            if (class_exists($candidate)) {
+                return new $candidate();
+            }
+        }
+
+        return null;
     }
 }

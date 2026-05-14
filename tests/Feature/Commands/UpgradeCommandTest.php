@@ -23,10 +23,7 @@ class UpgradeCommandTest extends AbstractTestCase
         Role::factory()->create(['name' => 'administrator', 'display_name' => 'Administrator']);
 
         /* Act */
-        $exit = $this->artisan('daybyday:upgrade');
-
-        /* Assert */
-        $this->assertTrue($exit === 0);
+        $this->artisan('daybyday:upgrade')->assertExitCode(0);
     }
 
     #[Test]
@@ -138,10 +135,7 @@ class UpgradeCommandTest extends AbstractTestCase
         /* Arrange */
 
         /* Act */
-        $exit = $this->artisan('daybyday:upgrade');
-
-        /* Assert */
-        $this->assertTrue($exit === 0);
+        $this->artisan('daybyday:upgrade')->assertExitCode(0);
     }
 
     #[Test]

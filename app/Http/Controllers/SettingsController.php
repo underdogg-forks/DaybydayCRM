@@ -31,7 +31,7 @@ class SettingsController extends Controller
     /**
      * @return mixed
      */
-    public function index()
+    public function index(Request $request)
     {
         $setting = Setting::first();
         if ( ! $setting) {
@@ -44,6 +44,18 @@ class SettingsController extends Controller
                 'client_number'  => 1,
                 'invoice_number' => 1,
                 'max_users'      => 10,
+            ]);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'settings'         => $setting,
+                'business_hours'   => $this->businessHours(),
+                'currencies'       => Currency::getAllCurrencies(),
+                'current_currency' => $setting->currency,
+                'client_number'    => app(ClientNumberService::class)->nextClientNumber(),
+                'invoice_number'   => app(InvoiceNumberService::class)->nextInvoiceNumber(),
+                'vat_percentage'   => app(Tax::class)->percentage(),
             ]);
         }
 

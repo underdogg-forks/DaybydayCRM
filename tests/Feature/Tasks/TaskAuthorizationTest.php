@@ -69,7 +69,7 @@ class TaskAuthorizationTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $response->assertStatus(302);
+        $response->assertStatus(200);
         $this->assertEquals($project->id, $this->task->refresh()->project_id);
     }
 

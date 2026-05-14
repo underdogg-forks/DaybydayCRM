@@ -251,7 +251,7 @@ class ClientsController extends Controller
 
         // Fetch integration once and reuse for both filesystem_integration and document filtering
         $filesystemIntegration = Integration::whereApiType('file')->first();
-        $storageClass          = get_class(GetStorageProvider::fromIntegration($filesystemIntegration));
+        $storageClass          = GetStorageProvider::providerClassFromIntegration($filesystemIntegration);
 
         // Use already eager-loaded collections to avoid duplicate queries
         $filteredDocuments = $client->documents->filter(

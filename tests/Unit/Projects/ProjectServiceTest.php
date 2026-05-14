@@ -107,7 +107,11 @@ class ProjectServiceTest extends AbstractTestCase
     {
         $service  = new ProjectService();
         $assignee = User::factory()->create();
-        $project  = Project::factory()->create(['user_assigned_id' => $assignee->id]);
+        $client   = Client::factory()->create();
+        $project  = Project::factory()->create([
+            'client_id'         => $client->id,
+            'user_assigned_id'  => $assignee->id,
+        ]);
         $taskUser = User::factory()->create();
 
         Task::factory()->create([
@@ -136,7 +140,11 @@ class ProjectServiceTest extends AbstractTestCase
     {
         $service  = new ProjectService();
         $user     = User::factory()->create();
-        $project  = Project::factory()->create(['user_assigned_id' => $user->id]);
+        $client   = Client::factory()->create();
+        $project  = Project::factory()->create([
+            'client_id'         => $client->id,
+            'user_assigned_id'  => $user->id,
+        ]);
 
         Task::factory()->create([
             'project_id'        => $project->id,

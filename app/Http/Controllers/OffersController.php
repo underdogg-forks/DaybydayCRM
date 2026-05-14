@@ -13,6 +13,7 @@ use App\Models\Offer;
 use App\Models\Product;
 use App\Services\InvoiceNumber\InvoiceNumberService;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
 class OffersController extends Controller
@@ -71,6 +72,10 @@ class OffersController extends Controller
 
     private function createOfferForSource(CreateOfferRequest $request, int $sourceId, int $clientId, string $sourceType)
     {
+        if (! in_array($sourceType, [Lead::class, Client::class], true)) {
+            throw new InvalidArgumentException('Invalid offer source type provided');
+        }
+
         $offer = Offer::query()->create([
             'status'      => OfferStatus::inProgress()->getStatus(),
             'client_id'   => $clientId,

@@ -7,6 +7,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CreateOfferRequest extends FormRequest
 {
+    private const MAX_OFFER_LINES = 100;
+
     public function authorize()
     {
         return auth()->user()->can(PermissionName::OFFER_CREATE->value);
@@ -35,7 +37,7 @@ class CreateOfferRequest extends FormRequest
                 return;
             }
 
-            if (count($lines) > 100) {
+            if (count($lines) > self::MAX_OFFER_LINES) {
                 $validator->errors()->add('lines', __('Too many offer lines provided.'));
             }
         });

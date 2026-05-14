@@ -56,7 +56,11 @@ class OffersController extends Controller
         $lead = Lead::query()->where('external_id', $external_id)->first();
         if ($lead) {
             if (! $lead->client_id) {
-                return response()->json(['message' => 'This lead must be associated with a client before creating an offer'], 422);
+                return $this->createOfferErrorResponse(
+                    $request,
+                    __('This lead must be associated with a client before creating an offer'),
+                    422
+                );
             }
 
             return $this->createOfferForSource($request, $lead->id, $lead->client_id, Lead::class);
@@ -64,7 +68,7 @@ class OffersController extends Controller
 
         $client = Client::query()->where('external_id', $external_id)->first();
         if (! $client) {
-            return response()->json(['message' => 'Offer source was not found'], 404);
+            return $this->createOfferErrorResponse($request, __('Offer source was not found'), 404);
         }
 
         return $this->createOfferForSource($request, $client->id, $client->id, Client::class);
@@ -101,6 +105,17 @@ class OffersController extends Controller
         }
 
         return response('OK');
+    }
+
+    private function createOfferErrorResponse(CreateOfferRequest $request, string $message, int $statusCode)
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['message' => $message], $statusCode);
+        }
+
+        session()->flash('flash_message_warning', $message);
+
+        return redirect()->back();
     }
 
     public function won(Request $request)

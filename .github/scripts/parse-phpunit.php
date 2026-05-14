@@ -9,7 +9,7 @@
 $input = file_get_contents('php://stdin');
 
 // 1. Remove ANSI escape codes (colors)
-$clean = preg_replace('/\x1b[[()#;?]*[0-9,.;/]*[0-ac-m-pqrstvuwy]|[\x07\x08\x0c\x0e\x0f]/', '', $input);
+$clean = preg_replace('/\x1b[[()#;?]*[0-9,.;\/]*[0-ac-m-pqrstvuwy]|[\x07\x08\x0c\x0e\x0f]/', '', $input);
 
 // 2. Remove timestamps (2026-05-14T03:17:38.4840913Z)
 $clean = preg_replace('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z/', '', $clean);
@@ -62,4 +62,14 @@ if (!empty($currentTrace)) {
 $result = implode("\n", $output);
 $result = preg_replace("/\n{3,}/", "\n\n", $result);
 
-echo $result . "\n";
+$hasErrors = preg_match('/\b(FAILURES!|ERRORS!)\b/i', $clean) === 1
+    || preg_match('/\b(Failures|Errors|Warnings|Risky|Incomplete):\s*[1-9]\d*/i', $clean) === 1
+    || str_contains($clean, 'There was 1 failure:')
+    || str_contains($clean, 'There were ');
+
+if ($hasErrors) {
+    echo rtrim($clean) . "\n";
+    exit(1);
+}
+
+echo rtrim($result) . "\n";

@@ -41,4 +41,22 @@ class ProjectService
         $project->deadline = Carbon::parse($deadlineDate)->toDateString();
         $project->save();
     }
+
+    public function prepareShowCollaboratorsAndTasks(Project $project): array
+    {
+        $tasks = $project->tasks->filter(static fn ($task) => $task->user !== null)->values();
+
+        $collaborators = collect([$project->assignee]);
+        foreach ($tasks as $task) {
+            $collaborators->push($task->user);
+        }
+
+        return [
+            'tasks'         => $tasks,
+            'collaborators' => $collaborators
+                ->reject(static fn ($collaborator) => $collaborator === null)
+                ->unique('id')
+                ->values(),
+        ];
+    }
 }

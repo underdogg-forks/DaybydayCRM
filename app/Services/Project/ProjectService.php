@@ -42,6 +42,12 @@ class ProjectService
         $project->save();
     }
 
+    /**
+     * Prepare project show-page data by filtering out tasks without assignees and
+     * building a unique collaborator list from project assignee and task users.
+     *
+     * @return array{tasks: \Illuminate\Support\Collection, collaborators: \Illuminate\Support\Collection}
+     */
     public function prepareShowCollaboratorsAndTasks(Project $project): array
     {
         $tasks = $project->tasks->filter(static fn ($task) => $task->user !== null)->values();

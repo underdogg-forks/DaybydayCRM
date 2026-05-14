@@ -4,6 +4,14 @@ export function isLikelyJsonPath(path: string): boolean {
   return JSON_PATH_MATCHERS.some((matcher) => path.includes(matcher) || path.endsWith(matcher));
 }
 
+export function expectedGuestMutationStatuses(): number[] {
+  return [200, 302, 303, 422];
+}
+
+export function expectedAuthGetStatuses(): number[] {
+  return [200, 401, 403, 404, 422];
+}
+
 export function expectedAuthMutationStatuses(method: string): number[] {
   switch (method) {
     case 'POST':

@@ -237,21 +237,14 @@ class SettingsValidationTest extends AbstractTestCase
     #[Test]
     public function it_rejects_invalid_end_time_format()
     {
-        /* Act */
-        $response = $this->json('PATCH', route('settings.updateOverall'), [
-            'client_number'  => 10000,
-            'invoice_number' => 10000,
-            'end_time'       => '25:99', // valid regex format but impossible time
-        ]);
-
-        /* Assert – regex allows any \d{1,2}:\d{2}, so 25:99 passes the regex;
-           test valid regex failure only */
+        /* Act – the regex requires \d{1,2}:\d{2}, so free-form strings are rejected */
         $response = $this->json('PATCH', route('settings.updateOverall'), [
             'client_number'  => 10000,
             'invoice_number' => 10000,
             'end_time'       => 'not-valid',
         ]);
 
+        /* Assert */
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['end_time']);
     }

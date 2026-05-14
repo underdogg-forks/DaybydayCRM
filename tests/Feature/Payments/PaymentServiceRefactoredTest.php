@@ -18,12 +18,14 @@ use Tests\AbstractTestCase;
 /**
  * Tests for the refactored PaymentService and PaymentsController.
  *
- * These tests verify:
+ * Verifies:
  *  - Controller delegates entirely to PaymentService.
  *  - NullBillingAdapter is used when no billing integration is configured.
+ *  - Invoice status side-effects are persisted after payment operations.
  *  - Soft-delete semantics are explicit.
- *  - JSON responses are returned for JSON requests.
+ *  - JSON responses are returned for JSON requests with correct status codes.
  *  - Authorization is checked before any infrastructure code runs.
+ *  - Edge cases: zero amount, invalid source, comma-separated decimals.
  */
 #[Group('payments')]
 #[Group('integration-isolation')]
@@ -95,13 +97,49 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
             'Test payment'
         );
 
-        /* Assert */
+        /* Assert – database state */
         $this->assertInstanceOf(Payment::class, $payment);
         $this->assertDatabaseHas('payments', [
             'invoice_id'     => $this->invoice->id,
             'amount'         => 5000, // in cents
             'payment_source' => 'bank',
         ]);
+    }
+
+    #[Test]
+    public function it_add_payment_updates_invoice_status_to_paid_when_full_amount_paid()
+    {
+        /* Arrange – invoice has one line of price=5000, qty=1 → total 5000 cents */
+        $this->assertDatabaseHas('invoices', ['id' => $this->invoice->id, 'status' => 'unpaid']);
+
+        /* Act – pay the exact total (50.00 = 5000 cents) */
+        $this->paymentService->addPayment(
+            $this->invoice,
+            50.00,
+            '2024-01-15',
+            'bank'
+        );
+
+        /* Assert – invoice status side-effect persisted to DB */
+        $this->assertDatabaseHas('invoices', ['id' => $this->invoice->id, 'status' => 'paid']);
+    }
+
+    #[Test]
+    public function it_add_payment_updates_invoice_status_to_partial_paid_when_partially_paid()
+    {
+        /* Arrange */
+        $this->assertDatabaseHas('invoices', ['id' => $this->invoice->id, 'status' => 'unpaid']);
+
+        /* Act – pay less than the total */
+        $this->paymentService->addPayment(
+            $this->invoice,
+            10.00, // only 1000 cents out of 5000
+            '2024-01-15',
+            'cash'
+        );
+
+        /* Assert – status becomes partial */
+        $this->assertDatabaseHas('invoices', ['id' => $this->invoice->id, 'status' => 'partial']);
     }
 
     #[Test]
@@ -141,9 +179,10 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
         /* Act */
         $result = $this->paymentService->deletePayment($payment);
 
-        /* Assert */
+        /* Assert – soft delete, not hard delete */
         $this->assertTrue($result);
         $this->assertSoftDeleted('payments', ['id' => $payment->id]);
+        $this->assertDatabaseHas('payments', ['id' => $payment->id]); // still exists in DB
     }
 
     #[Test]
@@ -182,6 +221,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(201);
         $response->assertJsonFragment(['message' => __('Payment successfully added')]);
+        $this->assertDatabaseCount('payments', 1);
     }
 
     #[Test]
@@ -200,6 +240,72 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(422);
         $this->assertDatabaseCount('payments', 0);
+    }
+
+    #[Test]
+    public function it_add_payment_controller_rejects_zero_amount_with_422()
+    {
+        /* Act – PaymentRequest has not_in:0 rule */
+        $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
+            'amount'       => 0,
+            'payment_date' => '2024-01-15',
+            'source'       => 'bank',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['amount']);
+        $this->assertDatabaseCount('payments', 0);
+    }
+
+    #[Test]
+    public function it_add_payment_controller_rejects_missing_payment_date_with_422()
+    {
+        /* Act */
+        $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
+            'amount' => 50,
+            'source' => 'bank',
+            // payment_date intentionally missing
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['payment_date']);
+        $this->assertDatabaseCount('payments', 0);
+    }
+
+    #[Test]
+    public function it_add_payment_controller_rejects_invalid_source_with_422()
+    {
+        /* Act */
+        $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
+            'amount'       => 50,
+            'payment_date' => '2024-01-15',
+            'source'       => 'invalid_source',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['source']);
+        $this->assertDatabaseCount('payments', 0);
+    }
+
+    #[Test]
+    public function it_add_payment_controller_accepts_comma_separated_decimal_amount()
+    {
+        /* Act – prepareForValidation normalises "50,00" to "50.00" */
+        $response = $this->json('POST', route('payment.add', $this->invoice->external_id), [
+            'amount'       => '50,00',
+            'payment_date' => '2024-01-15',
+            'source'       => 'bank',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('payments', [
+            'invoice_id' => $this->invoice->id,
+            'amount'     => 5000, // stored in cents
+        ]);
     }
 
     #[Test]
@@ -236,7 +342,7 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
         /* Act */
         $response = $this->json('DELETE', route('payment.destroy', $payment->external_id));
 
-        /* Assert – 403 before any infrastructure code runs */
+        /* Assert – 403 before any infrastructure code runs; record still exists */
         $response->assertStatus(403);
         $this->assertDatabaseHas('payments', ['id' => $payment->id, 'deleted_at' => null]);
     }
@@ -260,3 +366,4 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
         $this->assertDatabaseCount('payments', 0);
     }
 }
+

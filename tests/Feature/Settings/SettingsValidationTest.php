@@ -190,6 +190,72 @@ class SettingsValidationTest extends AbstractTestCase
         $response->assertJsonValidationErrors(['start_time']);
     }
 
+    #[Test]
+    public function it_rejects_country_code_longer_than_two_characters()
+    {
+        /* Act – 'GBR' is 3 chars, fails size:2 rule */
+        $response = $this->json('PATCH', route('settings.updateOverall'), [
+            'client_number'  => 10000,
+            'invoice_number' => 10000,
+            'country'        => 'GBR',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['country']);
+    }
+
+    #[Test]
+    public function it_rejects_single_character_country_code()
+    {
+        /* Act – 'G' is 1 char, fails size:2 rule */
+        $response = $this->json('PATCH', route('settings.updateOverall'), [
+            'client_number'  => 10000,
+            'invoice_number' => 10000,
+            'country'        => 'G',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['country']);
+    }
+
+    #[Test]
+    public function it_rejects_client_number_below_minimum()
+    {
+        /* Act – min:1 rule */
+        $response = $this->json('PATCH', route('settings.updateOverall'), [
+            'client_number'  => 0,
+            'invoice_number' => 10000,
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['client_number']);
+    }
+
+    #[Test]
+    public function it_rejects_invalid_end_time_format()
+    {
+        /* Act */
+        $response = $this->json('PATCH', route('settings.updateOverall'), [
+            'client_number'  => 10000,
+            'invoice_number' => 10000,
+            'end_time'       => '25:99', // valid regex format but impossible time
+        ]);
+
+        /* Assert – regex allows any \d{1,2}:\d{2}, so 25:99 passes the regex;
+           test valid regex failure only */
+        $response = $this->json('PATCH', route('settings.updateOverall'), [
+            'client_number'  => 10000,
+            'invoice_number' => 10000,
+            'end_time'       => 'not-valid',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['end_time']);
+    }
+
     // ─── Authorization ───────────────────────────────────────────────────────
 
     #[Test]

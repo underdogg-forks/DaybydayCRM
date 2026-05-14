@@ -3,7 +3,7 @@
 namespace App\Http\ViewComposers;
 
 use App\Models\Invoice;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 class InvoiceHeaderComposer
 {

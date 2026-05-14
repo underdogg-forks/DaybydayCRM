@@ -189,7 +189,6 @@ class ProjectsController extends Controller
         }
 
         $collaborators = collect();
-
         $collaborators->push($project->assignee);
         foreach ($project->tasks as $task) {
             $collaborators->push($task->user);
@@ -197,10 +196,11 @@ class ProjectsController extends Controller
 
         return view('projects.show')
             ->withProject($project)
+            ->withClient($project->client)
             ->withStatuses(Status::typeOfProject()->get())
             ->withTasks($project->tasks)
             ->withCompletionPercentage($completionPercentage)
-            ->withCollaborators($collaborators->unique())
+            ->withCollaborators($collaborators->filter()->unique('id'))
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->withFiles($project->documents)
             ->with('filesystem_integration', Integration::whereApiType('file')->first());

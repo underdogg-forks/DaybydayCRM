@@ -43,6 +43,8 @@ class PaymentService
             throw new RuntimeException('Cannot add payment to unsent invoice');
         }
 
+        $source = $this->normalizeSource($source);
+
         // Validate payment source using the enum as single source of truth.
         $validSources = array_keys(PaymentSource::values());
         if (! in_array($source, $validSources, true)) {
@@ -152,5 +154,16 @@ class PaymentService
                 'error'      => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Normalize legacy aliases to canonical payment sources.
+     */
+    private function normalizeSource(string $source): string
+    {
+        return match (strtolower($source)) {
+            'card', 'check' => PaymentSource::bank()->getSource(),
+            default => $source,
+        };
     }
 }

@@ -124,7 +124,7 @@ class ProjectServiceTest extends AbstractTestCase
             'user_created_id'   => $assignee->id,
         ]);
 
-        $project = Project::query()->with(['assignee', 'tasks.user'])->findOrFail($project->id);
+        $project = Project::query()->findOrFail($project->id);
 
         $prepared = $service->prepareShowCollaboratorsAndTasks($project);
 
@@ -147,7 +147,7 @@ class ProjectServiceTest extends AbstractTestCase
             'user_created_id'   => $user->id,
         ]);
 
-        $project = Project::query()->with(['assignee', 'tasks.user'])->findOrFail($project->id);
+        $project = Project::query()->findOrFail($project->id);
 
         $prepared = $service->prepareShowCollaboratorsAndTasks($project);
 

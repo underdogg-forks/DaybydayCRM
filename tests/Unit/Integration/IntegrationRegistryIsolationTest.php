@@ -148,6 +148,7 @@ class IntegrationRegistryIsolationTest extends AbstractTestCase
         /* Assert – both are NullBillingAdapter but separate instances */
         $this->assertInstanceOf(NullBillingAdapter::class, $first);
         $this->assertInstanceOf(NullBillingAdapter::class, $second);
+        $this->assertNotSame($first, $second, 'reset() should clear cached driver instance');
     }
 
     // ─── Storage ────────────────────────────────────────────────────────────

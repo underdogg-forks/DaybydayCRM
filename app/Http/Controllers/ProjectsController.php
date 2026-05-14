@@ -190,7 +190,8 @@ class ProjectsController extends Controller
 
         $collaborators = collect();
         $collaborators->push($project->assignee);
-        foreach ($project->tasks as $task) {
+        $tasks = $project->tasks->filter(static fn ($task) => $task->user !== null)->values();
+        foreach ($tasks as $task) {
             $collaborators->push($task->user);
         }
 
@@ -198,7 +199,7 @@ class ProjectsController extends Controller
             ->withProject($project)
             ->withClient($project->client)
             ->withStatuses(Status::typeOfProject()->get())
-            ->withTasks($project->tasks)
+            ->withTasks($tasks)
             ->withCompletionPercentage($completionPercentage)
             ->withCollaborators($collaborators->reject(static fn ($collaborator) => $collaborator === null)->unique('id'))
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))

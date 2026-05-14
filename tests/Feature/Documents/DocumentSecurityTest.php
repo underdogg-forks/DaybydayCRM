@@ -161,7 +161,7 @@ class DocumentSecurityTest extends AbstractTestCase
 
         /* Assert */
         $response->assertRedirect();
-        $response->assertSessionHas('flash_message_warning', __('Tasks not found'));
+        $response->assertSessionHas('flash_message_warning', __('Task not found'));
     }
 
     #[Test]
@@ -184,6 +184,6 @@ class DocumentSecurityTest extends AbstractTestCase
 
         /* Assert */
         $response->assertRedirect();
-        $response->assertSessionHas('flash_message_warning', __('Projects not found'));
+        $response->assertSessionHas('flash_message_warning', __('Project not found'));
     }
 }

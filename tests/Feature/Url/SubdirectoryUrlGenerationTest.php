@@ -259,8 +259,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
 
         /* Assert */
         $response->assertStatus(200);
-        $response->assertSee('http://localhost/daybydaycrm/public/js/manifest.js', false);
-        $response->assertSee('http://localhost/daybydaycrm/public/js/vendor.js', false);
+        $response->assertSee('http://localhost/daybydaycrm/public/js/jquery.min.js', false);
+        $response->assertSee('http://localhost/daybydaycrm/public/js/dropzone.js', false);
     }
 
     #[Test]
@@ -275,8 +275,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
 
         /* Assert */
         $response->assertStatus(200);
-        $response->assertSee('http://localhost/js/manifest.js', false);
-        $response->assertSee('http://localhost/js/vendor.js', false);
+        $response->assertSee('http://localhost/js/jquery.min.js', false);
+        $response->assertSee('http://localhost/js/dropzone.js', false);
     }
 
     #[Test]
@@ -291,8 +291,8 @@ class SubdirectoryUrlGenerationTest extends AbstractTestCase
 
         /* Assert */
         $response->assertStatus(200);
-        $response->assertSee('http://localhost/daybydaycrm/public/js/manifest.js', false);
-        $response->assertSee('http://localhost/daybydaycrm/public/js/vendor.js', false);
+        $response->assertSee('http://localhost/daybydaycrm/public/css/font-awesome.min.css', false);
+        $response->assertSee('http://localhost/daybydaycrm/public/css/picker.classic.css', false);
     }
 
     #[Test]

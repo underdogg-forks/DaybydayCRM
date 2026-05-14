@@ -47,7 +47,8 @@ class DeadlineTest extends AbstractTestCase
         );
         $this->project = Project::factory()->create(
             [
-                'deadline' => $futureDeadline,
+                'deadline'  => $futureDeadline,
+                'status_id' => $openStatus->id,
             ]
         );
     }

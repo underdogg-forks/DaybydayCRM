@@ -3,7 +3,17 @@
 
 /**
  * PHPUnit Results Cleaner & Parser
- * Usage: phpunit-command | php parse-phpunit.php
+ *
+ * Reads a full PHPUnit log from stdin (or a file), strips successful test
+ * lines (✔) and noisy stack-trace frames, and prints only:
+ *   - Failing/erroring test entries  (✘ …)
+ *   - The final summary line(s)
+ *
+ * Full raw output is preserved in the log file that was piped through tee;
+ * this script only controls what is shown on the terminal.
+ *
+ * Usage:  php parse-phpunit.php < phpunit-output.log
+ *         phpunit ... 2>&1 | tee phpunit-output.log | php parse-phpunit.php
  */
 
 $input = file_get_contents('php://stdin');
@@ -15,65 +25,63 @@ function hasTestFailures(string $output): bool
         || preg_match('/There (was 1|were \d+) (failure|error|warning|risky test|incomplete test)s?:/i', $output) === 1;
 }
 
-// 1. Remove ANSI escape codes (colors)
+// 1. Remove ANSI escape codes (colors) and CI timestamps
 $clean = preg_replace('#\x1B\[[0-?]*[ -/]*[@-~]|[\x07\x08\x0c\x0e\x0f]#', '', $input);
+$clean = preg_replace('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s*/', '', $clean);
 
-// 2. Remove timestamps (2026-05-14T03:17:38.4840913Z)
-$clean = preg_replace('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z/', '', $clean);
-
-$lines = explode("\n", $clean);
+$lines  = explode("\n", $clean);
 $output = [];
+
 $isBufferingTrace = false;
-$currentTrace = [];
+$currentTrace     = [];
 
 foreach ($lines as $line) {
     $trimmedLine = trim($line);
 
-    // Strip lines representing successful tests (starting with ✔)
+    // Drop successful test lines (✔ …)
     if (str_starts_with($trimmedLine, '✔')) {
         continue;
     }
 
-    // Identify the start of a stack trace (usually starts with a file path and line number)
-    if (preg_match('/^#\d+\s+.*\.php\(\d+\):/', $trimmedLine) || str_contains($trimmedLine, 'vendor/phpunit/phpunit')) {
+    // Identify the start of a verbose stack-trace frame
+    if (
+        preg_match('/^#\d+\s+.*\.php\(\d+\):/', $trimmedLine)
+        || str_contains($trimmedLine, 'vendor/phpunit/phpunit')
+    ) {
         $isBufferingTrace = true;
-        $currentTrace[] = $line;
+        $currentTrace[]   = $line;
         continue;
     }
 
-    // If we were buffering a trace and hit a non-trace line (blank or new error)
+    // Flush the buffered trace: keep only the last 3 frames for context
     if ($isBufferingTrace && ($trimmedLine === '' || preg_match('/^\d+\)/', $trimmedLine))) {
-        // Output only the LAST 3 lines of the buffered trace
-        $lastThree = array_slice($currentTrace, -3);
-        foreach ($lastThree as $traceLine) {
+        foreach (array_slice($currentTrace, -3) as $traceLine) {
             $output[] = $traceLine;
         }
-        $currentTrace = [];
+        $currentTrace     = [];
         $isBufferingTrace = false;
     }
 
-    if (!$isBufferingTrace) {
+    if ( ! $isBufferingTrace) {
         $output[] = $line;
     }
 }
 
-// Catch final trace if file ends on one
-if (!empty($currentTrace)) {
-    $lastThree = array_slice($currentTrace, -3);
-    foreach ($lastThree as $traceLine) {
+// Flush any trace that ran to the very end of the file
+if ( ! empty($currentTrace)) {
+    foreach (array_slice($currentTrace, -3) as $traceLine) {
         $output[] = $traceLine;
     }
 }
 
-// Final cleanup: Remove double blank lines and trim
+// Final cleanup: collapse 3+ consecutive blank lines into 2
 $result = implode("\n", $output);
 $result = preg_replace("/\n{3,}/", "\n\n", $result);
 
 $hasErrors = hasTestFailures($clean);
 
-if ($hasErrors) {
-    echo rtrim($clean) . "\n";
-    exit(1);
-}
-
+// Always print the filtered view (no ✔ lines).
+// The full log is already on disk — no need to echo it here.
 echo rtrim($result) . "\n";
+
+exit($hasErrors ? 1 : 0);

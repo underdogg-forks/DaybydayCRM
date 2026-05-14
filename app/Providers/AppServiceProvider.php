@@ -32,6 +32,11 @@ class AppServiceProvider extends ServiceProvider
         Project::observe(ProjectObserver::class);
         Invoice::observe(InvoiceObserver::class);
         Document::observe(DocumentObserver::class);
+
+        // Force URL generation to respect APP_URL configuration
+        if ($appUrl = config('app.url')) {
+            \Illuminate\Support\Facades\URL::forceRootUrl($appUrl);
+        }
     }
 
     /**

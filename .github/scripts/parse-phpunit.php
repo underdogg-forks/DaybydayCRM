@@ -16,7 +16,7 @@ function hasTestFailures(string $output): bool
 }
 
 // 1. Remove ANSI escape codes (colors)
-$clean = preg_replace('/\x1b[[()#;?]*[0-9,.;\/]*[0-ac-m-pqrstvuwy]|[\x07\x08\x0c\x0e\x0f]/', '', $input);
+$clean = preg_replace('#\x1B\[[0-?]*[ -/]*[@-~]|[\x07\x08\x0c\x0e\x0f]#', '', $input);
 
 // 2. Remove timestamps (2026-05-14T03:17:38.4840913Z)
 $clean = preg_replace('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z/', '', $clean);

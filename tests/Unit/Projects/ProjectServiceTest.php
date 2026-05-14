@@ -5,6 +5,7 @@ namespace Tests\Unit\Projects;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Status;
+use App\Models\Task;
 use App\Models\User;
 use App\Services\Project\ProjectService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -99,5 +100,58 @@ class ProjectServiceTest extends AbstractTestCase
         ], $user->id);
 
         $this->assertNull($result);
+    }
+
+    #[Test]
+    public function it_prepares_show_data_without_tasks_missing_assignees(): void
+    {
+        $service  = new ProjectService();
+        $assignee = User::factory()->create();
+        $project  = Project::factory()->create(['user_assigned_id' => $assignee->id]);
+        $taskUser = User::factory()->create();
+
+        Task::factory()->create([
+            'project_id'        => $project->id,
+            'client_id'         => $project->client_id,
+            'user_assigned_id'  => $taskUser->id,
+            'user_created_id'   => $assignee->id,
+        ]);
+
+        Task::factory()->create([
+            'project_id'        => $project->id,
+            'client_id'         => $project->client_id,
+            'user_assigned_id'  => null,
+            'user_created_id'   => $assignee->id,
+        ]);
+
+        $project = Project::query()->with(['assignee', 'tasks.user'])->findOrFail($project->id);
+
+        $prepared = $service->prepareShowCollaboratorsAndTasks($project);
+
+        $this->assertCount(1, $prepared['tasks']);
+        $this->assertTrue($prepared['tasks']->first()->user !== null);
+        $this->assertCount(2, $prepared['collaborators']);
+    }
+
+    #[Test]
+    public function it_prepares_unique_collaborators_when_assignee_and_task_user_are_same(): void
+    {
+        $service  = new ProjectService();
+        $user     = User::factory()->create();
+        $project  = Project::factory()->create(['user_assigned_id' => $user->id]);
+
+        Task::factory()->create([
+            'project_id'        => $project->id,
+            'client_id'         => $project->client_id,
+            'user_assigned_id'  => $user->id,
+            'user_created_id'   => $user->id,
+        ]);
+
+        $project = Project::query()->with(['assignee', 'tasks.user'])->findOrFail($project->id);
+
+        $prepared = $service->prepareShowCollaboratorsAndTasks($project);
+
+        $this->assertCount(1, $prepared['collaborators']);
+        $this->assertSame($user->id, $prepared['collaborators']->first()->id);
     }
 }

@@ -188,20 +188,15 @@ class ProjectsController extends Controller
             $completionPercentage = round($completedTasks / $tasks * 100);
         }
 
-        $collaborators = collect();
-        $collaborators->push($project->assignee);
-        $tasks = $project->tasks->filter(static fn ($task) => $task->user !== null)->values();
-        foreach ($tasks as $task) {
-            $collaborators->push($task->user);
-        }
+        $preparedShowData = $this->projectService->prepareShowCollaboratorsAndTasks($project);
 
         return view('projects.show')
             ->withProject($project)
             ->withClient($project->client)
             ->withStatuses(Status::typeOfProject()->get())
-            ->withTasks($tasks)
+            ->withTasks($preparedShowData['tasks'])
             ->withCompletionPercentage($completionPercentage)
-            ->withCollaborators($collaborators->reject(static fn ($collaborator) => $collaborator === null)->unique('id'))
+            ->withCollaborators($preparedShowData['collaborators'])
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->withFiles($project->documents)
             ->with('filesystem_integration', Integration::whereApiType('file')->first());

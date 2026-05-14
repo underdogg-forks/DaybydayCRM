@@ -260,7 +260,7 @@ class ProjectsController extends Controller
 
     public function updateAssign($external_id, UpdateProjectAssignRequest $request)
     {
-        $project = Project::with('assignee')->whereExternalId($external_id)->first();
+        $project = Project::with('assignee')->whereExternalId($external_id)->firstOrFail();
         $this->projectService->assign($project, $request->validated('user_assigned_id'));
 
         event(new ProjectAction($project, self::UPDATED_ASSIGN));

@@ -144,12 +144,16 @@ class Task extends Model implements Commentable
             return $this->user;
         }
 
-        return User::query()->findOrFail($this->user_assigned_id);
+        return $this->user_assigned_id
+            ? User::query()->find($this->user_assigned_id)
+            : null;
     }
 
     public function getCreatorUserAttribute()
     {
-        return User::query()->findOrFail($this->user_created_id);
+        return $this->user_created_id
+            ? User::query()->find($this->user_created_id)
+            : null;
     }
 
     public function canUpdateInvoice()

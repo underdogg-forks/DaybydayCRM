@@ -18,7 +18,7 @@ class ClientsTableSeeder extends Seeder
         $industry = Industry::query()->orderBy('id')->first();
 
         if (! $owner || ! $industry) {
-            $this->command->warn('ClientsTableSeeder: Requires UsersTableSeeder and IndustriesTableSeeder to run first. Skipping client creation.');
+            $this->command->warn('ClientsTableSeeder: Requires seeded admin user and at least one industry to exist. Skipping client creation.');
 
             return;
         }

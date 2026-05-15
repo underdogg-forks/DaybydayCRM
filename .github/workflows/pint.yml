@@ -25,6 +25,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # NOTE: Auto-commits pushed with GITHUB_TOKEN do NOT trigger downstream
+      # workflow runs (e.g. phpunit.yml / required status checks).  If CI must
+      # re-run against Pint-formatted code automatically, replace the token
+      # below with a PAT or a GitHub App token that has the necessary scopes.
       - name: Checkout repository
         uses: actions/checkout@v4
         with:

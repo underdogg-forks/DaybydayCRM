@@ -50,7 +50,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if [ -n "${{ inputs.composer-args }}" ]; then
+        if [ -n '${{ inputs.composer-args }}' ]; then
           composer install ${{ inputs.composer-args }}
         else
           composer install ${{ inputs.composer-flags }}

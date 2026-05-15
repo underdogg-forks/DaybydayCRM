@@ -17,11 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      MYSQL_ROOT_PASSWORD: password
     services:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
         ports:
           - 3306:3306
         options: >-
@@ -47,7 +49,7 @@ jobs:
       - name: Wait for MySQL
         run: |
           for i in {1..30}; do
-            if mysqladmin ping -h127.0.0.1 -uroot -ppassword --silent; then
+            if mysqladmin ping -h127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD" --silent; then
               echo "MySQL ready!"
               break
             fi
@@ -61,7 +63,7 @@ jobs:
           php artisan key:generate
           php artisan config:clear
           php artisan cache:clear
-          mysql -h 127.0.0.1 -uroot -ppassword -e "CREATE DATABASE IF NOT EXISTS daybyday_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          mysql -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS daybyday_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
           php artisan migrate:fresh --seed
 
       - name: Install dependencies

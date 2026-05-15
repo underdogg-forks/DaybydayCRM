@@ -28,7 +28,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref || github.ref_name }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup PHP with Composer
@@ -40,16 +40,11 @@ jobs:
       - name: Run Laravel Pint
         id: pint_run
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            PINT_MODE="dirty"
-            echo "Running Laravel Pint in dirty mode (checking only changed files)..."
+          PINT_MODE="${{ github.event_name == 'pull_request' && 'dirty' || github.event.inputs.mode || 'dirty' }}"
+          if [[ "$PINT_MODE" == "full" ]]; then
+            echo "Running Laravel Pint in full mode (this may take over 2 minutes)..."
           else
-            PINT_MODE="${{ github.event.inputs.mode || 'dirty' }}"
-            if [[ "$PINT_MODE" == "full" ]]; then
-              echo "Running Laravel Pint in full mode (this may take over 2 minutes)..."
-            else
-              echo "Running Laravel Pint in dirty mode (checking only changed files)..."
-            fi
+            echo "Running Laravel Pint in dirty mode (checking only changed files)..."
           fi
 
           set +e
@@ -63,7 +58,7 @@ jobs:
 
           echo "exit_code=$PINT_EXIT_CODE" >> $GITHUB_OUTPUT
 
-          if grep -q "Parse error" pint_output.log || grep -q "!" pint_output.log; then
+          if grep -q "Parse error" pint_output.log || grep -qE '^\s*!' pint_output.log; then
             echo "parse_errors=true" >> $GITHUB_OUTPUT
             echo "WARNING: Parse errors detected in one or more files"
           else
@@ -89,7 +84,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add -A
+          git add -u
           git commit -m "style: apply Laravel Pint fixes" --no-verify
           git push
 

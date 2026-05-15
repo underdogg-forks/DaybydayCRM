@@ -6,7 +6,6 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
@@ -20,7 +19,6 @@ use Tests\AbstractTestCase;
 class SubdirectoryUrlGenerationTest extends AbstractTestCase
 {
     use DatabaseTransactions;
-    use WithoutMiddleware;
 
     private $task;
 

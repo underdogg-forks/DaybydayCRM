@@ -52,7 +52,8 @@ runs:
       run: |
         COMPOSER_ARGS='${{ inputs.composer-args }}'
         if [ -n "$COMPOSER_ARGS" ]; then
-          composer install $COMPOSER_ARGS
+          read -r -a COMPOSER_ARGS_ARRAY <<< "$COMPOSER_ARGS"
+          composer install "${COMPOSER_ARGS_ARRAY[@]}"
         else
           composer install ${{ inputs.composer-flags }}
         fi

@@ -135,6 +135,7 @@ class ProjectServiceTest extends AbstractTestCase
 
         $this->assertCount(1, $prepared['tasks'], 'Only tasks with an assigned user should be kept.');
         $this->assertNotNull($prepared['tasks']->first()->user, 'The remaining task should have a loaded assignee.');
+        $this->assertFalse($prepared['collaborators']->pluck('id')->contains($removedAssignee->id), 'Removed assignees should not be included as collaborators.');
         $this->assertCount(2, $prepared['collaborators'], 'Collaborators should include project assignee and task assignee.');
     }
 

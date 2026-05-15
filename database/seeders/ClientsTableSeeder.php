@@ -24,9 +24,9 @@ class ClientsTableSeeder extends Seeder
         }
 
         Client::query()->updateOrCreate(
-            ['company_name' => self::PLAYWRIGHT_CLIENT_NAME],
+            ['external_id' => self::PLAYWRIGHT_CLIENT_EXTERNAL_ID],
             [
-                'external_id' => self::PLAYWRIGHT_CLIENT_EXTERNAL_ID,
+                'company_name' => self::PLAYWRIGHT_CLIENT_NAME,
                 'address' => 'Seed Street 1',
                 'zipcode' => '1000',
                 'city' => 'Copenhagen',

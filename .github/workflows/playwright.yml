@@ -11,6 +11,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: playwright-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     timeout-minutes: 60
@@ -45,6 +49,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '20.x'
+          cache: yarn
 
       - name: Wait for MySQL
         run: |
@@ -78,7 +83,17 @@ jobs:
             exit 1
           fi
 
+      - name: Restore Playwright browsers cache
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('yarn.lock', 'package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps
 
       - name: Start Laravel server
@@ -109,5 +124,6 @@ jobs:
             blob-report/
             storage/logs/e2e-*.json
             storage/logs/e2e-*.log
+            /tmp/laravel-server.log
           if-no-files-found: warn
           retention-days: 3

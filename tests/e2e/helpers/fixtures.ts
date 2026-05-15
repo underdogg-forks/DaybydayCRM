@@ -1,7 +1,16 @@
 import { test as base, expect } from '@playwright/test';
 import { PLAYWRIGHT_BASE_URL, TEST_USER_PASSWORD } from './config';
+import { loginAsSeededAdmin } from './admin-auth';
 
 export const test = base.extend({
+  page: async ({ page }, use) => {
+    await loginAsSeededAdmin(page);
+    await expect(page).not.toHaveURL(/login/);
+    await use(page);
+  },
+});
+
+export const nonAdminTest = base.extend({
   page: async ({ page }, use) => {
     const email = `pw_user_${Date.now()}_${Math.floor(Math.random() * 100000)}@example.com`;
     const name = 'Playwright User';

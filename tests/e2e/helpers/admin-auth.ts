@@ -9,4 +9,5 @@ export async function loginAsSeededAdmin(page: Page) {
   await page.getByLabel(/email/i).fill(ADMIN_EMAIL);
   await page.getByLabel(/password/i).fill(ADMIN_PASSWORD);
   await page.getByRole('button', { name: /log ?in|sign ?in/i }).click();
+  await page.waitForURL((url) => !url.pathname.endsWith('/login'));
 }

@@ -8,6 +8,7 @@
     "prod": "vite build"
   },
   "devDependencies": {
+    "@playwright/test": "1.54.2",
     "@vitejs/plugin-vue2": "^2.2.0",
     "laravel-vite-plugin": "^0.8.1",
     "sass": "^1.99.0",

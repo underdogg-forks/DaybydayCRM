@@ -48,6 +48,27 @@ test.describe('Tasks feature behavior', () => {
     expect(payload.error).toContain('Invalid status id');
   });
 
+  test('workflow transition updates task status successfully', async ({ page, request }) => {
+    const title = `PW Task Workflow ${Date.now()}`;
+    const { response, statusId } = await TaskActions.create(page, request, title);
+    const created = await response.json();
+    const taskExternalId = created.task_external_id as string;
+
+    const statusResponse = await request.patch(`${PLAYWRIGHT_BASE_URL}/tasks/updatestatus/${taskExternalId}`, {
+      failOnStatusCode: false,
+      headers: {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': await (await import('../../helpers/csrf')).fetchCsrfToken(page),
+      },
+      form: { status_id: statusId },
+    });
+
+    expect(statusResponse.status()).toBe(200);
+    const payload = await statusResponse.json();
+    expect(payload.message).toContain('Task status is updated');
+  });
+
   test('delete/archive removes task from data endpoint', async ({ page, request }) => {
     const title = `PW Task Delete ${Date.now()}`;
     const { response } = await TaskActions.create(page, request, title);

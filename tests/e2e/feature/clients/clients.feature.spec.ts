@@ -55,6 +55,13 @@ test.describe('Clients feature behavior', () => {
     });
 
     expect(updateResponse.status()).toBe(302);
+    const showResponse = await request.get(`${PLAYWRIGHT_BASE_URL}/clients/${externalId}`, {
+      failOnStatusCode: false,
+    });
+    expect(showResponse.status()).toBe(200);
+    const showHtml = await showResponse.text();
+    expect(showHtml).toContain(`${companyName} Updated`);
+
     const dataResponse = await ClientActions.data(request, `${companyName} Updated`);
     await DomainAssertions.expectDataContainsTitle(dataResponse, `${companyName} Updated`);
   });

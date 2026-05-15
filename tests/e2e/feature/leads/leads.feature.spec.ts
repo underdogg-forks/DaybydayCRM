@@ -49,7 +49,8 @@ test.describe('Leads feature behavior', () => {
     const title = `PW Lead Delete ${Date.now()}`;
     const { response } = await LeadActions.create(page, request, title);
     const leadPath = response.headers()['location'] ?? '';
-    const externalId = leadPath.split('/').pop() as string;
+    const leadUrl = new URL(leadPath, PLAYWRIGHT_BASE_URL);
+    const externalId = leadUrl.pathname.split('/').filter(Boolean).pop() as string;
 
     const deleteResponse = await request.delete(`${PLAYWRIGHT_BASE_URL}/leads/${externalId}/json`, {
       failOnStatusCode: false,

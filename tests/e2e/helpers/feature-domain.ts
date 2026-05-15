@@ -2,13 +2,24 @@ import { expect, type APIRequestContext, type APIResponse, type Page } from '@pl
 import { PLAYWRIGHT_BASE_URL } from './config';
 import { fetchCsrfToken } from './csrf';
 
+const csrfByPage = new WeakMap<Page, string>();
+
 async function jsonHeaders(page: Page) {
-  const csrf = await fetchCsrfToken(page);
+  let csrf = csrfByPage.get(page);
+  if (!csrf) {
+    csrf = await fetchCsrfToken(page);
+    csrfByPage.set(page, csrf);
+  }
+
   return {
     Accept: 'application/json',
     'X-CSRF-TOKEN': csrf,
     'X-Requested-With': 'XMLHttpRequest',
   };
+}
+
+function uniqueToken() {
+  return `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 async function pageHtml(request: APIRequestContext, path: string): Promise<string> {
@@ -48,10 +59,10 @@ export class ClientActions {
       form: {
         name: `${companyName} Contact`,
         company_name: companyName,
-        email: `${Date.now()}@example.com`,
+        email: `${uniqueToken()}@example.com`,
         primary_number: '12345678',
         secondary_number: '87654321',
-        vat: `${Date.now()}`.slice(-8),
+        vat: '12345678',
         zipcode: '1000',
         city: 'Copenhagen',
         industry_id: industryId,
@@ -93,7 +104,7 @@ export class LeadActions {
       },
     });
 
-    return { response, title };
+    return { response, title, statusId };
   }
 
   static async data(request: APIRequestContext, search = '') {
@@ -125,7 +136,7 @@ export class ProjectActions {
       },
     });
 
-    return { response, title };
+    return { response, title, statusId };
   }
 
   static async data(request: APIRequestContext, search = '') {
@@ -157,7 +168,7 @@ export class TaskActions {
       },
     });
 
-    return { response, title };
+    return { response, title, statusId };
   }
 
   static async data(request: APIRequestContext, search = '') {

@@ -47,13 +47,11 @@ jobs:
             echo "Running Laravel Pint in dirty mode (checking only changed files)..."
           fi
 
-          set +e
           if [[ "$PINT_MODE" == "dirty" ]]; then
-            vendor/bin/pint --dirty 2>&1 | tee pint_output.log
+            vendor/bin/pint --dirty 2>&1 | tee pint_output.log || true
           else
-            vendor/bin/pint 2>&1 | tee pint_output.log
+            vendor/bin/pint 2>&1 | tee pint_output.log || true
           fi
-          set -e
 
           if grep -q "Parse error" pint_output.log; then
             echo "parse_errors=true" >> $GITHUB_OUTPUT
@@ -78,7 +76,7 @@ jobs:
 
       - name: Lint staged PHP files baseline
         if: steps.verify_diff.outputs.has_changes == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
-        run: git ls-files '*.php' | xargs -n1 php -l
+        run: git ls-files '*.php' | xargs -r -n1 php -l
 
       - name: Commit and Push Changes
         if: steps.verify_diff.outputs.has_changes == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)

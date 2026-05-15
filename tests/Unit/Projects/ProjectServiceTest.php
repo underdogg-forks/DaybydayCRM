@@ -121,12 +121,14 @@ class ProjectServiceTest extends AbstractTestCase
             'user_created_id'   => $assignee->id,
         ]);
 
+        $orphanedTaskUser = User::factory()->create();
         Task::factory()->create([
             'project_id'        => $project->id,
             'client_id'         => $project->client_id,
-            'user_assigned_id'  => null,
+            'user_assigned_id'  => $orphanedTaskUser->id,
             'user_created_id'   => $assignee->id,
         ]);
+        $orphanedTaskUser->delete();
 
         $prepared = $service->prepareShowCollaboratorsAndTasks($project);
 

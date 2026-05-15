@@ -10,7 +10,7 @@ inputs:
     required: false
     default: 'mbstring,xml,ctype,json,fileinfo,pdo,sqlite,mysql,bcmath'
   composer-flags:
-    description: 'Flags appended to the composer install command (e.g., --no-dev --optimize-autoloader). Used only when composer-args is empty.'
+    description: 'Argument list passed to composer install when composer-args is empty (e.g., --no-dev --optimize-autoloader).'
     required: false
     default: '--no-interaction --prefer-dist --optimize-autoloader'
   composer-args:
@@ -50,10 +50,8 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        COMPOSER_ARGS='${{ inputs.composer-args }}'
-        if [ -n "$COMPOSER_ARGS" ]; then
-          read -r -a COMPOSER_ARGS_ARRAY <<< "$COMPOSER_ARGS"
-          composer install "${COMPOSER_ARGS_ARRAY[@]}"
+        if [ -n "${{ inputs.composer-args }}" ]; then
+          composer install ${{ inputs.composer-args }}
         else
           composer install ${{ inputs.composer-flags }}
         fi

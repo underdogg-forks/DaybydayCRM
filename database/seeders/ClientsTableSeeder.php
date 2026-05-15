@@ -9,8 +9,8 @@ use Illuminate\Database\Seeder;
 
 class ClientsTableSeeder extends Seeder
 {
-    private const PLAYWRIGHT_CLIENT_NAME = 'Playwright Seed Client';
-    private const PLAYWRIGHT_CLIENT_EXTERNAL_ID = '1dcad188-4c47-4939-9f0a-fb6802ef4f0d';
+    private const SEED_CLIENT_NAME = 'Playwright Seed Client';
+    private const SEED_CLIENT_EXTERNAL_ID = '1dcad188-4c47-4939-9f0a-fb6802ef4f0d';
 
     public function run()
     {
@@ -18,15 +18,15 @@ class ClientsTableSeeder extends Seeder
         $industry = Industry::query()->orderBy('id')->first();
 
         if (! $owner || ! $industry) {
-            $this->command->warn('ClientsTableSeeder: missing seeded admin user or industry, skipping.');
+            $this->command->warn('ClientsTableSeeder: Requires UsersTableSeeder and IndustriesTableSeeder to run first. Skipping client creation.');
 
             return;
         }
 
         Client::query()->updateOrCreate(
-            ['external_id' => self::PLAYWRIGHT_CLIENT_EXTERNAL_ID],
+            ['external_id' => self::SEED_CLIENT_EXTERNAL_ID],
             [
-                'company_name' => self::PLAYWRIGHT_CLIENT_NAME,
+                'company_name' => self::SEED_CLIENT_NAME,
                 'address' => 'Seed Street 1',
                 'zipcode' => '1000',
                 'city' => 'Copenhagen',

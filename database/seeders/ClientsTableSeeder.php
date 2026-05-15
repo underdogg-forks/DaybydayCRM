@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Client;
 use App\Models\Industry;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class ClientsTableSeeder extends Seeder
 {
@@ -14,7 +14,7 @@ class ClientsTableSeeder extends Seeder
 
     public function run()
     {
-        $owner = User::query()->where('email', 'admin@admin.com')->first();
+        $owner = User::query()->where('email', UsersTableSeeder::ADMIN_EMAIL)->first();
         $industry = Industry::query()->orderBy('id')->first();
 
         if (! $owner || ! $industry) {
@@ -23,7 +23,7 @@ class ClientsTableSeeder extends Seeder
             return;
         }
 
-        DB::table('clients')->updateOrInsert(
+        Client::query()->updateOrCreate(
             ['company_name' => self::PLAYWRIGHT_CLIENT_NAME],
             [
                 'external_id' => self::PLAYWRIGHT_CLIENT_EXTERNAL_ID,
@@ -34,8 +34,6 @@ class ClientsTableSeeder extends Seeder
                 'company_type' => 'ApS',
                 'user_id' => $owner->id,
                 'industry_id' => $industry->id,
-                'created_at' => now(),
-                'updated_at' => now(),
             ]
         );
     }

@@ -46,6 +46,25 @@ test.describe('Projects feature behavior', () => {
     expect(response.status()).toBe(404);
   });
 
+  test('workflow status transition succeeds for valid project', async ({ page, request }) => {
+    const title = `PW Project Workflow ${Date.now()}`;
+    const { response, statusId } = await ProjectActions.create(page, request, title);
+    const payload = await response.json();
+    const externalId = payload.project_external_id as string;
+
+    const statusResponse = await request.patch(`${PLAYWRIGHT_BASE_URL}/projects/updatestatus/${externalId}`, {
+      failOnStatusCode: false,
+      headers: {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': await (await import('../../helpers/csrf')).fetchCsrfToken(page),
+      },
+      form: { status_id: statusId },
+    });
+
+    expect(statusResponse.status()).toBe(302);
+  });
+
   test('delete workflow archives project and hides it from data search', async ({ page, request }) => {
     const title = `PW Project Delete ${Date.now()}`;
     const { response } = await ProjectActions.create(page, request, title);

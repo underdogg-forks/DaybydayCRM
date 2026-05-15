@@ -1,17 +1,8 @@
 import { test as guestTest, expect as guestExpect } from '@playwright/test';
 import { test, expect } from '../../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../../helpers/config';
+import { loginAsSeededAdmin } from '../../helpers/admin-auth';
 import { SettingActions, DomainAssertions } from '../../helpers/feature-domain';
-
-const adminEmail = 'admin@admin.com';
-const adminPassword = 'admin123';
-
-async function loginAsSeededAdmin(page: import('@playwright/test').Page) {
-  await page.goto(`${PLAYWRIGHT_BASE_URL}/login`);
-  await page.getByLabel(/email/i).fill(adminEmail);
-  await page.getByLabel(/password/i).fill(adminPassword);
-  await page.getByRole('button', { name: /log ?in|sign ?in/i }).click();
-}
 
 test.describe('Settings feature behavior', () => {
   test('happy path updates overall settings and returns success message', async ({ page, request }) => {

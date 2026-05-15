@@ -83,12 +83,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup PHP with Composer
+        uses: ./.github/actions/setup-php-composer
         with:
           php-version: ${{ matrix.php }}
-          coverage: none
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+          php-extensions: 'dom,curl,libxml,mbstring,zip,pcntl,pdo,sqlite,pdo_sqlite,bcmath,soap,intl,gd,exif,iconv,imagick'
+          composer-args: '--no-ansi --no-scripts --no-interaction --optimize-autoloader --prefer-dist'
 
       - name: Wait for MySQL
         run: |
@@ -104,9 +104,6 @@ jobs:
         run: |
           cp .env.ci .env.testing
           cp .env.ci .env
-
-      - name: Install Composer dependencies
-        run: composer install --no-ansi --no-scripts --no-interaction --optimize-autoloader --prefer-dist
 
       - name: Regenerate autoloader
         run: composer dump-autoload --no-scripts

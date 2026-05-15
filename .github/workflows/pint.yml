@@ -40,7 +40,7 @@ jobs:
       - name: Run Laravel Pint
         id: pint_run
         run: |
-          PINT_MODE="${{ github.event_name == 'pull_request' && 'dirty' || github.event.inputs.mode || 'dirty' }}"
+          PINT_MODE="${{ github.event.inputs.mode || 'dirty' }}"
           if [[ "$PINT_MODE" == "full" ]]; then
             echo "Running Laravel Pint in full mode (this may take over 2 minutes)..."
           else
@@ -74,16 +74,16 @@ jobs:
             echo "No files were modified"
           fi
 
-      - name: Lint staged PHP files baseline
+      - name: Lint PHP files changed by Pint
         if: steps.verify_diff.outputs.has_changes == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
-        run: git ls-files '*.php' | xargs -r -n1 php -l
+        run: git diff --name-only --diff-filter=ACM -- '*.php' | xargs -r -n1 php -l
 
       - name: Commit and Push Changes
         if: steps.verify_diff.outputs.has_changes == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add -u -- '*.php'
+          git add -A
           git commit -m "style: apply Laravel Pint fixes"
           git push
 

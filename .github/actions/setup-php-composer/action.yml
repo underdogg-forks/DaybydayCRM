@@ -4,7 +4,7 @@ inputs:
   php-version:
     description: 'PHP version to use'
     required: false
-    default: '8.2'
+    default: '8.4'
   php-extensions:
     description: 'PHP extensions to install (comma-separated)'
     required: false
@@ -49,9 +49,12 @@ runs:
     - name: Install Composer dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        COMPOSER_ARGS: ${{ inputs.composer-args }}
+        COMPOSER_FLAGS: ${{ inputs.composer-flags }}
       run: |
-        if [ -n "${{ inputs.composer-args }}" ]; then
-          composer install ${{ inputs.composer-args }}
+        if [ -n "$COMPOSER_ARGS" ]; then
+          composer install $COMPOSER_ARGS
         else
-          composer install ${{ inputs.composer-flags }}
+          composer install $COMPOSER_FLAGS
         fi

@@ -161,6 +161,14 @@ jobs:
             RUNNER_BIN="vendor/bin/paratest"
           fi
 
+          if [ ! -x "$RUNNER_BIN" ]; then
+            echo "::error title=Missing test runner::Selected runner '$RUNNER' requires '$RUNNER_BIN', but it was not found or is not executable."
+            if [ "$RUNNER" = "paratest" ]; then
+              echo "Install Paratest in composer.json require-dev (for example, brianium/paratest) or select the phpunit runner."
+            fi
+            exit 1
+          fi
+
           # Stream phpunit output through the parser (shows only failures/errors live on screen)
           # while tee saves the full raw log to disk for the artifact upload.
           if [ "$GROUP" = "full" ]; then

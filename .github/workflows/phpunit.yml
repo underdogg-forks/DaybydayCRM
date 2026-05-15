@@ -58,7 +58,7 @@ permissions:
 
 jobs:
   tests:
-    name: PHP ${{ matrix.php }} - ${{ inputs.test_group }} (runner:${{ inputs.test_runner }}, output:${{ inputs.output }}, fail_fast:${{ inputs.fail_fast }})
+    name: PHP ${{ matrix.php }} - ${{ inputs.test_group }} (runner:${{ inputs.test_runner || 'phpunit' }}, output:${{ inputs.output }}, fail_fast:${{ inputs.fail_fast }})
     runs-on: ubuntu-latest
 
     strategy:

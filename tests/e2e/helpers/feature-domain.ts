@@ -27,10 +27,11 @@ async function pageHtml(request: APIRequestContext, path: string): Promise<strin
     failOnStatusCode: false,
     maxRedirects: 0,
   });
+  const html = await response.text();
   if (response.status() !== 200) {
-    throw new Error(`Failed to load ${path}. Expected 200 but got ${response.status()}.`);
+    throw new Error(`Failed to load ${path}. Expected 200 but got ${response.status()}. Response snippet: ${html.slice(0, 200)}`);
   }
-  return response.text();
+  return html;
 }
 
 function selectOptions(html: string, selectName: string): string[] {

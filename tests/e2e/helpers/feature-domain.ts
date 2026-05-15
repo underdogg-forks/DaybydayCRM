@@ -1,4 +1,4 @@
-import { expect, type APIRequestContext, type Page } from '@playwright/test';
+import { expect, type APIRequestContext, type APIResponse, type Page } from '@playwright/test';
 import { PLAYWRIGHT_BASE_URL } from './config';
 import { fetchCsrfToken } from './csrf';
 
@@ -232,14 +232,14 @@ export class SettingActions {
 }
 
 export class DomainAssertions {
-  static async expectValidationError(response: any, field: string) {
+  static async expectValidationError(response: APIResponse, field: string) {
     expect(response.status()).toBe(422);
     const payload = await response.json();
     expect(payload.errors).toBeTruthy();
     expect(Object.keys(payload.errors)).toContain(field);
   }
 
-  static async expectDataContainsTitle(response: any, value: string) {
+  static async expectDataContainsTitle(response: APIResponse, value: string) {
     expect(response.status()).toBe(200);
     const payload = await response.json();
     const text = JSON.stringify(payload);

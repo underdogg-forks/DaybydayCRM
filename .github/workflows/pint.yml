@@ -40,7 +40,7 @@ jobs:
       - name: Run Laravel Pint
         id: pint_run
         run: |
-          PINT_MODE="${{ github.event_name == 'pull_request' && 'dirty' || github.event.inputs.mode }}"
+          PINT_MODE="${{ github.event_name == 'pull_request' && 'dirty' || github.event.inputs.mode || 'dirty' }}"
           if [[ "$PINT_MODE" == "full" ]]; then
             echo "Running Laravel Pint in full mode (this may take over 2 minutes)..."
           else
@@ -53,10 +53,7 @@ jobs:
           else
             vendor/bin/pint 2>&1 | tee pint_output.log
           fi
-          PINT_EXIT_CODE=${PIPESTATUS[0]}
           set -e
-
-          echo "exit_code=$PINT_EXIT_CODE" >> $GITHUB_OUTPUT
 
           if grep -q "Parse error" pint_output.log; then
             echo "parse_errors=true" >> $GITHUB_OUTPUT
@@ -78,6 +75,10 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
             echo "No files were modified"
           fi
+
+      - name: Lint staged PHP files baseline
+        if: steps.verify_diff.outputs.has_changes == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+        run: git ls-files '*.php' | xargs -n1 php -l
 
       - name: Commit and Push Changes
         if: steps.verify_diff.outputs.has_changes == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)

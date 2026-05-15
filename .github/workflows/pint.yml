@@ -85,7 +85,21 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add -A
           git commit -m "style: apply Laravel Pint fixes"
-          git push
+
+          BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+          MAX_ATTEMPTS=3
+          ATTEMPT=1
+
+          until git push origin "HEAD:${BRANCH_NAME}"; do
+            if [[ $ATTEMPT -ge $MAX_ATTEMPTS ]]; then
+              echo "ERROR: Failed to push changes after ${MAX_ATTEMPTS} attempts"
+              exit 1
+            fi
+
+            echo "Push rejected; rebasing onto origin/${BRANCH_NAME} and retrying (${ATTEMPT}/${MAX_ATTEMPTS})..."
+            git pull --rebase origin "${BRANCH_NAME}"
+            ATTEMPT=$((ATTEMPT + 1))
+          done
 
           if [[ "${{ steps.pint_run.outputs.parse_errors }}" == "true" ]]; then
             echo "WARNING: Changes committed successfully, but some files had parse errors and were not formatted"

@@ -32,6 +32,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          # For fork PRs the head branch doesn't exist in the base repo, so use the
+          # commit SHA instead; for non-fork PRs and pushes use the branch name so
+          # the auto-commit step can push style fixes back.
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork && github.event.pull_request.head.sha || (github.head_ref || github.ref_name) }}
           token: ${{ secrets.GITHUB_TOKEN }}
 

@@ -10,7 +10,7 @@ inputs:
     required: false
     default: 'mbstring,xml,ctype,json,fileinfo,pdo,sqlite,mysql,bcmath'
   composer-flags:
-    description: 'Argument list passed to composer install when composer-args is empty (e.g., --no-dev --optimize-autoloader).'
+    description: 'Argument list passed to composer install when composer-args is empty (e.g., --no-interaction --prefer-dist --optimize-autoloader).'
     required: false
     default: '--no-interaction --prefer-dist --optimize-autoloader'
   composer-args:

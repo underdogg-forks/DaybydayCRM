@@ -53,6 +53,9 @@ on:
           - "false"
           - "true"
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     name: PHP ${{ matrix.php }} - ${{ inputs.test_group }} (runner:${{ inputs.test_runner }}, output:${{ inputs.output }}, fail_fast:${{ inputs.fail_fast }})
@@ -150,7 +153,7 @@ jobs:
           echo "FAILFAST=${FAILFAST}" >> $GITHUB_ENV
           echo "GROUP=${GROUP}" >> $GITHUB_ENV
           echo "CUSTOM_GROUP=${{ github.event.inputs.custom_group_name }}" >> $GITHUB_ENV
-          echo "RUNNER=${{ github.event.inputs.test_runner }}" >> $GITHUB_ENV
+          echo "RUNNER=${{ github.event.inputs.test_runner || 'phpunit' }}" >> $GITHUB_ENV
 
       - name: Run tests
         shell: bash

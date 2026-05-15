@@ -3,6 +3,7 @@ import { PLAYWRIGHT_BASE_URL } from './config';
 import { fetchCsrfToken } from './csrf';
 
 const csrfByPage = new WeakMap<Page, string>();
+const RESPONSE_SNIPPET_LENGTH = 200;
 
 async function jsonHeaders(page: Page) {
   let csrf = csrfByPage.get(page);
@@ -29,7 +30,7 @@ async function pageHtml(request: APIRequestContext, path: string): Promise<strin
   });
   const html = await response.text();
   if (response.status() !== 200) {
-    throw new Error(`Failed to load ${path}. Expected 200 but got ${response.status()}. Response snippet: ${html.slice(0, 200)}`);
+    throw new Error(`Failed to load ${path}. Expected 200 but got ${response.status()}. Response snippet: ${html.slice(0, RESPONSE_SNIPPET_LENGTH)}`);
   }
   return html;
 }

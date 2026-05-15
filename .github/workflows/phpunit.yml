@@ -36,6 +36,14 @@ on:
         options:
           - pao
           - testdox
+      test_runner:
+        description: 'Test runner'
+        required: true
+        default: 'phpunit'
+        type: choice
+        options:
+          - phpunit
+          - paratest
       fail_fast:
         description: 'Fail fast (stop on first error)?'
         required: true
@@ -47,10 +55,11 @@ on:
 
 jobs:
   tests:
-    name: PHP ${{ matrix.php }} - ${{ inputs.test_group }} (output:${{ inputs.output }}, fail_fast:${{ inputs.fail_fast }})
+    name: PHP ${{ matrix.php }} - ${{ inputs.test_group }} (runner:${{ inputs.test_runner }}, output:${{ inputs.output }}, fail_fast:${{ inputs.fail_fast }})
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         php: ['8.3', '8.4']
 
@@ -141,20 +150,25 @@ jobs:
           echo "FAILFAST=${FAILFAST}" >> $GITHUB_ENV
           echo "GROUP=${GROUP}" >> $GITHUB_ENV
           echo "CUSTOM_GROUP=${{ github.event.inputs.custom_group_name }}" >> $GITHUB_ENV
+          echo "RUNNER=${{ github.event.inputs.test_runner }}" >> $GITHUB_ENV
 
       - name: Run tests
         shell: bash
         run: |
           LOG_FILE="phpunit-output.log"
+          RUNNER_BIN="vendor/bin/phpunit"
+          if [ "$RUNNER" = "paratest" ]; then
+            RUNNER_BIN="vendor/bin/paratest"
+          fi
 
           # Stream phpunit output through the parser (shows only failures/errors live on screen)
           # while tee saves the full raw log to disk for the artifact upload.
           if [ "$GROUP" = "full" ]; then
-            vendor/bin/phpunit --exclude-group flaky $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE" | php .github/scripts/parse-phpunit.php
+            $RUNNER_BIN --exclude-group flaky $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE" | php .github/scripts/parse-phpunit.php
           elif [ "$GROUP" = "custom" ]; then
-            vendor/bin/phpunit --exclude-group flaky --group="$CUSTOM_GROUP" $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE" | php .github/scripts/parse-phpunit.php
+            $RUNNER_BIN --exclude-group flaky --group="$CUSTOM_GROUP" $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE" | php .github/scripts/parse-phpunit.php
           else
-            vendor/bin/phpunit --exclude-group flaky --group="$GROUP" $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE" | php .github/scripts/parse-phpunit.php
+            $RUNNER_BIN --exclude-group flaky --group="$GROUP" $OUT_OPT $FAILFAST 2>&1 | tee "$LOG_FILE" | php .github/scripts/parse-phpunit.php
           fi
 
           # Preserve the phpunit exit code (not tee/parser exit code)
@@ -167,4 +181,3 @@ jobs:
           name: phpunit-log-php${{ matrix.php }}
           path: phpunit-output.log
           retention-days: 7
-

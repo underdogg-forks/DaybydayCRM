@@ -1,6 +1,14 @@
 name: Playwright Tests
 
 on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 jobs:
@@ -9,13 +17,52 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - uses: actions/checkout@v5
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+
       - uses: actions/setup-node@v5
         with:
           node-version: '20.x'
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h127.0.0.1 -uroot -ppassword --silent; then
+              echo "MySQL ready!"
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Prepare app
+        run: |
+          cp .env.ci .env
+          composer install --no-ansi --no-interaction --prefer-dist --optimize-autoloader
+          php artisan key:generate
+          php artisan config:clear
+          php artisan cache:clear
+          mysql -h 127.0.0.1 -uroot -ppassword -e "CREATE DATABASE IF NOT EXISTS daybyday_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          php artisan migrate:fresh --seed
 
       - name: Install dependencies
         run: |
@@ -32,7 +79,24 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Start Laravel server
+        run: php artisan serve --host=127.0.0.1 --port=8000 > /tmp/laravel-server.log 2>&1 &
+
+      - name: Wait for Laravel server
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/login >/dev/null; then
+              echo "Laravel server ready!"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Laravel server did not become ready in time." >&2
+          exit 1
+
       - name: Run Playwright tests
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:8000
         run: npx playwright test
 
       - uses: actions/upload-artifact@v4

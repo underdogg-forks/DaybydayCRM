@@ -1,5 +1,5 @@
 import { test as guestTest, expect as guestExpect } from '@playwright/test';
-import { test, expect } from '../../helpers/fixtures';
+import { nonAdminTest, test, expect } from '../../helpers/fixtures';
 import { PLAYWRIGHT_BASE_URL } from '../../helpers/config';
 import { loginAsSeededAdmin } from '../../helpers/admin-auth';
 import { SettingActions, DomainAssertions } from '../../helpers/feature-domain';
@@ -34,7 +34,7 @@ test.describe('Settings feature behavior', () => {
     await DomainAssertions.expectValidationError(response, 'client_number');
   });
 
-  test('permission behavior denies non-admin fixture user for settings update', async ({ page, request }) => {
+  nonAdminTest('permission behavior denies non-admin fixture user for settings update', async ({ page, request }) => {
     const response = await SettingActions.updateOverall(page, request, {
       client_number: 30000,
       invoice_number: 30000,

@@ -23,7 +23,13 @@ function uniqueToken() {
 }
 
 async function pageHtml(request: APIRequestContext, path: string): Promise<string> {
-  const response = await request.get(`${PLAYWRIGHT_BASE_URL}${path}`, { failOnStatusCode: false });
+  const response = await request.get(`${PLAYWRIGHT_BASE_URL}${path}`, {
+    failOnStatusCode: false,
+    maxRedirects: 0,
+  });
+  if (response.status() !== 200) {
+    throw new Error(`Failed to load ${path}. Expected 200 but got ${response.status()}.`);
+  }
   return response.text();
 }
 
@@ -204,8 +210,8 @@ export class RoleActions {
 export class UserActions {
   static async create(page: Page, request: APIRequestContext, name: string, email: string) {
     const html = await pageHtml(request, '/users/create');
-    const roleId = selectOptions(html, 'roles')[0];
-    const departmentId = selectOptions(html, 'departments')[0];
+    const roleId = selectOptions(html, 'role')[0];
+    const departmentId = selectOptions(html, 'department')[0];
     const headers = await jsonHeaders(page);
 
     return request.post(`${PLAYWRIGHT_BASE_URL}/users`, {
@@ -217,8 +223,8 @@ export class UserActions {
         email,
         password: 'amazingpassword123',
         password_confirmation: 'amazingpassword123',
-        roles: roleId,
-        departments: departmentId,
+        role: roleId,
+        department: departmentId,
       },
     });
   }

@@ -10,10 +10,12 @@ use App\Models\Industry;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\Client\ClientService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use RuntimeException;
 use Tests\AbstractTestCase;
 
 #[CoversClass(ClientsController::class)]
@@ -78,6 +80,82 @@ class ClientsControllerTest extends AbstractTestCase
         $this->assertCount(1, $contacts);
         $this->assertNotNull($client);
         $this->assertNotNull($client->contacts);
+    }
+
+    #[Test]
+    public function it_returns_web_error_and_early_returns_when_client_creation_fails()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_CREATE);
+        $industry = Industry::factory()->create();
+        $user     = User::factory()->create();
+        $this->app->instance(ClientService::class, new class extends ClientService {
+            public function createClientWithContact(array $data): array
+            {
+                throw new RuntimeException('Simulated client creation failure');
+            }
+        });
+
+        /* Act */
+        $response = $this->from(route('clients.create'))->post(route('clients.store'), [
+            'name'             => 'James Test',
+            'email'            => 'james@test.com',
+            'primary_number'   => '2342342342',
+            'secondary_number' => '423423432',
+            'vat'              => '12312334',
+            'company_name'     => 'James & Co',
+            'address'          => 'james street',
+            'zipcode'          => '2222',
+            'city'             => 'Bond city',
+            'company_type'     => 'Aps',
+            'industry_id'      => $industry->id,
+            'user_id'          => $user->id,
+        ]);
+
+        /* Assert */
+        $response->assertStatus(302);
+        $response->assertRedirect(route('clients.create'));
+        $response->assertSessionHasErrors(['client']);
+        $response->assertSessionHasOldInput('name', 'James Test');
+    }
+
+    #[Test]
+    public function it_returns_json_error_and_early_returns_when_client_creation_fails()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_CREATE);
+        $industry = Industry::factory()->create();
+        $user     = User::factory()->create();
+        $this->app->instance(ClientService::class, new class extends ClientService {
+            public function createClientWithContact(array $data): array
+            {
+                throw new RuntimeException('Simulated client creation failure');
+            }
+        });
+
+        /* Act */
+        $response = $this->json('POST', route('clients.store'), [
+            'name'             => 'James Test',
+            'email'            => 'james@test.com',
+            'primary_number'   => '2342342342',
+            'secondary_number' => '423423432',
+            'vat'              => '12312334',
+            'company_name'     => 'James & Co',
+            'address'          => 'james street',
+            'zipcode'          => '2222',
+            'city'             => 'Bond city',
+            'company_type'     => 'Aps',
+            'industry_id'      => $industry->id,
+            'user_id'          => $user->id,
+        ]);
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Client could not be created. Please try again.'),
+        ]);
     }
 
     #[Test]

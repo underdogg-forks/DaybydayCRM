@@ -21,6 +21,7 @@ use App\Services\Storage\GetStorageProvider;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
 
 class ClientsController extends Controller
@@ -203,12 +204,25 @@ class ClientsController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
-        [$client, $contact] = $this->clientService->createClientWithContact($request->validated());
+        $expectsJson = $request->expectsJson() || $request->wantsJson();
+
+        try {
+            [$client, $contact] = $this->clientService->createClientWithContact($request->validated());
+        } catch (Throwable $exception) {
+            report($exception);
+            $message = __('Client could not be created. Please try again.');
+
+            if ($expectsJson) {
+                return response()->json(['message' => $message], 500);
+            }
+
+            return redirect()->back()->withInput()->withErrors(['client' => $message]);
+        }
 
         session()->flash('flash_message', __('Client successfully added'));
         event(new ClientAction($client, self::CREATED));
 
-        if ($request->expectsJson() || $request->wantsJson()) {
+        if ($expectsJson) {
             return response()->json([
                 'client'  => $client,
                 'contact' => $contact,

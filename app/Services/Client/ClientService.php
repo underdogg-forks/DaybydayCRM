@@ -71,7 +71,7 @@ class ClientService
             'primaryContact',    // Primary contact
             'industry',          // Industry relationship
             'documents',         // Documents
-            'appointments',       // Appointments
+            'appointments',      // Appointments
         ])
             ->where('external_id', $external_id)
             ->firstOrFail();
@@ -89,7 +89,7 @@ class ClientService
         return $client->tasks()
             ->with([
                 'status',        // Task status for color/title
-                'user',           // User assigned to task (fixes N+1 on assigned_user->name)
+                'user',          // User assigned to task (fixes N+1 on assigned_user->name)
             ])
             ->select([
                 'id',
@@ -116,7 +116,7 @@ class ClientService
         return $client->projects()
             ->with([
                 'status',        // Project status for color/title
-                'assignee',       // User assigned to project (fixes N+1 on assignee->name)
+                'assignee',      // User assigned to project (fixes N+1 on assignee->name)
             ])
             ->select([
                 'id',
@@ -143,7 +143,7 @@ class ClientService
         return $client->leads()
             ->with([
                 'status',        // Lead status for color/title
-                'user',           // User assigned to lead (fixes N+1 on assigned_user->name)
+                'user',          // User assigned to lead (fixes N+1 on assigned_user->name)
             ])
             ->select([
                 'id',

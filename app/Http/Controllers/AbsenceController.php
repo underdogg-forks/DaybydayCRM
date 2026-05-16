@@ -7,6 +7,7 @@ use App\Models\Absence;
 use App\Models\User;
 use App\Services\AbsenceService;
 use Illuminate\Http\Request;
+use Throwable;
 use Yajra\DataTables\DataTables;
 
 class AbsenceController extends Controller
@@ -68,7 +69,18 @@ class AbsenceController extends Controller
 
     public function store(Request $request, AbsenceService $absenceService)
     {
-        $result = $absenceService->storeAbsence($request);
+        try {
+            $result = $absenceService->storeAbsence($request);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return $this->failureResponse(
+                $request,
+                __('Absence could not be registered. Please try again.'),
+                'absence'
+            );
+        }
+
         if ($result['error']) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => $result['error']], 400);

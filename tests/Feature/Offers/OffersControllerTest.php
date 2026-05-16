@@ -122,6 +122,55 @@ class OffersControllerTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_returns_web_error_when_offer_creation_throws_exception()
+    {
+        /* Arrange */
+        $client = Client::factory()->create();
+
+        /* Act */
+        $response = $this->from(route('clients.show', $client->external_id))
+            ->post(route('create.offer', $client->external_id), [
+                [
+                    'title'    => 'line with bad product',
+                    'price'    => 1000,
+                    'quantity' => 1,
+                    'type'     => 'pieces',
+                    'comment'  => 'bad product',
+                    'product'  => 'missing-product-external-id',
+                ],
+            ]);
+
+        /* Assert */
+        $response->assertRedirect(route('clients.show', $client->external_id));
+        $response->assertSessionHasErrors(['offer']);
+    }
+
+    #[Test]
+    public function it_returns_json_error_when_offer_creation_throws_exception()
+    {
+        /* Arrange */
+        $client = Client::factory()->create();
+
+        /* Act */
+        $response = $this->json('POST', route('create.offer', $client->external_id), [
+            [
+                'title'    => 'line with bad product',
+                'price'    => 1000,
+                'quantity' => 1,
+                'type'     => 'pieces',
+                'comment'  => 'bad product',
+                'product'  => 'missing-product-external-id',
+            ],
+        ]);
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Offer could not be created. Please try again.'),
+        ]);
+    }
+
+    #[Test]
     #[Group('keeps_failing')]
     public function it_can_update_offer()
     {

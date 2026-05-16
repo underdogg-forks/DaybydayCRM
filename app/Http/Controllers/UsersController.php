@@ -14,12 +14,14 @@ use App\Models\Task;
 use App\Models\User;
 use App\Services\User\UserUpdateService;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
 
 class UsersController extends Controller
@@ -204,20 +206,34 @@ class UsersController extends Controller
             $path     = Storage::put($settings->external_id, $file);
         }
 
-        $user                   = new User();
-        $user->name             = $request->name;
-        $user->external_id      = Uuid::uuid4()->toString();
-        $user->email            = $request->email;
-        $user->address          = $request->address;
-        $user->primary_number   = $request->primary_number;
-        $user->secondary_number = $request->secondary_number;
-        $user->password         = bcrypt($request->password);
-        $user->image_path       = $path;
-        $user->language         = $request->language == 'dk' ?: 'en';
-        $user->save();
-        $user->roles()->attach($request->roles);
-        $user->department()->attach($request->departments);
-        $user->save();
+        try {
+            DB::transaction(function () use ($request, $path) {
+                $user                   = new User();
+                $user->name             = $request->name;
+                $user->external_id      = Uuid::uuid4()->toString();
+                $user->email            = $request->email;
+                $user->address          = $request->address;
+                $user->primary_number   = $request->primary_number;
+                $user->secondary_number = $request->secondary_number;
+                $user->password         = bcrypt($request->password);
+                $user->image_path       = $path;
+                $user->language         = $request->language == 'dk' ?: 'en';
+                $user->save();
+                $user->roles()->attach($request->roles);
+                $user->department()->attach($request->departments);
+                $user->save();
+
+                return $user;
+            });
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return $this->failureResponse(
+                $request,
+                __('User could not be created. Please try again.'),
+                'user'
+            );
+        }
 
         Session::flash('flash_message', __('User successfully added'));
 

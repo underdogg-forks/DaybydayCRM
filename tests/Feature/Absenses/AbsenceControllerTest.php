@@ -3,14 +3,19 @@
 namespace Tests\Feature\Absenses;
 
 use App\Enums\PermissionName;
+use App\Http\Controllers\AbsenceController;
 use App\Models\User;
+use App\Services\AbsenceService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use RuntimeException;
 use Tests\AbstractTestCase;
 
+#[CoversClass(AbsenceController::class)]
 class AbsenceControllerTest extends AbstractTestCase
 {
     use RefreshDatabase;
@@ -99,5 +104,53 @@ class AbsenceControllerTest extends AbstractTestCase
         $response->assertStatus(200);
         $this->assertCount(0, $absentUser->fresh()->absences);
         $this->assertCount(1, $this->user->fresh()->absences);
+    }
+
+    #[Test]
+    public function it_returns_web_error_when_absence_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->bindFailingAbsenceService();
+
+        /* Act */
+        $response = $this->from(route('absence.create'))->post(route('absence.store'), [
+            'reason'     => 'Sick',
+            'start_date' => '2020-01-01',
+            'end_date'   => '2020-01-02',
+        ]);
+
+        /* Assert */
+        $response->assertRedirect(route('absence.create'));
+        $response->assertSessionHasErrors(['absence']);
+    }
+
+    #[Test]
+    public function it_returns_json_error_when_absence_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->bindFailingAbsenceService();
+
+        /* Act */
+        $response = $this->json('POST', route('absence.store'), [
+            'reason'     => 'Sick',
+            'start_date' => '2020-01-01',
+            'end_date'   => '2020-01-02',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Absence could not be registered. Please try again.'),
+        ]);
+    }
+
+    private function bindFailingAbsenceService(): void
+    {
+        $this->app->instance(AbsenceService::class, new class extends AbsenceService {
+            public function storeAbsence($request): array
+            {
+                throw new RuntimeException('Simulated absence create failure');
+            }
+        });
     }
 }

@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
 
 class ProjectsController extends Controller
@@ -132,19 +133,21 @@ class ProjectsController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        $project = $this->projectService->create($request->validated(), auth()->id());
+        try {
+            $project = $this->projectService->create($request->validated(), auth()->id());
+        } catch (Throwable $exception) {
+            report($exception);
 
-        if ( ! $project) {
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json(['error' => __('Could not find client')], 422);
-            }
-
-            session()->flash('flash_message', __('Could not find client'));
-
-            return redirect()->back();
+            return $this->failureResponse(
+                $request,
+                __('Project could not be created. Please try again.'),
+                'project'
+            );
         }
 
-        $insertedExternalId = $project->external_id;
+        if ( ! $project) {
+            return $this->failureResponse($request, __('Could not find client'), 'project', 422);
+        }
 
         session()->flash('flash_message', __('Project successfully added'));
         event(new ProjectAction($project, self::CREATED));

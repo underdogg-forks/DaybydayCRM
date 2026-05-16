@@ -3,17 +3,22 @@
 namespace Tests\Feature\Leads;
 
 use App\Enums\PermissionName;
+use App\Http\Controllers\LeadsController;
 use App\Models\Client;
 use App\Models\Lead;
 use App\Models\Permission;
 use App\Models\Status;
+use App\Services\Lead\LeadService;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use RuntimeException;
 use Tests\AbstractTestCase;
 
+#[CoversClass(LeadsController::class)]
 class LeadsControllerTest extends AbstractTestCase
 {
     use RefreshDatabase;
@@ -56,6 +61,39 @@ class LeadsControllerTest extends AbstractTestCase
         $leads = Lead::where('user_assigned_id', $this->user->id);
 
         $this->assertCount(1, $leads->get());
+    }
+
+    #[Test]
+    public function it_returns_web_error_when_lead_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->bindFailingLeadService();
+        $status = Status::factory()->create(['source_type' => Lead::class]);
+
+        /* Act */
+        $response = $this->from(route('leads.create'))
+            ->post(route('leads.store'), $this->validLeadPayload($status->id));
+
+        /* Assert */
+        $response->assertRedirect(route('leads.create'));
+        $response->assertSessionHasErrors(['lead']);
+    }
+
+    #[Test]
+    public function it_returns_json_error_when_lead_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->bindFailingLeadService();
+        $status = Status::factory()->create(['source_type' => Lead::class]);
+
+        /* Act */
+        $response = $this->json('POST', route('leads.store'), $this->validLeadPayload($status->id));
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Lead could not be created. Please try again.'),
+        ]);
     }
 
     #[Test]
@@ -179,5 +217,29 @@ class LeadsControllerTest extends AbstractTestCase
 
         $this->assertNotNull($rawDeadline);
         $this->assertStringContainsString('2025-03-20', $rawDeadline);
+    }
+
+    private function bindFailingLeadService(): void
+    {
+        $this->app->instance(LeadService::class, new class extends LeadService {
+            public function create(array $validated, int $userId): Lead
+            {
+                throw new RuntimeException('Simulated lead create failure');
+            }
+        });
+    }
+
+    private function validLeadPayload(int $statusId): array
+    {
+        return [
+            'title'              => 'Leads test',
+            'description'        => 'This is a description',
+            'status_id'          => $statusId,
+            'user_assigned_id'   => $this->user->id,
+            'user_created_id'    => $this->user->id,
+            'client_external_id' => $this->client->external_id,
+            'deadline'           => '2020-01-01',
+            'contact_time'       => '15:00',
+        ];
     }
 }

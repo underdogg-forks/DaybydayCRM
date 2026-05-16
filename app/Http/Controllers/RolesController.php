@@ -9,6 +9,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Services\Role\RoleService;
 use Illuminate\Support\Facades\Session;
+use Throwable;
 use Yajra\Datatables\Datatables;
 
 class RolesController extends Controller
@@ -101,7 +102,18 @@ class RolesController extends Controller
      */
     public function store(StoreRoleRequest $request)
     {
-        $this->roleService->create($request->validated());
+        try {
+            $this->roleService->create($request->validated());
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return $this->failureResponse(
+                $request,
+                __('Role could not be created. Please try again.'),
+                'role'
+            );
+        }
+
         session()->flash('flash_message', __('Role created'));
 
         return view('roles.index');

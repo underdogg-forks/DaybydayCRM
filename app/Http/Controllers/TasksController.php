@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
 
 class TasksController extends Controller
@@ -139,18 +140,26 @@ class TasksController extends Controller
      */
     public function store(StoreTaskRequest $request) // uses __contrust request
     {
-        $validated = $request->validated();
-        $task      = $this->taskService->create($validated, auth()->id());
+        try {
+            $validated = $request->validated();
+            $task      = $this->taskService->create($validated, auth()->id());
 
-        $insertedExternalId = $task->external_id;
+            session()->flash('flash_message', __('Task successfully added'));
+            event(new TaskAction($task, self::CREATED));
 
-        session()->flash('flash_message', __('Task successfully added'));
-        event(new TaskAction($task, self::CREATED));
-
-        if (null !== $request->images) {
-            foreach ($request->file('images') as $image) {
-                $this->upload($image, $task);
+            if (null !== $request->images) {
+                foreach ($request->file('images') as $image) {
+                    $this->upload($image, $task);
+                }
             }
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return $this->failureResponse(
+                $request,
+                __('Task could not be created. Please try again.'),
+                'task'
+            );
         }
 
         // Hack to make dropzone js work, as it only called with AJAX and not form submit

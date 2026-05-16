@@ -5,19 +5,18 @@ namespace App\Services\Project;
 use App\Models\Client;
 use App\Models\Project;
 use Carbon\Carbon;
-use InvalidArgumentException;
 
 class ProjectService
 {
     public function create(array $validated, int $userId): ?Project
     {
         if (empty($validated['client_external_id'])) {
-            throw new InvalidArgumentException('Client external ID is required');
+            return null;
         }
 
         $client = Client::query()->where('external_id', $validated['client_external_id'])->first();
         if (! $client) {
-            throw new InvalidArgumentException('Client not found with external_id: ' . $validated['client_external_id']);
+            return null;
         }
 
         return Project::query()->create([

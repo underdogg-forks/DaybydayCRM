@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Services\AbsenceService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -147,7 +147,7 @@ class AbsenceControllerTest extends AbstractTestCase
     private function bindFailingAbsenceService(): void
     {
         $this->app->instance(AbsenceService::class, new class extends AbsenceService {
-            public function storeAbsence($request): array
+            public function storeAbsence(Request $request): array
             {
                 throw new RuntimeException('Simulated absence create failure');
             }

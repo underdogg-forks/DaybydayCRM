@@ -222,8 +222,6 @@ class UsersController extends Controller
                 $user->roles()->attach($request->roles);
                 $user->department()->attach($request->departments);
                 $user->save();
-
-                return $user;
             });
         } catch (Throwable $exception) {
             report($exception);

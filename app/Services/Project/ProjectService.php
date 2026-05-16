@@ -8,25 +8,27 @@ use Carbon\Carbon;
 
 class ProjectService
 {
+    use InvalidArgumentException;
+
     public function create(array $validated, int $userId): ?Project
     {
         if (empty($validated['client_external_id'])) {
-            return null;
+            throw new InvalidArgumentException('Client external ID is required');
         }
 
         $client = Client::query()->where('external_id', $validated['client_external_id'])->first();
-        if ( ! $client) {
-            return null;
+        if (! $client) {
+            throw new InvalidArgumentException('Client not found with external_id: ' . $validated['client_external_id']);
         }
 
         return Project::query()->create([
-            'title'            => $validated['title'],
-            'description'      => clean($validated['description']),
+            'title' => $validated['title'],
+            'description' => clean($validated['description']),
             'user_assigned_id' => $validated['user_assigned_id'],
-            'deadline'         => Carbon::parse($validated['deadline'])->toDateString(),
-            'status_id'        => $validated['status_id'],
-            'user_created_id'  => $userId,
-            'client_id'        => $client->id,
+            'deadline' => Carbon::parse($validated['deadline'])->toDateString(),
+            'status_id' => $validated['status_id'],
+            'user_created_id' => $userId,
+            'client_id' => $client->id,
         ]);
     }
 

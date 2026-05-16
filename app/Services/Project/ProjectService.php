@@ -5,13 +5,10 @@ namespace App\Services\Project;
 use App\Models\Client;
 use App\Models\Project;
 use Carbon\Carbon;
+use InvalidArgumentException;
 
 class ProjectService
 {
-    use InvalidArgumentException;
-
-    use InvalidArgumentException;
-
     public function create(array $validated, int $userId): ?Project
     {
         if (empty($validated['client_external_id'])) {

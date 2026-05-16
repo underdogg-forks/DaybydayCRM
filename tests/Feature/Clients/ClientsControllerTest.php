@@ -90,28 +90,11 @@ class ClientsControllerTest extends AbstractTestCase
         $this->withPermissions(PermissionName::CLIENT_CREATE);
         $industry = Industry::factory()->create();
         $user     = User::factory()->create();
-        $this->app->instance(ClientService::class, new class extends ClientService {
-            public function createClientWithContact(array $data): array
-            {
-                throw new RuntimeException('Simulated client creation failure');
-            }
-        });
+        $this->bindFailingClientService();
 
         /* Act */
-        $response = $this->from(route('clients.create'))->post(route('clients.store'), [
-            'name'             => 'James Test',
-            'email'            => 'james@test.com',
-            'primary_number'   => '2342342342',
-            'secondary_number' => '423423432',
-            'vat'              => '12312334',
-            'company_name'     => 'James & Co',
-            'address'          => 'james street',
-            'zipcode'          => '2222',
-            'city'             => 'Bond city',
-            'company_type'     => 'Aps',
-            'industry_id'      => $industry->id,
-            'user_id'          => $user->id,
-        ]);
+        $response = $this->from(route('clients.create'))
+            ->post(route('clients.store'), $this->validClientPayload($industry->id, $user->id));
 
         /* Assert */
         $response->assertStatus(302);
@@ -128,15 +111,31 @@ class ClientsControllerTest extends AbstractTestCase
         $this->withPermissions(PermissionName::CLIENT_CREATE);
         $industry = Industry::factory()->create();
         $user     = User::factory()->create();
+        $this->bindFailingClientService();
+
+        /* Act */
+        $response = $this->json('POST', route('clients.store'), $this->validClientPayload($industry->id, $user->id));
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Client could not be created. Please try again.'),
+        ]);
+    }
+
+    private function bindFailingClientService(): void
+    {
         $this->app->instance(ClientService::class, new class extends ClientService {
             public function createClientWithContact(array $data): array
             {
                 throw new RuntimeException('Simulated client creation failure');
             }
         });
+    }
 
-        /* Act */
-        $response = $this->json('POST', route('clients.store'), [
+    private function validClientPayload(int $industryId, int $userId): array
+    {
+        return [
             'name'             => 'James Test',
             'email'            => 'james@test.com',
             'primary_number'   => '2342342342',
@@ -147,15 +146,9 @@ class ClientsControllerTest extends AbstractTestCase
             'zipcode'          => '2222',
             'city'             => 'Bond city',
             'company_type'     => 'Aps',
-            'industry_id'      => $industry->id,
-            'user_id'          => $user->id,
-        ]);
-
-        /* Assert */
-        $response->assertStatus(500);
-        $response->assertJson([
-            'message' => __('Client could not be created. Please try again.'),
-        ]);
+            'industry_id'      => $industryId,
+            'user_id'          => $userId,
+        ];
     }
 
     #[Test]

@@ -1,0 +1,44 @@
+import { test, expect } from '@playwright/test';
+import { ClientsPage } from '../pages/ClientsPage';
+import { LeadsPage } from '../pages/LeadsPage';
+import { OffersPage } from '../pages/OffersPage';
+import { InvoicesPage } from '../pages/InvoicesPage';
+
+test.describe('Lead to offer to invoice journey', () => {
+  test('owner can complete full journey and cleanup', async ({ page }) => {
+    test.skip(test.info().project.name !== 'owner');
+    test.slow();
+
+    const clientName = `PW Journey Client ${Date.now()}`;
+    const leadTitle = `PW Journey Lead ${Date.now()}`;
+    const offerTitle = `PW Journey Offer ${Date.now()}`;
+
+    const clients = new ClientsPage(page);
+    await clients.goto();
+    await clients.create({ company: clientName, email: `${Date.now()}@example.test` });
+    await clients.assertVisible(clientName);
+
+    const leads = new LeadsPage(page);
+    await leads.goto();
+    await leads.create({ title: leadTitle, client: clientName });
+    await leads.assertVisible(leadTitle);
+
+    const offers = new OffersPage(page);
+    await offers.goto();
+    await offers.create({ title: offerTitle, lead: leadTitle, item: 'Service Item', quantity: '1', price: '100' });
+    await offers.assertVisible(offerTitle);
+
+    await page.goto('/leads');
+    await expect(page.getByText(offerTitle)).toBeVisible();
+
+    await page.getByRole('row', { name: new RegExp(offerTitle, 'i') }).getByRole('button', { name: /convert.*invoice|create invoice/i }).click();
+
+    const invoices = new InvoicesPage(page);
+    await invoices.goto();
+    await invoices.assertVisible(offerTitle);
+    await expect(page.getByText(/100/)).toBeVisible();
+
+    await clients.goto();
+    await clients.delete(clientName);
+  });
+});

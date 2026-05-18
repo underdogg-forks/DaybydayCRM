@@ -2,22 +2,26 @@
 
 namespace Database\Seeders;
 
-use App\Models\RoleUser;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
+/**
+ * Assigns the owner role to the first (admin) user.
+ * Resolves role by name – never by hard-coded ID.
+ */
 class UserRoleTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
-        $newrole             = new RoleUser();
-        $newrole->role_id    = '1';
-        $newrole->user_id    = '1';
-        $newrole->timestamps = false;
-        $newrole->save();
+        $ownerRole = Role::query()->where('name', Role::OWNER_ROLE)->first();
+        $adminUser = User::query()->orderBy('id')->first();
+
+        if (! $ownerRole || ! $adminUser) {
+            $this->command->warn('UserRoleTableSeeder: owner role or first user not found, skipping.');
+            return;
+        }
+
+        $adminUser->roles()->syncWithoutDetaching([$ownerRole->id]);
     }
 }

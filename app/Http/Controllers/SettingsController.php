@@ -31,11 +31,11 @@ class SettingsController extends Controller
     /**
      * @return mixed
      */
-    public function index()
+    public function index(Request $request)
     {
         $setting = Setting::first();
         if ( ! $setting) {
-            $setting = Setting::create([
+            $setting = Setting::query()->create([
                 'company'        => 'Default Company',
                 'currency'       => 'USD',
                 'country'        => 'US',
@@ -44,6 +44,18 @@ class SettingsController extends Controller
                 'client_number'  => 1,
                 'invoice_number' => 1,
                 'max_users'      => 10,
+            ]);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'settings'         => $setting,
+                'business_hours'   => $this->businessHours(),
+                'currencies'       => Currency::getAllCurrencies(),
+                'current_currency' => $setting->currency,
+                'client_number'    => app(ClientNumberService::class)->nextClientNumber(),
+                'invoice_number'   => app(InvoiceNumberService::class)->nextInvoiceNumber(),
+                'vat_percentage'   => app(Tax::class)->percentage(),
             ]);
         }
 
@@ -63,7 +75,7 @@ class SettingsController extends Controller
         $end_time   = Carbon::parse('2020-01-01 ' . $request->end_time . ':00');
         $settings   = Setting::first();
         if ( ! $settings) {
-            $settings = Setting::create([
+            $settings = Setting::query()->create([
                 'company'        => 'Default Company',
                 'currency'       => 'USD',
                 'country'        => 'US',
@@ -92,7 +104,7 @@ class SettingsController extends Controller
             }
         } else {
             for ($i = 1; $i < 8; $i++) {
-                BusinessHour::create([
+                BusinessHour::query()->create([
                     'day'         => $this->integerToDay()[$i],
                     'open_time'   => '09:00',
                     'close_time'  => '18:00',
@@ -134,7 +146,7 @@ class SettingsController extends Controller
     {
         $setting = Setting::first();
         if ( ! $setting) {
-            $setting = Setting::create([
+            $setting = Setting::query()->create([
                 'company'        => 'Default Company',
                 'currency'       => 'USD',
                 'country'        => 'US',
@@ -147,29 +159,39 @@ class SettingsController extends Controller
         }
 
         if ( ! app(ClientNumberValidator::class)->validateClientNumber((int) $request->client_number)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => __('Client number invalid')], 400);
+            }
             Session::flash('flash_message_warning', __('Client number invalid'));
 
             return redirect()->back();
         }
 
         if ( ! app(InvoiceNumberValidator::class)->validateInvoiceNumber((int) $request->invoice_number)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => __('Invoice number invalid')], 400);
+            }
             Session::flash('flash_message_warning', __('Invoice number invalid'));
 
             return redirect()->back();
         }
         if ($request->currency == $setting->currency && ! empty($request->vat)) {
             $setting->vat = $request->vat * 100;
-        } elseif (empty($request->vat)) {
-            $request->vat = $setting->vat;
-        } else {
+        } elseif ($request->currency != $setting->currency) {
+            // Currency is changing
             if (app(Currency::class, ['code' => $request->currency])->hasCurrency($request->currency)) {
                 $setting->currency = $request->currency;
-                if ($request->vat == $setting->vat / 100) {
+                if (empty($request->vat)) {
+                    // Use default VAT for new currency
                     $setting->vat = app(Currency::class, ['code' => $request->currency])->getCurrency($request->currency)['vatPercentage'];
                 } else {
+                    // Use provided VAT
                     $setting->vat = $request->vat * 100;
                 }
             }
+        } elseif (! empty($request->vat)) {
+            // Currency unchanged, but VAT provided
+            $setting->vat = $request->vat * 100;
         }
         $start_time = Carbon::parse('2020-01-01 ' . $request->start_time . ':00');
         $end_time   = Carbon::parse('2020-01-01 ' . $request->end_time . ':00');
@@ -196,6 +218,10 @@ class SettingsController extends Controller
         $setting->save();
 
         cache()->delete(GetDateFormat::CACHE_KEY);
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => __('Overall settings successfully updated')], 200);
+        }
 
         Session::flash('flash_message', __('Overall settings successfully updated'));
 

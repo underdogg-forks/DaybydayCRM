@@ -157,18 +157,6 @@ parameters:
 			path: app/Services/Storage/GoogleDrive.php
 
 		-
-			message: '#^Result of method App\\Zizaco\\Entrust\\EntrustRole\:\:attachPermissions\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: app/Zizaco/Entrust/EntrustRole.php
-
-		-
-			message: '#^Result of method App\\Zizaco\\Entrust\\EntrustRole\:\:detachPermissions\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: app/Zizaco/Entrust/EntrustRole.php
-
-		-
 			message: '#^Instantiated class App\\Zizaco\\Entrust\\MigrationCommand not found\.$#'
 			identifier: class.notFound
 			count: 1

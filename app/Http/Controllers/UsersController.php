@@ -12,6 +12,7 @@ use App\Models\Setting;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\User\UserUpdateService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
@@ -69,7 +70,7 @@ class UsersController extends Controller
 
     public function anyData()
     {
-        $users = User::select(['id', 'external_id', 'name', 'email', 'primary_number']);
+        $users = User::query()->select(['id', 'external_id', 'name', 'email', 'primary_number']);
 
         return Datatables::of($users)
             ->addColumn('namelink', '<a href="{{ route("users.show",[$external_id]) }}">{{$name}}</a>')
@@ -158,7 +159,7 @@ class UsersController extends Controller
      */
     public function clientData($id)
     {
-        $clients = Client::select(['external_id', 'company_name', 'vat', 'address'])->where('user_id', $id);
+        $clients = Client::query()->select(['external_id', 'company_name', 'vat', 'address'])->where('user_id', $id);
 
         return Datatables::of($clients)
             ->addColumn('clientlink', function ($clients) {
@@ -179,7 +180,7 @@ class UsersController extends Controller
     {
         return view('users.create')
             ->withRoles($this->allRoles()->pluck('display_name', 'id'))
-            ->withDepartments(Department::pluck('name', 'id'));
+            ->withDepartments(Department::query()->pluck('name', 'id'));
     }
 
     /**
@@ -245,60 +246,46 @@ class UsersController extends Controller
      */
     public function edit($external_id)
     {
+        $user = $this->findByExternalId($external_id);
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'user'        => $user->only(['id', 'name', 'email']),
+                'roles'       => $this->allRoles()->pluck('display_name', 'id'),
+                'departments' => Department::query()->pluck('name', 'id'),
+            ]);
+        }
+
         return view('users.edit')
-            ->withUser($this->findByExternalId($external_id))
+            ->withUser($user)
             ->withRoles($this->allRoles()->pluck('display_name', 'id'))
-            ->withDepartments(Department::pluck('name', 'id'));
+            ->withDepartments(Department::query()->pluck('name', 'id'));
     }
 
     /**
      * @return mixed
      */
-    public function update($external_id, UpdateUserRequest $request)
+    public function update($external_id, UpdateUserRequest $request, UserUpdateService $userUpdateService)
     {
         $user       = $this->findByExternalId($external_id);
-        $password   = bcrypt($request->password);
-        $role       = $request->roles;
-        $department = $request->departments;
+        $validated  = $request->validated();
+        $role       = $validated['role'] ?? null;
+        $department = $validated['department'] ?? null;
 
-        if ( ! auth()->user()->canChangePasswordOn($user)) {
-            unset($request['password']);
-        }
-
-        if ($request->hasFile('image_path')) {
-            $companyname = Setting::first()->external_id;
-            $file        = $request->file('image_path');
-
-            $filename = str_random(8) . '_' . $file->getClientOriginalName();
-
-            $path = Storage::put($companyname, $file);
-            if ($request->password == '') {
-                $input = array_replace($request->except('password'), ['image_path' => "{$path}"]);
-            } else {
-                $input = array_replace($request->all(), ['image_path' => "{$path}", 'password' => "{$password}"]);
-            }
-        } else {
-            if ($request->password == '') {
-                $input = array_replace($request->except('password'));
-            } else {
-                $input = array_replace($request->all(), ['password' => "{$password}"]);
-            }
-        }
-
-        $owners = User::whereHas('roles', function ($q) {
-            $q->where('name', Role::OWNER_ROLE);
-        })->get();
+        $input = $userUpdateService->prepareValidatedInput(
+            auth()->user(),
+            $user,
+            $validated,
+            $request->file('image_path')
+        );
 
         $user->fill($input)->save();
-        $role = $user->roles->first();
-        if ($role && $role->name == Role::OWNER_ROLE && $owners->count() <= 1) {
-            session()->flash('flash_message_warning', __('Not able to change owner role, please choose a new owner first'));
-        } else {
-            if (auth()->user()->canChangeRole()) {
-                $user->roles()->sync([$request->roles]);
+
+        if ($role !== null || $department !== null) {
+            if (! $userUpdateService->syncRoleAndDepartment(auth()->user(), $user, (int) ($role ?? 0), (int) ($department ?? 0))) {
+                session()->flash('flash_message_warning', __('Not able to change owner role, please choose a new owner first'));
             }
         }
-        $user->department()->sync([$department]);
 
         session()->flash('flash_message', __('User successfully updated'));
 

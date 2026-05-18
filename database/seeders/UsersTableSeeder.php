@@ -2,36 +2,32 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 
 class UsersTableSeeder extends Seeder
 {
-    /**
-     * Auto generated seed file.
-     *
-     * @return void
-     */
-    public function run()
-    {
-        DB::table('users')->delete();
+    public const ADMIN_EMAIL = 'admin@admin.com';
 
-        DB::table('users')->insert([
-            0 => [
-                'id'               => 1,
-                'external_id'      => Uuid::uuid4(),
+    /**
+     * Seeds the single admin user that every environment needs.
+     * Uses firstOrCreate so re-seeding is safe.
+     */
+    public function run(): void
+    {
+        User::query()->firstOrCreate(
+            ['email' => self::ADMIN_EMAIL],
+            [
+                'external_id'      => Uuid::uuid4()->toString(),
                 'name'             => 'Admin',
-                'email'            => 'admin@admin.com',
                 'password'         => bcrypt('admin123'),
                 'address'          => '',
                 'primary_number'   => null,
                 'secondary_number' => null,
                 'image_path'       => '',
-                'remember_token'   => null,
-                'created_at'       => '2016-06-04 13:42:19',
-                'updated_at'       => '2016-06-04 13:42:19',
-            ],
-        ]);
+            ]
+        );
     }
 }

@@ -17,6 +17,16 @@ class Comment extends Model
         'user_id',
     ];
 
+    public function getCommentableIdAttribute(): ?int
+    {
+        return $this->source_id;
+    }
+
+    public function getCommentableTypeAttribute(): ?string
+    {
+        return $this->source_type;
+    }
+
     protected $hidden = ['remember_token'];
 
     # region Relationships

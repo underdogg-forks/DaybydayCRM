@@ -7,6 +7,7 @@
 
 # === Node & Frontend ===
 /node_modules/
+/blob-report/
 bower_components/
 
 # === IDE & Editor Files ===
@@ -43,6 +44,7 @@ mix-manifest.json
 /.phpunit.result.cache
 _ide_helper.php
 paratest*.log
+perm-bugs.txt
 phpunit.txt
 phpu*.txt
 phpu_art_test.txt
@@ -51,6 +53,7 @@ phpu_failures_bckp2.txt
 phpunit_bckp1.txt
 phpunit_bckp2.txt
 stan.txt
+temp.txt
 todo.txt
 
 # === Database & Docker ===

@@ -14,31 +14,34 @@ test.describe('Lead to offer to invoice journey', () => {
     const offerTitle = `PW Journey Offer ${Date.now()}`;
 
     const clients = new ClientsPage(page);
-    await clients.goto();
-    await clients.create({ company: clientName, email: `${Date.now()}@example.test` });
-    await clients.assertVisible(clientName);
+    try {
+      await clients.goto();
+      await clients.create({ company: clientName, email: `${Date.now()}@example.test` });
+      await clients.assertVisible(clientName);
 
-    const leads = new LeadsPage(page);
-    await leads.goto();
-    await leads.create({ title: leadTitle, client: clientName });
-    await leads.assertVisible(leadTitle);
+      const leads = new LeadsPage(page);
+      await leads.goto();
+      await leads.create({ title: leadTitle, client: clientName });
+      await leads.assertVisible(leadTitle);
 
-    const offers = new OffersPage(page);
-    await offers.goto();
-    await offers.create({ title: offerTitle, lead: leadTitle, item: 'Service Item', quantity: '1', price: '100' });
-    await offers.assertVisible(offerTitle);
+      const offers = new OffersPage(page);
+      await offers.goto();
+      await offers.create({ title: offerTitle, lead: leadTitle, item: 'Service Item', quantity: '1', price: '100' });
+      await offers.assertVisible(offerTitle);
 
-    await page.goto('/leads');
-    await expect(page.getByText(offerTitle)).toBeVisible();
+      await page.goto('/leads');
+      await expect(page.getByText(offerTitle)).toBeVisible();
 
-    await page.getByRole('row', { name: new RegExp(offerTitle, 'i') }).getByRole('button', { name: /convert.*invoice|create invoice/i }).click();
+      await page.getByRole('row', { name: new RegExp(offerTitle, 'i') }).getByRole('button', { name: /convert.*invoice|create invoice/i }).click();
 
-    const invoices = new InvoicesPage(page);
-    await invoices.goto();
-    await invoices.assertVisible(offerTitle);
-    await expect(page.getByText(/100/)).toBeVisible();
-
-    await clients.goto();
-    await clients.delete(clientName);
+      const invoices = new InvoicesPage(page);
+      await invoices.goto();
+      await invoices.assertVisible(offerTitle);
+      const invoiceRow = page.getByRole('row', { name: new RegExp(offerTitle, 'i') });
+      await expect(invoiceRow.getByText(/^100(?:\.00)?$/)).toBeVisible();
+    } finally {
+      await clients.goto();
+      await clients.delete(clientName);
+    }
   });
 });

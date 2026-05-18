@@ -14,9 +14,11 @@ test.describe('Lead to offer to invoice journey', () => {
     const offerTitle = `PW Journey Offer ${Date.now()}`;
 
     const clients = new ClientsPage(page);
+    let clientCreated = false;
     try {
       await clients.goto();
       await clients.create({ company: clientName, email: `${Date.now()}@example.test` });
+      clientCreated = true;
       await clients.assertVisible(clientName);
 
       const leads = new LeadsPage(page);
@@ -40,8 +42,10 @@ test.describe('Lead to offer to invoice journey', () => {
       const invoiceRow = page.getByRole('row', { name: new RegExp(offerTitle, 'i') });
       await expect(invoiceRow.getByText(/^100(?:\.00)?$/)).toBeVisible();
     } finally {
-      await clients.goto();
-      await clients.delete(clientName);
+      if (clientCreated) {
+        await clients.goto();
+        await clients.delete(clientName);
+      }
     }
   });
 });

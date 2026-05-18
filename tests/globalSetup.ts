@@ -6,6 +6,7 @@ import { TEST_USERS } from '../playwright/fixtures/users';
 export default async function globalSetup(config: FullConfig): Promise<void> {
   execSync('php artisan migrate:fresh --seed --seeder=DummyDatabaseSeeder', {
     stdio: 'inherit',
+    env: { ...process.env, APP_ENV: 'testing' },
   });
 
   const baseURL = config.projects[0]?.use?.baseURL as string | undefined;

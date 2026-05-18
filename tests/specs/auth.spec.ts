@@ -3,6 +3,8 @@ import { LoginPage } from '../pages/LoginPage';
 import { TEST_USERS } from '../../playwright/fixtures/users';
 
 test.describe('Auth', () => {
+  test.use({ storageState: undefined });
+
   for (const [role, user] of Object.entries(TEST_USERS)) {
     test(`${role} can log in and sees dashboard`, async ({ page }) => {
       const loginPage = new LoginPage(page);
@@ -12,9 +14,7 @@ test.describe('Auth', () => {
     });
   }
 
-  test('logged out user is redirected to /login', async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
+  test('logged out user is redirected to /login', async ({ page }) => {
     await page.goto('/dashboard');
     await expect(page).toHaveURL(/\/login/);
   });

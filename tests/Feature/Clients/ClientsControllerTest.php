@@ -100,7 +100,7 @@ class ClientsControllerTest extends AbstractTestCase
         $response->assertStatus(302);
         $response->assertRedirect(route('clients.create'));
         $response->assertSessionHasErrors(['client']);
-        $response->assertSessionHasOldInput('name', 'James Test');
+        $response->assertSessionHas('_old_input.name', 'James Test');
     }
 
     #[Test]

@@ -182,26 +182,24 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
+                    @if(isset($errors) && $errors->any())
+                        <div class="alert alert-danger">
+                            @foreach($errors->all() as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
+                    @if(Session::has('flash_message_warning'))
+                        <message message="{{ Session::get('flash_message_warning') }}" type="warning"></message>
+                    @endif
+                    @if(Session::has('flash_message'))
+                        <message message="{{ Session::get('flash_message') }}" type="success"></message>
+                    @endif
                     <h1 class="global-heading">@yield('heading')</h1>
                     @yield('content')
                 </div>
             </div>
         </div>
-        @if(isset($errors) && $errors->any())
-            <div class="alert alert-danger">
-                @foreach($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
-            </div>
-
-        @endif
-        @if(Session::has('flash_message_warning'))
-
-            <message message="{{ Session::get('flash_message_warning') }}" type="warning"></message>
-        @endif
-        @if(Session::has('flash_message'))
-            <message message="{{ Session::get('flash_message') }}" type="success"></message>
-        @endif
     </div>
 
     <!-- /#page-content-wrapper -->

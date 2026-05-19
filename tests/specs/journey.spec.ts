@@ -1,8 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { ClientsPage } from '../pages/ClientsPage';
+import { InvoicesPage } from '../pages/InvoicesPage';
 import { LeadsPage } from '../pages/LeadsPage';
 import { OffersPage } from '../pages/OffersPage';
-import { InvoicesPage } from '../pages/InvoicesPage';
 
 function escapeRegExp(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -19,6 +19,7 @@ test.describe('Lead to offer to invoice journey', () => {
 
     const clients = new ClientsPage(page);
     let clientCreated = false;
+
     try {
       await clients.goto();
       await clients.create({ company: clientName, email: `${Date.now()}@example.test` });

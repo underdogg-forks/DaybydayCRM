@@ -9,13 +9,19 @@ class DatabaseSeeder extends Seeder
     /**
      * Run the database seeds.
      *
-     * Modes:
-     *   php artisan db:seed                              → core only
-     *   php artisan db:seed --class=DemoTableSeeder      → core + rich demo data
-     *   php artisan db:seed --class=DummyDatabaseSeeder  → core + dummy/test data
+     * @return void
      */
-    public function run(): void
+    public function run()
     {
-        $this->call(CoreSeeder::class);
+        $this->call(StatusTableSeeder::class);
+        $this->call(UsersTableSeeder::class);
+        $this->call(IndustriesTableSeeder::class);
+        $this->call(ClientsTableSeeder::class);
+        $this->call(DepartmentsTableSeeder::class);
+        $this->call(SettingsTableSeeder::class);
+        $this->call(PermissionsTableSeeder::class);
+        $this->call(RolesTablesSeeder::class);
+        $this->call(RolePermissionTableSeeder::class);
+        $this->call(UserRoleTableSeeder::class);
     }
 }

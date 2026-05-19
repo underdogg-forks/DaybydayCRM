@@ -108,7 +108,7 @@ class PaymentService
      */
     public function findByExternalId(string $externalId): ?Payment
     {
-        return Payment::query()->where('external_id', $externalId)->first();
+        return Payment::where('external_id', $externalId)->first();
     }
 
     /**

@@ -30,7 +30,7 @@ class ClientPerformanceTest extends AbstractTestCase
         parent::setUp();
         Carbon::setTestNow('2024-01-15 12:00:00');
 
-        Setting::query()->firstOrCreate(
+        Setting::firstOrCreate(
             ['id' => 1],
             [
                 'client_number'  => 10000,

@@ -66,7 +66,7 @@ class UserServiceTest extends AbstractTestCase
 
         // Clear ALL existing owner role assignments to ensure test isolation
         // (seeder and AbstractTestCase may have assigned owner roles to other users)
-        $ownerRole = Role::query()->where('name', RoleType::OWNER->value)->first();
+        $ownerRole = Role::where('name', RoleType::OWNER->value)->first();
         if ($ownerRole) {
             DB::table('role_user')
                 ->where('role_id', $ownerRole->id)

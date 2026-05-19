@@ -41,7 +41,7 @@ class CommentServiceTest extends AbstractTestCase
         $this->assertStringContainsString($description, strip_tags($comment->description));
         $this->assertEquals($user->id, $comment->user_id);
         $this->assertEquals($task->id, $comment->commentable_id);
-        $this->assertNotNull(Comment::query()->where('user_id', $user->id)->first());
+        $this->assertNotNull(Comment::where('user_id', $user->id)->first());
     }
 
     #[Test]

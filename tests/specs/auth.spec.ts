@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
+import { expect, test } from '@playwright/test';
 import { TEST_USERS } from '../../playwright/fixtures/users';
+import { LoginPage } from '../pages/LoginPage';
 
 test.describe('Auth', () => {
   test.use({ storageState: undefined });

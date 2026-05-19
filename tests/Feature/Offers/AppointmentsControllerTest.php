@@ -154,6 +154,36 @@ class AppointmentsControllerTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_returns_json_error_when_appointment_update_fails()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::APPOINTMENT_EDIT);
+        $appointment = Appointment::factory()->create([
+            'user_id'     => $this->user->id,
+            'start_at'    => Carbon::now(),
+            'end_at'      => Carbon::now()->addHour(),
+            'source_id'   => $this->user->id,
+            'source_type' => User::class,
+            'title'       => 'test',
+            'color'       => '#FFFFFF',
+        ]);
+
+        /* Act */
+        $response = $this->json('POST', route('appointments.update', $appointment->external_id), [
+            'id'    => $appointment->id,
+            'start' => Carbon::now()->addDay()->toISOString(),
+            'end'   => Carbon::now()->addDay()->addHour()->toISOString(),
+            'group' => 'does-not-exist',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors([
+            'group',
+        ]);
+    }
+
+    #[Test]
     #[Group('regression')]
     public function it_returns_user_appointments_via_morph_relationship()
     {

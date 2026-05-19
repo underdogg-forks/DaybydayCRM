@@ -29,10 +29,10 @@ class OffersControllerTest extends AbstractTestCase
         parent::setUp();
 
         $this->user = User::factory()->create();
-        $role       = Role::query()->firstOrCreate(['name' => 'employee']);
+        $role       = Role::firstOrCreate(['name' => 'employee']);
 
-        $createPermission = Permission::query()->firstOrCreate(['name' => 'offer-create']);
-        $editPermission   = Permission::query()->firstOrCreate(['name' => 'offer-edit']);
+        $createPermission = Permission::firstOrCreate(['name' => 'offer-create']);
+        $editPermission   = Permission::firstOrCreate(['name' => 'offer-edit']);
 
         $role->attachPermission($createPermission);
         $role->attachPermission($editPermission);
@@ -119,6 +119,53 @@ class OffersControllerTest extends AbstractTestCase
             'price'     => 100000,
             'comment'   => 'Client level offer',
         ]);
+    }
+
+    #[Test]
+    public function it_returns_web_error_when_offer_creation_throws_exception()
+    {
+        /* Arrange */
+        $client = Client::factory()->create();
+
+        /* Act */
+        $response = $this->from(route('clients.show', $client->external_id))
+            ->post(route('create.offer', $client->external_id), [
+                [
+                    'title'    => 'line with bad product',
+                    'price'    => 1000,
+                    'quantity' => 1,
+                    'type'     => 'pieces',
+                    'comment'  => 'bad product',
+                    'product'  => 'missing-product-external-id',
+                ],
+            ]);
+
+        /* Assert */
+        $response->assertRedirect(route('clients.show', $client->external_id));
+        $response->assertSessionHasErrors(['offer']);
+    }
+
+    #[Test]
+    public function it_returns_json_error_when_offer_creation_throws_exception()
+    {
+        /* Arrange */
+        $client = Client::factory()->create();
+
+        /* Act */
+        $response = $this->json('POST', route('create.offer', $client->external_id), [
+            [
+                'title'    => 'line with bad product',
+                'price'    => 1000,
+                'quantity' => 1,
+                'type'     => 'pieces',
+                'comment'  => 'bad product',
+                'product'  => 'missing-product-external-id',
+            ],
+        ]);
+
+        /* Assert */
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['0.product']);
     }
 
     #[Test]

@@ -52,7 +52,7 @@ class UpdateUserRequest extends FormRequest
 
         $externalId = $this->route('user');
         $targetUser = $externalId
-            ? User::query()->where('external_id', $externalId)->first()
+            ? User::where('external_id', $externalId)->first()
             : null;
 
         if ($targetUser && ! auth()->user()->canChangePasswordOn($targetUser)) {

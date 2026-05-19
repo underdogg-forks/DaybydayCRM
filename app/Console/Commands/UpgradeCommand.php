@@ -65,7 +65,7 @@ class UpgradeCommand extends Command
 
         $createdCount = 0;
         foreach (PermissionName::allPermissions() as $name => $data) {
-            if ( ! Permission::query()->where('name', $name)->exists()) {
+            if ( ! Permission::where('name', $name)->exists()) {
                 Permission::create([
                     'external_id'  => Str::uuid()->toString(),
                     'display_name' => $data['display_name'],
@@ -123,7 +123,7 @@ class UpgradeCommand extends Command
     {
         $this->info('③ Checking first user → owner role...');
 
-        $ownerRole = Role::query()->where('name', 'owner')->first();
+        $ownerRole = Role::where('name', 'owner')->first();
         if ( ! $ownerRole) {
             $this->warn('   ⚠ Owner role not found — skipping');
 
@@ -170,7 +170,7 @@ class UpgradeCommand extends Command
 
         // 1. Spot-check a critical permission
         $check = 'client-create';
-        if ( ! Permission::query()->where('name', $check)->exists()) {
+        if ( ! Permission::where('name', $check)->exists()) {
             $this->error("   ✗ Permission '{$check}' is missing from the permissions table");
             $ok = false;
         } else {
@@ -178,7 +178,7 @@ class UpgradeCommand extends Command
         }
 
         // 2. Owner role has it
-        $ownerRole = Role::query()->where('name', 'owner')->first();
+        $ownerRole = Role::where('name', 'owner')->first();
         if ( ! $ownerRole) {
             $this->error('   ✗ Owner role does not exist');
             $ok = false;

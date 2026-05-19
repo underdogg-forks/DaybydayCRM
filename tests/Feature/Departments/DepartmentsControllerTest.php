@@ -37,7 +37,7 @@ class DepartmentsControllerTest extends AbstractTestCase
 
         /* Assert */
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertNotNull(Department::query()->where('name', 'Test Department')->first());
+        $this->assertNotNull(Department::where('name', 'Test Department')->first());
     }
 
     #[Test]
@@ -47,11 +47,11 @@ class DepartmentsControllerTest extends AbstractTestCase
         $department = Department::factory()->create();
 
         /* Act */
-        $this->assertNotNull(Department::query()->where('external_id', $department->external_id)->first());
+        $this->assertNotNull(Department::where('external_id', $department->external_id)->first());
         $this->json('DELETE', route('departments.destroy', $department->external_id));
 
         /* Assert */
-        $this->assertNull(Department::query()->where('external_id', $department->external_id)->first());
+        $this->assertNull(Department::where('external_id', $department->external_id)->first());
     }
 
     #[Test]
@@ -62,11 +62,11 @@ class DepartmentsControllerTest extends AbstractTestCase
         $this->user->department()->attach([$department->id]);
 
         /* Act */
-        $this->assertNotNull(Department::query()->where('external_id', $department->external_id)->first());
+        $this->assertNotNull(Department::where('external_id', $department->external_id)->first());
         $this->json('DELETE', route('departments.destroy', $department->external_id));
 
         /* Assert */
         $this->assertNotNull(Session::get('flash_message_warning'));
-        $this->assertNotNull(Department::query()->where('external_id', $department->external_id)->first());
+        $this->assertNotNull(Department::where('external_id', $department->external_id)->first());
     }
 }

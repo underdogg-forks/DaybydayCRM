@@ -14,12 +14,14 @@ use App\Models\Task;
 use App\Models\User;
 use App\Services\User\UserUpdateService;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
 
 class UsersController extends Controller
@@ -196,28 +198,37 @@ class UsersController extends Controller
 
             return redirect()->back();
         }
-        $path = null;
-        if ($request->hasFile('image_path')) {
-            $file = $request->file('image_path');
+        try {
+            $path = null;
+            if ($request->hasFile('image_path')) {
+                $file = $request->file('image_path');
+                $path = Storage::put($settings->external_id, $file);
+            }
+            DB::transaction(function () use ($request, $path) {
+                $user                   = new User();
+                $user->name             = $request->name;
+                $user->external_id      = Uuid::uuid4()->toString();
+                $user->email            = $request->email;
+                $user->address          = $request->address;
+                $user->primary_number   = $request->primary_number;
+                $user->secondary_number = $request->secondary_number;
+                $user->password         = bcrypt($request->password);
+                $user->image_path       = $path;
+                $user->language         = in_array($request->language, ['en', 'dk', 'es'], true) ? $request->language : 'en';
+                $user->save();
+                $user->roles()->attach($request->roles);
+                $user->department()->attach($request->departments);
+                $user->save();
+            });
+        } catch (Throwable $exception) {
+            report($exception);
 
-            $filename = str_random(8) . '_' . $file->getClientOriginalName();
-            $path     = Storage::put($settings->external_id, $file);
+            return $this->failureResponse(
+                $request,
+                __('User could not be created. Please try again.'),
+                'user'
+            );
         }
-
-        $user                   = new User();
-        $user->name             = $request->name;
-        $user->external_id      = Uuid::uuid4()->toString();
-        $user->email            = $request->email;
-        $user->address          = $request->address;
-        $user->primary_number   = $request->primary_number;
-        $user->secondary_number = $request->secondary_number;
-        $user->password         = bcrypt($request->password);
-        $user->image_path       = $path;
-        $user->language         = $request->language == 'dk' ?: 'en';
-        $user->save();
-        $user->roles()->attach($request->roles);
-        $user->department()->attach($request->departments);
-        $user->save();
 
         Session::flash('flash_message', __('User successfully added'));
 

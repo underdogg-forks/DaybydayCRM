@@ -37,10 +37,10 @@ class UpgradeCommandTest extends AbstractTestCase
         $this->artisan('daybyday:upgrade');
 
         /* Assert */
-        $this->assertTrue(Permission::query()->where('name', 'user-view')->exists());
-        $this->assertTrue(Permission::query()->where('name', 'client-view')->exists());
-        $this->assertTrue(Permission::query()->where('name', 'lead-view')->exists());
-        $this->assertTrue(Permission::query()->where('name', 'project-update')->exists());
+        $this->assertTrue(Permission::where('name', 'user-view')->exists());
+        $this->assertTrue(Permission::where('name', 'client-view')->exists());
+        $this->assertTrue(Permission::where('name', 'lead-view')->exists());
+        $this->assertTrue(Permission::where('name', 'project-update')->exists());
     }
 
     #[Test]
@@ -109,7 +109,7 @@ class UpgradeCommandTest extends AbstractTestCase
         $this->artisan('daybyday:upgrade');
 
         /* Assert */
-        $this->assertTrue(Permission::query()->where('id', $existingPermId)->exists());
+        $this->assertTrue(Permission::where('id', $existingPermId)->exists());
     }
 
     #[Test]
@@ -216,7 +216,7 @@ class UpgradeCommandTest extends AbstractTestCase
         /* Assert */
         foreach ($criticalPerms as $perm) {
             $this->assertTrue(
-                Permission::query()->where('name', $perm)->exists(),
+                Permission::where('name', $perm)->exists(),
                 "Permission '{$perm}' should exist"
             );
         }

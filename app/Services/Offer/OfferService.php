@@ -155,7 +155,7 @@ class OfferService
      */
     public function findByExternalId(string $externalId): ?Offer
     {
-        return Offer::query()->where('external_id', $externalId)->first();
+        return Offer::where('external_id', $externalId)->first();
     }
 
     /**

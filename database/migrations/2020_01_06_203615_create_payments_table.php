@@ -72,8 +72,8 @@ class CreatePaymentsTable extends Migration
         Schema::table('invoices', static function ($table) {
             $table->dateTime('payment_received_at')->nullable();
         });
-        $cpp   = Permission::query()->where('name', 'payment-create')->first();
-        $dpp   = Permission::query()->where('name', 'payment-delete')->first();
+        $cpp   = Permission::where('name', 'payment-create')->first();
+        $dpp   = Permission::where('name', 'payment-delete')->first();
         $roles = Role::whereIn('name', ['owner', 'administrator'])->get();
         foreach ($roles as $role) {
             $role->permissions()->detach([$cpp->id, $dpp->id]);

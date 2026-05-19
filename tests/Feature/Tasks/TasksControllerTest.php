@@ -2,19 +2,24 @@
 
 namespace Tests\Feature\Tasks;
 
+use App\Http\Controllers\TasksController;
 use App\Models\Client;
 use App\Models\Permission;
 use App\Models\Project;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\Task\TaskService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use RuntimeException;
 use Tests\AbstractTestCase;
 
+#[CoversClass(TasksController::class)]
 class TasksControllerTest extends AbstractTestCase
 {
     use RefreshDatabase;
@@ -47,10 +52,45 @@ class TasksControllerTest extends AbstractTestCase
 
         /* Assert */
         $response->assertOk();
-        $tasks = Task::query()->where('user_assigned_id', $this->user->id);
+        $tasks = Task::where('user_assigned_id', $this->user->id);
 
         $this->assertCount(1, $tasks->get());
         $this->assertEquals($response->getData()->task_external_id, $tasks->first()->external_id);
+    }
+
+    #[Test]
+    public function it_returns_web_error_when_task_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->withPermissions(['task-create']);
+        $this->bindFailingTaskService();
+        $status = Status::factory()->create(['source_type' => Task::class]);
+
+        /* Act */
+        $response = $this->from(route('tasks.create'))
+            ->post(route('tasks.store'), $this->validTaskPayload($status->id));
+
+        /* Assert */
+        $response->assertRedirect(route('tasks.create'));
+        $response->assertSessionHasErrors(['task']);
+    }
+
+    #[Test]
+    public function it_returns_json_error_when_task_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->withPermissions(['task-create']);
+        $this->bindFailingTaskService();
+        $status = Status::factory()->create(['source_type' => Task::class]);
+
+        /* Act */
+        $response = $this->withoutMiddleware()->json('POST', route('tasks.store'), $this->validTaskPayload($status->id));
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Task could not be created. Please try again.'),
+        ]);
     }
 
     #[Test]
@@ -149,5 +189,28 @@ class TasksControllerTest extends AbstractTestCase
 
         /* Assert */
         $this->assertNull($error);
+    }
+
+    private function bindFailingTaskService(): void
+    {
+        $this->app->instance(TaskService::class, new class extends TaskService {
+            public function create(array $validated, int $userId): Task
+            {
+                throw new RuntimeException('Simulated task create failure');
+            }
+        });
+    }
+
+    private function validTaskPayload(int $statusId): array
+    {
+        return [
+            'title'              => 'Tasks test',
+            'description'        => 'This is a description',
+            'status_id'          => $statusId,
+            'user_assigned_id'   => $this->user->id,
+            'user_created_id'    => $this->user->id,
+            'client_external_id' => $this->client->external_id,
+            'deadline'           => '2020-01-01',
+        ];
     }
 }

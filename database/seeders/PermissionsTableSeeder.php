@@ -7,24 +7,30 @@ use App\Models\Permission;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-/**
- * PermissionName enum is the single source of truth.
- * Adding a permission to the enum is all that is needed.
- */
 class PermissionsTableSeeder extends Seeder
 {
-    public function run(): void
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
     {
-        foreach (PermissionName::allPermissions() as $name => $data) {
-            Permission::query()->firstOrCreate(
-                ['name' => $name],
-                [
+        // Use PermissionName enum as the single source of truth
+        $permissions = PermissionName::allPermissions();
+
+        // Always ensure external_id is set for every permission, even if the array is changed in the future
+        foreach ($permissions as $name => $data) {
+            $existing = Permission::where('name', $name)->first();
+            if ( ! $existing) {
+                Permission::create([
                     'external_id'  => Str::uuid()->toString(),
                     'display_name' => $data['display_name'],
+                    'name'         => $name,
                     'description'  => $data['description'],
                     'grouping'     => $data['grouping'],
-                ]
-            );
+                ]);
+            }
         }
     }
 }

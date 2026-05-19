@@ -95,7 +95,7 @@ class DiagnosePermissionsCommand extends Command
 
         $requiredRoles = ['owner', 'administrator'];
         foreach ($requiredRoles as $roleName) {
-            $role = Role::query()->where('name', $roleName)->first();
+            $role = Role::where('name', $roleName)->first();
             if ($role) {
                 $this->line("   ✓ Role '{$roleName}' exists (id={$role->id})");
             } else {
@@ -155,7 +155,7 @@ class DiagnosePermissionsCommand extends Command
         if ($identifier) {
             $user = is_numeric($identifier)
                 ? User::find($identifier)
-                : User::query()->where('email', $identifier)->first();
+                : User::where('email', $identifier)->first();
         } else {
             $user = User::first();
         }
@@ -207,7 +207,7 @@ class DiagnosePermissionsCommand extends Command
         $this->line('  Creating missing permissions...');
         $created = 0;
         foreach (PermissionName::allPermissions() as $name => $data) {
-            if ( ! Permission::query()->where('name', $name)->exists()) {
+            if ( ! Permission::where('name', $name)->exists()) {
                 Permission::create([
                     'external_id'  => Str::uuid()->toString(),
                     'display_name' => $data['display_name'],
@@ -226,7 +226,7 @@ class DiagnosePermissionsCommand extends Command
         $allPermIds = Permission::pluck('id')->toArray();
         $attached   = 0;
         foreach (['owner', 'administrator'] as $roleName) {
-            $role = Role::query()->where('name', $roleName)->first();
+            $role = Role::where('name', $roleName)->first();
             if ( ! $role) {
                 $this->warn("  ✗ Role '{$roleName}' not found — skipping");
                 continue;

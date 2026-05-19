@@ -6,32 +6,27 @@ use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 
-/**
- * Assigns all permissions to owner and administrator roles.
- * Uses syncWithoutDetaching so re-seeding never creates duplicates.
- * Role names are resolved by name constant, never by hard-coded ID.
- */
 class RolePermissionTableSeeder extends Seeder
 {
-    /** Roles that receive every permission. */
-    private array $fullAccessRoles = [
-        Role::OWNER_ROLE,
-        Role::ADMIN_ROLE,
-    ];
-
-    public function run(): void
+    /**
+     * Run the database seeds.
+     * Uses syncWithoutDetaching to prevent duplicate key errors on re-seed.
+     *
+     * @return void
+     */
+    public function run()
     {
-        $allPermissionIds = Permission::all()->pluck('id')->toArray();
+        $allPermissions = Permission::all()->pluck('id')->toArray();
 
-        foreach ($this->fullAccessRoles as $roleName) {
+        foreach ([Role::OWNER_ROLE, Role::ADMIN_ROLE] as $roleName) {
             $role = Role::where('name', $roleName)->first();
 
-            if (! $role) {
+            if ( ! $role) {
                 $this->command->warn("RolePermissionTableSeeder: role '{$roleName}' not found, skipping.");
                 continue;
             }
 
-            $role->perms()->syncWithoutDetaching($allPermissionIds);
+            $role->perms()->syncWithoutDetaching($allPermissions);
         }
     }
 }

@@ -66,8 +66,8 @@ class AbsenceServiceTest extends AbstractTestCase
         $this->actingAs($manager);
 
         // Create a role with the absence-manage permission
-        $managerRole = Role::query()->firstOrCreate(['name' => 'manager'], ['display_name' => 'Manager']);
-        $permission  = Permission::query()->firstOrCreate(['name' => 'absence-manage']);
+        $managerRole = Role::firstOrCreate(['name' => 'manager'], ['display_name' => 'Manager']);
+        $permission  = Permission::firstOrCreate(['name' => 'absence-manage']);
         $managerRole->attachPermission($permission);
         $manager->attachRole($managerRole);
         $manager = $manager->fresh();
@@ -351,7 +351,7 @@ class AbsenceServiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertEmpty($result);
-        $absence = \App\Models\Absence::query()->where('user_id', $user->id)->first();
+        $absence = \App\Models\Absence::where('user_id', $user->id)->first();
         $this->assertNotNull($absence);
         $this->assertStringContainsString($comment, strip_tags($absence->comment));
     }

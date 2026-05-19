@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProjectStatus;
 use App\Events\TaskAction;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskAssignRequest;
@@ -22,6 +23,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
 
 class TasksController extends Controller
@@ -116,18 +118,18 @@ class TasksController extends Controller
     public function create($client_external_id = null, $project_external_id = null)
     {
         $projects = null;
-        $client   = Client::whereExternalId($client_external_id);
+        $client   = $client_external_id ? Client::whereExternalId($client_external_id)->first() : null;
         $project  = Project::whereExternalId($project_external_id)->first();
         if ($client) {
             $projects = $client->projects()->whereHas('status', function ($q) {
-                return $q->where('title', '!=', 'Closed');
+                return $q->whereRaw('LOWER(title) != ?', [mb_strtolower(ProjectStatus::CLOSED->value)]);
             })->pluck('title', 'external_id');
         }
 
         return view('tasks.create')
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->withClients(Client::query()->pluck('company_name', 'external_id'))
-            ->withClient($client ?: null)
+            ->withClient($client)
             ->withProjects($projects ?: null)
             ->withProject($project ?: null)
             ->withStatuses(Status::typeOfTask()->pluck('title', 'id'))
@@ -137,14 +139,22 @@ class TasksController extends Controller
     /**
      * @return mixed
      */
-    public function store(StoreTaskRequest $request) // uses __contrust request
+    public function store(StoreTaskRequest $request)
     {
         $validated = $request->validated();
-        $task      = $this->taskService->create($validated, auth()->id());
 
-        $insertedExternalId = $task->external_id;
+        try {
+            $task = $this->taskService->create($validated, auth()->id());
+        } catch (Throwable $exception) {
+            report($exception);
 
-        session()->flash('flash_message', __('Task successfully added'));
+            return $this->failureResponse(
+                $request,
+                __('Task could not be created. Please try again.'),
+                'task'
+            );
+        }
+
         event(new TaskAction($task, self::CREATED));
 
         if (null !== $request->images) {

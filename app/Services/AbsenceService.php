@@ -30,7 +30,7 @@ class AbsenceService
                 $user = auth()->user();
             } else {
                 // Find the user by external ID
-                $user = User::query()->where('external_id', $userExternalId)->first();
+                $user = User::where('external_id', $userExternalId)->first();
                 if (! $user) {
                     return ['error' => 'User not found'];
                 }

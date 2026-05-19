@@ -53,7 +53,7 @@ class ClientCreatePermissionCacheTest extends AbstractTestCase
     public function it_allows_owner_to_access_clients_create_with_cached_permissions()
     {
         // Verify that cachedPermissions() returns usable Permission objects
-        $owner = Role::query()->where('name', 'owner')->first();
+        $owner = Role::where('name', 'owner')->first();
         $this->assertNotNull($owner);
 
         // Get cached permissions

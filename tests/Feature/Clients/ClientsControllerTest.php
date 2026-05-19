@@ -10,10 +10,12 @@ use App\Models\Industry;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\Client\ClientService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use RuntimeException;
 use Tests\AbstractTestCase;
 
 #[CoversClass(ClientsController::class)]
@@ -39,7 +41,7 @@ class ClientsControllerTest extends AbstractTestCase
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
         $this->withPermissions(PermissionName::CLIENT_CREATE);
-        Setting::query()->firstOrCreate(
+        Setting::firstOrCreate(
             ['id' => 1],
             [
                 'client_number'  => 10000,
@@ -73,11 +75,80 @@ class ClientsControllerTest extends AbstractTestCase
 
         /* Assert */
         $this->assertEquals(201, $response->getStatusCode());
-        $client   = Client::query()->where('vat', '12312334')->first();
+        $client   = Client::where('vat', '12312334')->first();
         $contacts = $client->contacts()->get();
         $this->assertCount(1, $contacts);
         $this->assertNotNull($client);
         $this->assertNotNull($client->contacts);
+    }
+
+    #[Test]
+    public function it_returns_web_error_and_early_returns_when_client_creation_fails()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_CREATE);
+        $industry = Industry::factory()->create();
+        $user     = User::factory()->create();
+        $this->bindFailingClientService();
+
+        /* Act */
+        $response = $this->from(route('clients.create'))
+            ->post(route('clients.store'), $this->validClientPayload($industry->id, $user->id));
+
+        /* Assert */
+        $response->assertStatus(302);
+        $response->assertRedirect(route('clients.create'));
+        $response->assertSessionHasErrors(['client']);
+        $response->assertSessionHasOldInput('name', 'James Test');
+    }
+
+    #[Test]
+    public function it_returns_json_error_and_early_returns_when_client_creation_fails()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_CREATE);
+        $industry = Industry::factory()->create();
+        $user     = User::factory()->create();
+        $this->bindFailingClientService();
+
+        /* Act */
+        $response = $this->json('POST', route('clients.store'), $this->validClientPayload($industry->id, $user->id));
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Client could not be created. Please try again.'),
+        ]);
+    }
+
+    private function bindFailingClientService(): void
+    {
+        $this->app->instance(ClientService::class, new class extends ClientService {
+            public function createClientWithContact(array $data): array
+            {
+                throw new RuntimeException('Simulated client creation failure');
+            }
+        });
+    }
+
+    private function validClientPayload(int $industryId, int $userId): array
+    {
+        return [
+            'name'             => 'James Test',
+            'email'            => 'james@test.com',
+            'primary_number'   => '2342342342',
+            'secondary_number' => '423423432',
+            'vat'              => '12312334',
+            'company_name'     => 'James & Co',
+            'address'          => 'james street',
+            'zipcode'          => '2222',
+            'city'             => 'Bond city',
+            'company_type'     => 'Aps',
+            'industry_id'      => $industryId,
+            'user_id'          => $userId,
+        ];
     }
 
     #[Test]
@@ -89,7 +160,7 @@ class ClientsControllerTest extends AbstractTestCase
         $client = Client::factory()->create();
 
         /* Act */
-        $this->assertNotNull(Client::query()->where('external_id', $client->external_id)->first());
+        $this->assertNotNull(Client::where('external_id', $client->external_id)->first());
         $r = $this->json('delete', route('clients.destroy', $client->external_id));
 
         /* Assert */
@@ -101,7 +172,7 @@ class ClientsControllerTest extends AbstractTestCase
     {
         /* Arrange */
         $this->user = User::factory()->create();
-        $role       = Role::query()->firstOrCreate(['name' => 'employee'], ['display_name' => 'Employee']);
+        $role       = Role::firstOrCreate(['name' => 'employee'], ['display_name' => 'Employee']);
         $this->user->attachRole($role);
         $this->withPermissions(PermissionName::CLIENT_UPDATE);
         $industry = Industry::factory()->create();
@@ -139,7 +210,7 @@ class ClientsControllerTest extends AbstractTestCase
 
         /* Assert */
         $response->assertStatus(302);
-        $client = Client::query()->where('vat', '12312335')->first();
+        $client = Client::where('vat', '12312335')->first();
         $this->assertNotNull($client, 'Clients should exist with updated VAT number 12312335');
         $this->assertEquals($client->vat, '12312335');
         $this->assertEquals($client->company_type, 'Aps');
@@ -147,7 +218,7 @@ class ClientsControllerTest extends AbstractTestCase
         $this->assertEquals($client->primaryContact->primary_number, '2342342342');
         $this->assertEquals($client->primaryContact->secondary_number, '423423432');
         $this->assertEquals($client->primaryContact->name, 'Mads');
-        $this->assertNull(Client::query()->where('vat', '5898989898')->first());
+        $this->assertNull(Client::where('vat', '5898989898')->first());
     }
 
     #[Test]
@@ -205,7 +276,7 @@ class ClientsControllerTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(302);
         $response->assertSessionHas('flash_message');
-        $updatedClient = Client::query()->where('vat', '8888888888')->first();
+        $updatedClient = Client::where('vat', '8888888888')->first();
         $this->assertNotNull($updatedClient);
         $this->assertEquals('NoPrimary Co Updated', $updatedClient->company_name);
         $this->assertNull($updatedClient->primaryContact);

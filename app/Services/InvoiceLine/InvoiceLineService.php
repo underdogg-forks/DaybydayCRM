@@ -135,7 +135,7 @@ class InvoiceLineService
      */
     public function findByExternalId(string $externalId): ?InvoiceLine
     {
-        return InvoiceLine::query()->where('external_id', $externalId)->first();
+        return InvoiceLine::where('external_id', $externalId)->first();
     }
 
     /**

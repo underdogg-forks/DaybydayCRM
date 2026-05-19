@@ -19,6 +19,7 @@ use App\Services\Lead\LeadService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
 
 class LeadsController extends Controller
@@ -127,7 +128,17 @@ class LeadsController extends Controller
      */
     public function store(StoreLeadRequest $request)
     {
-        $lead = $this->leadService->create($request->validated(), auth()->id());
+        try {
+            $lead = $this->leadService->create($request->validated(), auth()->id());
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return $this->failureResponse(
+                $request,
+                __('Lead could not be created. Please try again.'),
+                'lead'
+            );
+        }
 
         event(new LeadAction($lead, self::CREATED));
         session()->flash('flash_message', __('Lead successfully added'));

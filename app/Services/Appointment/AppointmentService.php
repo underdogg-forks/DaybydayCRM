@@ -31,7 +31,7 @@ class AppointmentService
 
         // Update user if provided
         if ($userExternalId) {
-            $user = User::query()->where('external_id', $userExternalId)->first();
+            $user = User::where('external_id', $userExternalId)->first();
             if ($user) {
                 $appointment->user()->associate($user);
             }
@@ -84,7 +84,7 @@ class AppointmentService
      */
     public function reassignToUserByExternalId(Appointment $appointment, string $userExternalId): bool
     {
-        $user = User::query()->where('external_id', $userExternalId)->first();
+        $user = User::where('external_id', $userExternalId)->first();
         if ( ! $user) {
             throw new RuntimeException("User with external ID '{$userExternalId}' not found");
         }
@@ -143,7 +143,7 @@ class AppointmentService
      */
     public function hasAppointmentAtTime(User $user, Carbon $time): bool
     {
-        return Appointment::query()->where('user_id', $user->id)
+        return Appointment::where('user_id', $user->id)
             ->where('start_at', '<=', $time)
             ->where('end_at', '>=', $time)
             ->exists();

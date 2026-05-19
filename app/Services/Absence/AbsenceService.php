@@ -94,7 +94,7 @@ class AbsenceService
      */
     public function getAbsencesForUser(User $user, ?Carbon $startDate = null, ?Carbon $endDate = null)
     {
-        $query = Absence::query()->where('user_id', $user->id);
+        $query = Absence::where('user_id', $user->id);
 
         if ($startDate && $endDate) {
             $query->whereBetween('start_at', [$startDate->startOfDay(), $endDate->endOfDay()])
@@ -115,7 +115,7 @@ class AbsenceService
      */
     public function userHasAbsenceDuring(User $user, Carbon $startDate, Carbon $endDate): bool
     {
-        return Absence::query()->where('user_id', $user->id)
+        return Absence::where('user_id', $user->id)
             ->whereBetween('start_at', [$startDate->startOfDay(), $endDate->endOfDay()])
             ->orWhere(function ($query) use ($startDate, $endDate, $user) {
                 $query->where('user_id', $user->id)
@@ -150,7 +150,7 @@ class AbsenceService
 
         // Validate user_external_id if provided (for management mode)
         if ($request->has('user_external_id') && ! empty($request->input('user_external_id'))) {
-            $user = User::query()->where('external_id', $request->input('user_external_id'))->first();
+            $user = User::where('external_id', $request->input('user_external_id'))->first();
             if ( ! $user) {
                 return 'Selected user not found';
             }
@@ -169,7 +169,7 @@ class AbsenceService
     protected function resolveUser(Request $request): ?User
     {
         if ($request->has('user_external_id') && ! empty($request->input('user_external_id'))) {
-            return User::query()->where('external_id', $request->input('user_external_id'))->first();
+            return User::where('external_id', $request->input('user_external_id'))->first();
         }
 
         return auth()->user();

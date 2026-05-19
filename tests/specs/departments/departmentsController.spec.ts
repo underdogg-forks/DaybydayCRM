@@ -41,7 +41,7 @@ test.describe('DepartmentsController', () => {
   test('it cant delete department if user is associated', async ({ page }) => {
     /* Arrange */
     const departmentsPage = new DepartmentsPage(page);
-    const name = 'Administrators';
+    const name = 'Management';
     await departmentsPage.goto();
     await departmentsPage.assertRowVisible(name);
 

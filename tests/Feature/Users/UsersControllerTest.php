@@ -135,8 +135,8 @@ class UsersControllerTest extends AbstractTestCase
             'email'                 => 'user' . uniqid() . '@example.com',
             'password'              => 'password',
             'password_confirmation' => 'password',
-            'roles'                 => [$roleId],
-            'departments'           => [$departmentId],
+            'roles'                 => $roleId,
+            'departments'           => $departmentId,
             'language'              => 'en',
             'image_path'            => UploadedFile::fake()->image('avatar.jpg'),
         ];

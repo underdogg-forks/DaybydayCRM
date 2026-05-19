@@ -142,7 +142,7 @@ class OffersControllerTest extends AbstractTestCase
 
         /* Assert */
         $response->assertRedirect(route('clients.show', $client->external_id));
-        $response->assertSessionHasErrors(['offer']);
+        $response->assertSessionHasErrors(['0.product']);
     }
 
     #[Test]

@@ -5,17 +5,16 @@ namespace App\Services\Setting;
 use App\Helpers\GetDateFormat;
 use App\Models\BusinessHour;
 use App\Models\Setting;
+use App\Repositories\Currency\Currency;
 use App\Services\ClientNumber\ClientNumberValidator;
 use App\Services\InvoiceNumber\InvoiceNumberValidator;
 use Carbon\Carbon;
-use PragmaRX\Countries\Package\Services\Currency;
 
 class UpdateOverallSettingsService
 {
     public function __construct(
         private readonly ClientNumberValidator $clientNumberValidator,
         private readonly InvoiceNumberValidator $invoiceNumberValidator,
-        private readonly Currency $currency,
     ) {
     }
 
@@ -36,15 +35,16 @@ class UpdateOverallSettingsService
         }
         if ($data['currency'] == $setting->currency && ! empty($data['vat'])) {
             $setting->vat = $data['vat'] * 100;
-        } elseif ($data['currency'] != $setting->currency && $this->currency->hasCurrency($data['currency'])) {
+        } elseif ($data['currency'] != $setting->currency && array_key_exists($data['currency'], Currency::getAllCurrencies())) {
+            $currency = new Currency($data['currency']);
             $setting->currency = $data['currency'];
-            $setting->vat = empty($data['vat']) ? $this->currency->getCurrency($data['currency'])['vatPercentage'] : $data['vat'] * 100;
+            $setting->vat = empty($data['vat']) ? $currency->getVatPercentage() : $data['vat'] * 100;
         } elseif (! empty($data['vat'])) {
             $setting->vat = $data['vat'] * 100;
         }
 
-        $startTime = Carbon::parse('2020-01-01 ' . $data['start_time'] . ':00');
-        $endTime = Carbon::parse('2020-01-01 ' . $data['end_time'] . ':00');
+        $startTime = Carbon::parse('2020-01-01 ' . ($data['start_time'] ?? '09:00'));
+        $endTime = Carbon::parse('2020-01-01 ' . ($data['end_time'] ?? '17:00'));
         if ($startTime->gt($endTime)) { $tmp = clone $endTime; $endTime = $startTime; $startTime = $tmp; }
         elseif ($startTime->eq($endTime)) { $endTime->addHour(); }
 

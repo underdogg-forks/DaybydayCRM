@@ -12,6 +12,12 @@ use Carbon\Carbon;
 
 class UpdateOverallSettingsService
 {
+    private const TIME_PARSE_BASE_DATE = '2020-01-01';
+
+    private const DEFAULT_OPEN_TIME = '09:00';
+
+    private const DEFAULT_CLOSE_TIME = '17:00';
+
     public function __construct(
         private readonly ClientNumberValidator $clientNumberValidator,
         private readonly InvoiceNumberValidator $invoiceNumberValidator,
@@ -33,20 +39,32 @@ class UpdateOverallSettingsService
         if (! $this->invoiceNumberValidator->validateInvoiceNumber((int) $data['invoice_number'])) {
             return UpdateOverallSettingsResult::invoiceNumberInvalid();
         }
-        if ($data['currency'] == $setting->currency && ! empty($data['vat'])) {
+
+        $currencyCode = $data['currency'] ?? $setting->currency;
+
+        if ($currencyCode == $setting->currency && ! empty($data['vat'])) {
             $setting->vat = $data['vat'] * 100;
-        } elseif ($data['currency'] != $setting->currency && array_key_exists($data['currency'], Currency::getAllCurrencies())) {
-            $currency = new Currency($data['currency']);
-            $setting->currency = $data['currency'];
+        } elseif ($currencyCode != $setting->currency) {
+            $currency = new Currency($currencyCode);
+            $setting->currency = $currencyCode;
             $setting->vat = empty($data['vat']) ? $currency->getVatPercentage() : $data['vat'] * 100;
         } elseif (! empty($data['vat'])) {
             $setting->vat = $data['vat'] * 100;
         }
 
-        $startTime = Carbon::parse('2020-01-01 ' . ($data['start_time'] ?? '09:00'));
-        $endTime = Carbon::parse('2020-01-01 ' . ($data['end_time'] ?? '17:00'));
-        if ($startTime->gt($endTime)) { $tmp = clone $endTime; $endTime = $startTime; $startTime = $tmp; }
-        elseif ($startTime->eq($endTime)) { $endTime->addHour(); }
+        $startTimeValue = $data['start_time'] ?? $this->getCurrentOpenTime();
+        $endTimeValue = $data['end_time'] ?? $this->getCurrentCloseTime();
+
+        $startTime = Carbon::parse(self::TIME_PARSE_BASE_DATE . ' ' . $startTimeValue);
+        $endTime = Carbon::parse(self::TIME_PARSE_BASE_DATE . ' ' . $endTimeValue);
+
+        if ($startTime->gt($endTime)) {
+            $tmp = clone $endTime;
+            $endTime = $startTime;
+            $startTime = $tmp;
+        } elseif ($startTime->eq($endTime)) {
+            $endTime->addHour();
+        }
 
         foreach (BusinessHour::all() as $businessHour) {
             $businessHour->update(['open_time' => $startTime->format('H:i:s'), 'close_time' => $endTime->format('H:i:s')]);
@@ -61,5 +79,15 @@ class UpdateOverallSettingsService
         cache()->delete(GetDateFormat::CACHE_KEY);
 
         return UpdateOverallSettingsResult::success();
+    }
+
+    private function getCurrentOpenTime(): string
+    {
+        return BusinessHour::query()->orderBy('open_time', 'asc')->value('open_time') ?? self::DEFAULT_OPEN_TIME;
+    }
+
+    private function getCurrentCloseTime(): string
+    {
+        return BusinessHour::query()->orderBy('close_time', 'desc')->value('close_time') ?? self::DEFAULT_CLOSE_TIME;
     }
 }

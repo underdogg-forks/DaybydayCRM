@@ -198,15 +198,12 @@ class UsersController extends Controller
 
             return redirect()->back();
         }
-        $path = null;
-        if ($request->hasFile('image_path')) {
-            $file = $request->file('image_path');
-
-            $filename = str_random(8) . '_' . $file->getClientOriginalName();
-            $path     = Storage::put($settings->external_id, $file);
-        }
-
         try {
+            $path = null;
+            if ($request->hasFile('image_path')) {
+                $file = $request->file('image_path');
+                $path = Storage::put($settings->external_id, $file);
+            }
             DB::transaction(function () use ($request, $path) {
                 $user                   = new User();
                 $user->name             = $request->name;
@@ -217,7 +214,7 @@ class UsersController extends Controller
                 $user->secondary_number = $request->secondary_number;
                 $user->password         = bcrypt($request->password);
                 $user->image_path       = $path;
-                $user->language         = $request->language == 'dk' ? 'dk' : 'en';
+                $user->language         = in_array($request->language, ['en', 'dk', 'es'], true) ? $request->language : 'en';
                 $user->save();
                 $user->roles()->attach($request->roles);
                 $user->department()->attach($request->departments);

@@ -141,17 +141,10 @@ class TasksController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
+        $validated = $request->validated();
+
         try {
-            $validated = $request->validated();
-            $task      = $this->taskService->create($validated, auth()->id());
-
-            event(new TaskAction($task, self::CREATED));
-
-            if (null !== $request->images) {
-                foreach ($request->file('images') as $image) {
-                    $this->upload($image, $task);
-                }
-            }
+            $task = $this->taskService->create($validated, auth()->id());
         } catch (Throwable $exception) {
             report($exception);
 
@@ -160,6 +153,14 @@ class TasksController extends Controller
                 __('Task could not be created. Please try again.'),
                 'task'
             );
+        }
+
+        event(new TaskAction($task, self::CREATED));
+
+        if (null !== $request->images) {
+            foreach ($request->file('images') as $image) {
+                $this->upload($image, $task);
+            }
         }
 
         // Hack to make dropzone js work, as it only called with AJAX and not form submit

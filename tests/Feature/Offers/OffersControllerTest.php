@@ -164,10 +164,8 @@ class OffersControllerTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $response->assertStatus(500);
-        $response->assertJson([
-            'message' => __('Offer could not be created. Please try again.'),
-        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['0.product']);
     }
 
     #[Test]

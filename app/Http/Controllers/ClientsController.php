@@ -204,7 +204,7 @@ class ClientsController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
-        $expectsJson = $request->expectsJson() || $request->wantsJson();
+        $expectsJson = $this->expectsJsonResponse($request);
 
         try {
             [$client, $contact] = $this->clientService->createClientWithContact($request->validated());
@@ -212,11 +212,7 @@ class ClientsController extends Controller
             report($exception);
             $message = __('Client could not be created. Please try again.');
 
-            if ($expectsJson) {
-                return response()->json(['message' => $message], 500);
-            }
-
-            return redirect()->back()->withInput()->withErrors(['client' => $message]);
+            return $this->failureResponse($request, $message, 'client', 500);
         }
 
         event(new ClientAction($client, self::CREATED));

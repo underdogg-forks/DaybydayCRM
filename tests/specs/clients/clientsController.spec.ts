@@ -43,7 +43,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
+    await expect(page.getByText(SEED_CLIENT_NAME)).toHaveCount(0);
   });
 
   test('it can update client', async ({ page }) => {

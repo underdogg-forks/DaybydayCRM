@@ -178,15 +178,18 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
+});
+
+test.describe('CreateRouteAuthorization - unauthenticated', () => {
+  test.use({ storageState: undefined });
+
   test('it redirects unauthenticated user to login', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */ // no auth state - unauthenticated user
 
     /* Act */
-    await page.goto('/controllers');
+    await page.goto('/clients/create');
 
     /* Assert */
-    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
+    await expect(page).toHaveURL(/login/);
   });
-
 });

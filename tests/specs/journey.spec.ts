@@ -4,6 +4,10 @@ import { LeadsPage } from '../pages/LeadsPage';
 import { OffersPage } from '../pages/OffersPage';
 import { InvoicesPage } from '../pages/InvoicesPage';
 
+function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 test.describe('Lead to offer to invoice journey', () => {
   test('owner can complete full journey and cleanup', async ({ page }) => {
     test.skip(test.info().project.name !== 'owner');
@@ -34,12 +38,15 @@ test.describe('Lead to offer to invoice journey', () => {
       await page.goto('/leads');
       await expect(page.getByText(offerTitle)).toBeVisible();
 
-      await page.getByRole('row', { name: new RegExp(offerTitle, 'i') }).getByRole('button', { name: /convert.*invoice|create invoice/i }).click();
+      await page
+        .getByRole('row', { name: new RegExp(escapeRegExp(offerTitle), 'i') })
+        .getByRole('button', { name: /convert.*invoice|create invoice/i })
+        .click();
 
       const invoices = new InvoicesPage(page);
       await invoices.goto();
       await invoices.assertVisible(offerTitle);
-      const invoiceRow = page.getByRole('row', { name: new RegExp(offerTitle, 'i') });
+      const invoiceRow = page.getByRole('row', { name: new RegExp(escapeRegExp(offerTitle), 'i') });
       await expect(invoiceRow.getByText(/^100(?:\.00)?$/)).toBeVisible();
     } finally {
       if (clientCreated) {

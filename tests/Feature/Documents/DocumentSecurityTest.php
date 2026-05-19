@@ -51,7 +51,7 @@ class DocumentSecurityTest extends AbstractTestCase
     public function it_authorized_user_can_upload_file_to_task()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-upload-files']);
+        $permission = Permission::query()->firstOrCreate(['name' => 'task-upload-files']);
         $this->user->roles->first()->attachPermission($permission);
 
         Cache::tags('role_user')->flush();
@@ -98,7 +98,7 @@ class DocumentSecurityTest extends AbstractTestCase
     public function it_authorized_user_can_upload_file_to_project()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'project-upload-files']);
+        $permission = Permission::query()->firstOrCreate(['name' => 'project-upload-files']);
         $this->user->roles->first()->attachPermission($permission);
 
         Cache::tags('role_user')->flush();
@@ -145,7 +145,7 @@ class DocumentSecurityTest extends AbstractTestCase
     public function it_upload_to_nonexistent_task_returns_error()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'task-upload-files']);
+        $permission = Permission::query()->firstOrCreate(['name' => 'task-upload-files']);
         $this->user->roles->first()->attachPermission($permission);
 
         Cache::tags('role_user')->flush();
@@ -168,7 +168,7 @@ class DocumentSecurityTest extends AbstractTestCase
     public function it_upload_to_nonexistent_project_returns_error()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(['name' => 'project-upload-files']);
+        $permission = Permission::query()->firstOrCreate(['name' => 'project-upload-files']);
         $this->user->roles->first()->attachPermission($permission);
 
         Cache::tags('role_user')->flush();

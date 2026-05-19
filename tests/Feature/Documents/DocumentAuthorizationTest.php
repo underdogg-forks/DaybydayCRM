@@ -43,7 +43,7 @@ class DocumentAuthorizationTest extends AbstractTestCase
             'description'  => 'Can upload files to tasks',
             'external_id'  => Str::uuid()->toString(),
         ]);
-        $taskUploadPermission = Permission::firstOrCreate(['name' => 'task-upload-files'], [
+        $taskUploadPermission = Permission::query()->firstOrCreate(['name' => 'task-upload-files'], [
             'display_name' => 'Upload task files',
             'description'  => 'Can upload files to tasks',
             'grouping'     => 'task',
@@ -57,7 +57,7 @@ class DocumentAuthorizationTest extends AbstractTestCase
             'description'  => 'Can upload files to projects',
             'external_id'  => Str::uuid()->toString(),
         ]);
-        $projectUploadPermission = Permission::firstOrCreate(['name' => 'project-upload-files'], [
+        $projectUploadPermission = Permission::query()->firstOrCreate(['name' => 'project-upload-files'], [
             'display_name' => 'Upload project files',
             'description'  => 'Can upload files to projects',
             'grouping'     => 'project',

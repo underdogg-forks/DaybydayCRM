@@ -37,7 +37,7 @@ class SettingsAuthorizationTest extends AbstractTestCase
         ]);
 
         foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day) {
-            BusinessHour::firstOrCreate(
+            BusinessHour::query()->firstOrCreate(
                 ['day' => $day],
                 ['open_time' => '09:00:00', 'close_time' => '17:00:00']
             );

@@ -32,7 +32,7 @@ class ProjectAssignmentAuthorizationTest extends AbstractTestCase
         parent::setUp();
 
         /* Arrange */
-        $permission = Permission::firstOrCreate(
+        $permission = Permission::query()->firstOrCreate(
             ['name' => 'can-assign-new-user-to-project'],
             [
                 'display_name' => 'Assign users to projects',
@@ -40,7 +40,7 @@ class ProjectAssignmentAuthorizationTest extends AbstractTestCase
                 'external_id'  => Str::uuid()->toString(),
             ]
         );
-        $authorizedRole = Role::firstOrCreate(
+        $authorizedRole = Role::query()->firstOrCreate(
             ['name' => 'project-assigner'],
             [
                 'display_name' => 'Projects Assigner',

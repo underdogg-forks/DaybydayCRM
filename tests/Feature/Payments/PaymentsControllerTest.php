@@ -88,6 +88,6 @@ class PaymentsControllerTest extends AbstractTestCase
 
         /* Assert */
         $response->assertStatus(403);
-        $this->assertTrue(Payment::where('description', 'AThisVeryColInvoice12313')->get()->isEmpty());
+        $this->assertTrue(Payment::query()->where('description', 'AThisVeryColInvoice12313')->get()->isEmpty());
     }
 }

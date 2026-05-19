@@ -42,7 +42,7 @@ class OfferAuthorizationTest extends AbstractTestCase
             'status'      => OfferStatus::inProgress()->getStatus(),
         ]);
 
-        $createPermission = Permission::firstOrCreate(
+        $createPermission = Permission::query()->firstOrCreate(
             ['name' => 'offer-create'],
             [
                 'display_name' => 'Create offer',
@@ -52,7 +52,7 @@ class OfferAuthorizationTest extends AbstractTestCase
             ]
         );
 
-        $editPermission = Permission::firstOrCreate(
+        $editPermission = Permission::query()->firstOrCreate(
             ['name' => 'offer-edit'],
             [
                 'display_name' => 'Edit offer',

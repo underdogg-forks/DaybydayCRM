@@ -41,7 +41,7 @@ class CreateCreditNotesTable extends Migration
             'grouping'     => 'credit-note',
         ]);
 
-        $roles = Role::where('name', 'owner')->get();
+        $roles = Role::query()->where('name', 'owner')->get();
         foreach ($roles as $role) {
             $role->permissions()->attach([$cpp->id, $dpp->id]);
         }
@@ -55,9 +55,9 @@ class CreateCreditNotesTable extends Migration
     public function down()
     {
         return;
-        $cpp   = Permission::where('name', 'credit-note-create')->firstOrFail();
-        $dpp   = Permission::where('name', 'credit-note-delete')->firstOrFail();
-        $roles = Role::where('name', 'owner')->get();
+        $cpp   = Permission::query()->where('name', 'credit-note-create')->firstOrFail();
+        $dpp   = Permission::query()->where('name', 'credit-note-delete')->firstOrFail();
+        $roles = Role::query()->where('name', 'owner')->get();
         foreach ($roles as $role) {
             $role->permissions()->detach([$cpp->id, $dpp->id]);
         }

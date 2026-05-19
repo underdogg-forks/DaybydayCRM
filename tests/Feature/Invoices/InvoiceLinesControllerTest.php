@@ -36,7 +36,7 @@ class InvoiceLinesControllerTest extends AbstractTestCase
     public function it_happy_path()
     {
         /* Arrange */
-        $permission = Permission::firstOrCreate(
+        $permission = Permission::query()->firstOrCreate(
             ['name' => 'modify-invoice-lines'],
             [
                 'display_name' => 'Modify invoice lines',
@@ -45,7 +45,7 @@ class InvoiceLinesControllerTest extends AbstractTestCase
             ]
         );
 
-        $ownerRole = Role::firstOrCreate(
+        $ownerRole = Role::query()->firstOrCreate(
             ['name' => 'owner'],
             [
                 'display_name' => 'Owner',
@@ -66,7 +66,7 @@ class InvoiceLinesControllerTest extends AbstractTestCase
         $this->user = $this->user->fresh();
         $this->actingAs($this->user);
 
-        $this->assertNotNull(InvoiceLine::where('external_id', $this->invoiceLine->external_id)->first());
+        $this->assertNotNull(InvoiceLine::query()->where('external_id', $this->invoiceLine->external_id)->first());
 
         /* Act */
         $r = $this->json('delete', route('invoiceLine.destroy', $this->invoiceLine->external_id));
@@ -82,7 +82,7 @@ class InvoiceLinesControllerTest extends AbstractTestCase
         /* Arrange */
         $user = User::factory()->create();
         $this->actingAs($user);
-        $this->assertNotNull(InvoiceLine::where('external_id', $this->invoiceLine->external_id)->first());
+        $this->assertNotNull(InvoiceLine::query()->where('external_id', $this->invoiceLine->external_id)->first());
 
         /* Act */
         $response = $this->json('delete', route('invoiceLine.destroy', $this->invoiceLine->external_id));
@@ -90,6 +90,6 @@ class InvoiceLinesControllerTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(403);
         $response->assertJson(['message' => __('You do not have permission to modify invoice lines')]);
-        $this->assertNotNull(InvoiceLine::where('external_id', $this->invoiceLine->external_id)->first());
+        $this->assertNotNull(InvoiceLine::query()->where('external_id', $this->invoiceLine->external_id)->first());
     }
 }

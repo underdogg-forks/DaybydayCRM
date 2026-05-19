@@ -29,7 +29,7 @@ class AppointmentsControllerTest extends AbstractTestCase
         Carbon::setTestNow('2024-01-15 12:00:00');
 
         $this->user = User::factory()->create();
-        $role       = Role::firstOrCreate(['name' => 'employee'], ['display_name' => 'Employee']);
+        $role       = Role::query()->firstOrCreate(['name' => 'employee'], ['display_name' => 'Employee']);
         $this->user->attachRole($role);
 
         $this->withPermissions([

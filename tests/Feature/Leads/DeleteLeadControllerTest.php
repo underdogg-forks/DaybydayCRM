@@ -25,7 +25,7 @@ class DeleteLeadControllerTest extends AbstractTestCase
         parent::setUp();
 
         $this->user = User::factory()->create();
-        $role       = Role::firstOrCreate(
+        $role       = Role::query()->firstOrCreate(
             ['name' => 'employee'],
             [
                 'display_name' => 'Employee',

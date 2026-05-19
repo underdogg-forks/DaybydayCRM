@@ -58,7 +58,7 @@ class LeadsControllerTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $leads = Lead::where('user_assigned_id', $this->user->id);
+        $leads = Lead::query()->where('user_assigned_id', $this->user->id);
 
         $this->assertCount(1, $leads->get());
     }
@@ -136,7 +136,7 @@ class LeadsControllerTest extends AbstractTestCase
         /* Arrange */
         $lead = Lead::factory()->create();
 
-        $permission = Permission::firstOrCreate(['name' => 'lead-update-deadline']);
+        $permission = Permission::query()->firstOrCreate(['name' => 'lead-update-deadline']);
         $this->user->roles->first()->attachPermission($permission);
         $this->user = $this->user->fresh();
         $this->actingAs($this->user);

@@ -32,7 +32,7 @@ class TaskAssignmentAuthorizationTest extends AbstractTestCase
     {
         parent::setUp();
 
-        $permission = Permission::firstOrCreate(
+        $permission = Permission::query()->firstOrCreate(
             ['name' => 'can-assign-new-user-to-task'],
             [
                 'display_name' => 'Assign users to tasks',
@@ -41,7 +41,7 @@ class TaskAssignmentAuthorizationTest extends AbstractTestCase
             ]
         );
 
-        $authorizedRole = Role::firstOrCreate(
+        $authorizedRole = Role::query()->firstOrCreate(
             ['name' => 'task-assigner'],
             [
                 'display_name' => 'Tasks Assigner',

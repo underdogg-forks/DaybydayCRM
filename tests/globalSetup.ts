@@ -16,15 +16,19 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 
   for (const [role, user] of Object.entries(TEST_USERS)) {
     const browser = await chromium.launch();
-    const page = await browser.newPage({ baseURL: resolvedBaseURL });
 
-    await page.goto('/login');
-    await page.getByLabel(/email/i).fill(user.email);
-    await page.getByLabel(/password/i).fill(user.password);
-    await page.getByRole('button', { name: /log ?in|sign ?in/i }).click();
-    await page.waitForURL((url) => !url.pathname.includes('/login'));
+    try {
+      const page = await browser.newPage({ baseURL: resolvedBaseURL });
 
-    await page.context().storageState({ path: `tests/fixtures/auth/${role}.json` });
-    await browser.close();
+      await page.goto('/login');
+      await page.getByLabel(/email/i).fill(user.email);
+      await page.getByLabel(/password/i).fill(user.password);
+      await page.getByRole('button', { name: /log ?in|sign ?in/i }).click();
+      await page.waitForURL((url) => !url.pathname.includes('/login'));
+
+      await page.context().storageState({ path: `tests/fixtures/auth/${role}.json` });
+    } finally {
+      await browser.close();
+    }
   }
 }

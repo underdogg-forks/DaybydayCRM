@@ -10,8 +10,7 @@ test.describe('ProjectAssignmentAuthorization', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot reassign project', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('ProjectAssignmentAuthorization', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

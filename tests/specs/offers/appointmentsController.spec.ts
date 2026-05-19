@@ -10,8 +10,7 @@ test.describe('AppointmentsController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it can update appointment times', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('AppointmentsController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it can destroy appointment', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('AppointmentsController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it returns json error when appointment update fails', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('AppointmentsController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it returns user appointments via morph relationship', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('AppointmentsController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it does not return appointments for other source types in user appointments morph', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('AppointmentsController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
 });

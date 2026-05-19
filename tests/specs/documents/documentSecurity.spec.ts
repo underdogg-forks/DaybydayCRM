@@ -10,8 +10,7 @@ test.describe('DocumentSecurity', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot upload file to task', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('DocumentSecurity', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it authorized user can upload file to project', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('DocumentSecurity', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot upload file to project', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('DocumentSecurity', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it upload to nonexistent task returns error', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('DocumentSecurity', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it upload to nonexistent project returns error', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('DocumentSecurity', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
 });

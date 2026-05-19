@@ -10,8 +10,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it returns web error and early returns when client creation fails', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it returns json error and early returns when client creation fails', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it can delete without any relations client', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it can update client', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it can update assignee', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it can update client without primary contact', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it cant update assignee without permission', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('ClientsController', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

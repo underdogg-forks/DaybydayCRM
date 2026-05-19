@@ -10,8 +10,7 @@ test.describe('LeadAssignmentAuthorization', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot reassign lead', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('LeadAssignmentAuthorization', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

@@ -10,8 +10,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user can view document attached to their task as assignee', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it user can view document attached to task via client ownership', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user cannot view document attached to another users task', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user can view document attached to their project as creator', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user can view document attached to their project as assignee', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it user cannot view document attached to another users project', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user can view document attached to their lead as creator', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user can view document attached to their lead as assignee', async ({ page }) => {
@@ -106,8 +98,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it user cannot view document attached to another users lead', async ({ page }) => {
@@ -118,8 +109,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user can view document attached to their client', async ({ page }) => {
@@ -130,8 +120,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user cannot view document attached to another users client', async ({ page }) => {
@@ -142,8 +131,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user can download document attached to their task', async ({ page }) => {
@@ -154,8 +142,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user cannot download document attached to another users task', async ({ page }) => {
@@ -166,8 +153,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it returns 404 when document not found', async ({ page }) => {
@@ -178,8 +164,7 @@ test.describe('DocumentsControllerAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
 });

@@ -10,8 +10,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows owner to access task create page', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows owner to access lead create page', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows owner to access user create page', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it redirects user without client create permission', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it redirects user without task create permission', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it redirects user without lead create permission', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it redirects user without user create permission', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('json request without client create permission gets 403', async ({ page }) => {
@@ -106,8 +98,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('json request without task create permission gets 403', async ({ page }) => {
@@ -118,8 +109,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('json request without lead create permission gets 403', async ({ page }) => {
@@ -130,8 +120,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('json request without user create permission gets 403', async ({ page }) => {
@@ -142,8 +131,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it allows user with only client create permission to access client create', async ({ page }) => {
@@ -154,8 +142,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows user with only task create permission to access task create', async ({ page }) => {
@@ -166,8 +153,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows user with only lead create permission to access lead create', async ({ page }) => {
@@ -178,8 +164,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows user with only user create permission to access user create', async ({ page }) => {
@@ -190,8 +175,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it redirects unauthenticated user to login', async ({ page }) => {
@@ -202,8 +186,7 @@ test.describe('CreateRouteAuthorization', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
 });

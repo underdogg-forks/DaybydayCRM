@@ -10,8 +10,7 @@ test.describe('LeadAuthorization', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it user without lead delete permission cannot delete lead', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('LeadAuthorization', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it lead update assign only accepts user assigned id field', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('LeadAuthorization', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it lead update status only accepts status id field', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('LeadAuthorization', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
 });

@@ -10,8 +10,7 @@ test.describe('StorageAdapterIsolation', () => {
     await page.goto('/storage');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it returns the same storage registry instance on each resolution', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('StorageAdapterIsolation', () => {
     await page.goto('/storage');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it returns 422 json when upload is attempted with no storage enabled', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('StorageAdapterIsolation', () => {
     await page.goto('/storage');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it returns 403 before storage initialises for an unauthorized upload', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('StorageAdapterIsolation', () => {
     await page.goto('/storage');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

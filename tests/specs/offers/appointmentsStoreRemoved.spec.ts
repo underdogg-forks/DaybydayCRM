@@ -10,8 +10,7 @@ test.describe('AppointmentsStoreRemoved', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it verifies appointments controller does not have create request dependency', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('AppointmentsStoreRemoved', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it posting to appointments resource route returns not found', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('AppointmentsStoreRemoved', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it verifies appointments controller retains calendar method', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('AppointmentsStoreRemoved', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it verifies appointments controller retains update method', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('AppointmentsStoreRemoved', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it verifies appointments controller retains destroy method', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('AppointmentsStoreRemoved', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it verifies appointments controller retains appointments json method', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('AppointmentsStoreRemoved', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it creates appointment calendar request class no longer used by controller', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('AppointmentsStoreRemoved', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
 });

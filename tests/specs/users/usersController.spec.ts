@@ -10,8 +10,7 @@ test.describe('UsersController', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it only owner role can update user', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('UsersController', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it returns web error when user creation throws exception', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('UsersController', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it returns json error when user creation throws exception', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('UsersController', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
 });

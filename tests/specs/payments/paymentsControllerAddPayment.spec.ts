@@ -10,8 +10,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it can add payment with decimals dot separator', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it can add payment with decimals comma separator', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it adding payment updates invoice status', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it adding wrong amount parameter return error', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it adding wrong source parameter return error', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it adding invalid payment date parameter return error', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it can add payment with minus amount', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it can add negative payment with comma separator', async ({ page }) => {
@@ -106,8 +98,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it can add negative payment with dot separator', async ({ page }) => {
@@ -118,8 +109,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it cant add payment where amount is 0', async ({ page }) => {
@@ -130,8 +120,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

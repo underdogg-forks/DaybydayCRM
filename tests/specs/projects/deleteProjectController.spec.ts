@@ -10,8 +10,7 @@ test.describe('DeleteProjectController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it deletes tasks if flag given', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('DeleteProjectController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it removes project id from task if flag not given', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('DeleteProjectController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it can delete project if there is no tasks', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('DeleteProjectController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
 });

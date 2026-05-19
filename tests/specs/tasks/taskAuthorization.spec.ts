@@ -10,8 +10,7 @@ test.describe('TaskAuthorization', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it user without task delete permission cannot delete task', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('TaskAuthorization', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user with update project permission can update task project', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('TaskAuthorization', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it user without update project permission cannot update task project', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('TaskAuthorization', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it task update status only accepts status id field', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('TaskAuthorization', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
 });

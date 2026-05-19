@@ -1,41 +1,55 @@
 import { test, expect } from '@playwright/test';
-import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
+import { TEST_USERS } from '../../playwright/fixtures/users';
+import { LoginPage } from '../../pages/LoginPage';
+import { DepartmentsPage } from '../../pages/DepartmentsPage';
 
 test.describe('DepartmentsController', () => {
+  test.beforeEach(async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(TEST_USERS.owner.email, TEST_USERS.owner.password);
+  });
+
   test('it can create department', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const departmentsPage = new DepartmentsPage(page);
+    const name = `PW Department Create ${Date.now()}`;
+    await departmentsPage.goto();
 
     /* Act */
-    await page.goto('/departments');
+    await departmentsPage.create({ name, description: 'Created by Playwright' });
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await departmentsPage.assertRowVisible(name);
   });
 
   test('it can delete department', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const departmentsPage = new DepartmentsPage(page);
+    const name = `PW Department Delete ${Date.now()}`;
+    await departmentsPage.goto();
+    await departmentsPage.create({ name, description: 'Delete me' });
+    await departmentsPage.assertRowVisible(name);
 
     /* Act */
-    await page.goto('/departments');
+    await departmentsPage.delete(name);
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await departmentsPage.assertRowNotVisible(name);
   });
 
   test('it cant delete department if user is associated', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const departmentsPage = new DepartmentsPage(page);
+    const name = 'Administrators';
+    await departmentsPage.goto();
+    await departmentsPage.assertRowVisible(name);
 
     /* Act */
-    await page.goto('/departments');
+    await departmentsPage.delete(name);
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/cannot|associated|warning/i)).toBeVisible();
+    await departmentsPage.assertRowVisible(name);
   });
-
 });

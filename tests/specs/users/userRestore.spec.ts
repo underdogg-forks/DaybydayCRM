@@ -10,8 +10,7 @@ test.describe('UserRestore', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
 });

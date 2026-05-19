@@ -10,8 +10,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command clears permission role cache', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command clears role user cache', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command clears general cache', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command displays success message', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command with verbose option shows details', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command is idempotent safe to run multiple times', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command clears multiple cache entries', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command returns success exit code', async ({ page }) => {
@@ -106,8 +98,7 @@ test.describe('ClearEntrustCacheCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
 });

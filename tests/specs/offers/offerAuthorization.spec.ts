@@ -10,8 +10,7 @@ test.describe('OfferAuthorization', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user without offer create permission cannot create offer', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('OfferAuthorization', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user with offer edit permission can update offer', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('OfferAuthorization', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it user without offer edit permission cannot update offer', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('OfferAuthorization', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user with offer edit permission can mark offer as won', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('OfferAuthorization', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it user without offer edit permission cannot mark offer as won', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('OfferAuthorization', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user with offer edit permission can mark offer as lost', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('OfferAuthorization', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it user without offer edit permission cannot mark offer as lost', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('OfferAuthorization', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

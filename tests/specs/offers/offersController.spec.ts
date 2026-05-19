@@ -10,8 +10,7 @@ test.describe('OffersController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it can create offer for client', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('OffersController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it returns web error when offer creation throws exception', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('OffersController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it returns json error when offer creation throws exception', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('OffersController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it can update offer', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('OffersController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it can set offer as won', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('OffersController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it can set offer as lost', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('OffersController', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
 });

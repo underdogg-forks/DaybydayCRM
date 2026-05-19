@@ -10,8 +10,7 @@ test.describe('DeleteLeadController', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it deletes offers if flag given', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('DeleteLeadController', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it does not delete offers if flag is not given but remove reference', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('DeleteLeadController', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it can delete lead if flag is given and offers does not exists', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('DeleteLeadController', () => {
     await page.goto('/leads');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
 });

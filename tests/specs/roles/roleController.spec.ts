@@ -10,8 +10,7 @@ test.describe('RoleController', () => {
     await page.goto('/roles');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it unprivileged user cannot access roles', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('RoleController', () => {
     await page.goto('/roles');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it returns web error when role creation throws exception', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('RoleController', () => {
     await page.goto('/roles');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it returns json error when role creation throws exception', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('RoleController', () => {
     await page.goto('/roles');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
 });

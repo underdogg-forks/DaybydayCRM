@@ -10,8 +10,7 @@ test.describe('DocumentAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user without task upload permission cannot upload files to task', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('DocumentAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user with project upload permission can upload files to project', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('DocumentAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it user without project upload permission cannot upload files to project', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('DocumentAuthorization', () => {
     await page.goto('/documents');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

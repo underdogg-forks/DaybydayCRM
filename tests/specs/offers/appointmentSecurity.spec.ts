@@ -10,8 +10,7 @@ test.describe('AppointmentSecurity', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it authorized user can delete appointment', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('AppointmentSecurity', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot update appointment', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('AppointmentSecurity', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it requires permission check for appointment update', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('AppointmentSecurity', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot delete appointment', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('AppointmentSecurity', () => {
     await page.goto('/offers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

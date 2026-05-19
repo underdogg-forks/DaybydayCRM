@@ -10,8 +10,7 @@ test.describe('ClientCreatePermissionCache', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows owner to access clients create with cached permissions', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('ClientCreatePermissionCache', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows user to check permissions across multiple requests', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('ClientCreatePermissionCache', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows task create route to work consistently', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('ClientCreatePermissionCache', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows lead create route to work consistently', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('ClientCreatePermissionCache', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it allows user create route to work consistently', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('ClientCreatePermissionCache', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
 });

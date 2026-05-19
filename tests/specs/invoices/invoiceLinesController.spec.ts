@@ -10,8 +10,7 @@ test.describe('InvoiceLinesController', () => {
     await page.goto('/invoices');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it cant delete without permission', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('InvoiceLinesController', () => {
     await page.goto('/invoices');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

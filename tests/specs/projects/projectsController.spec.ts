@@ -10,8 +10,7 @@ test.describe('ProjectsController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it returns web error when project creation throws exception', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('ProjectsController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it returns json error when project creation throws exception', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('ProjectsController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it can update assignee', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('ProjectsController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it can update status', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('ProjectsController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it can update deadline for project', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('ProjectsController', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
 });

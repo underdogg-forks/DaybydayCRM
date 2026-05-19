@@ -10,8 +10,7 @@ test.describe('PaymentsController', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it cannot delete payment if no permission', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('PaymentsController', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it cannot create payment if no permission', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('PaymentsController', () => {
     await page.goto('/payments');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

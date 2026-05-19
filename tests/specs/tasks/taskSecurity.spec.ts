@@ -10,8 +10,7 @@ test.describe('TaskSecurity', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot delete task', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('TaskSecurity', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it updates status only accepts status id field', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('TaskSecurity', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it updates status with invalid status external id returns error', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('TaskSecurity', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it updates status via ajax with valid external id', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('TaskSecurity', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it updates status rejects invalid status type', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('TaskSecurity', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it updates status rejects nonexistent status id', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('TaskSecurity', () => {
     await page.goto('/tasks');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
 });

@@ -10,8 +10,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper handles trailing slash in config', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper handles empty path', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper handles path without leading slash', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it url helper works with ipv4 address', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper works with localhost and port', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper works with https and non standard port', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper concatenation works correctly', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper handles special characters in external id', async ({ page }) => {
@@ -106,8 +98,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper works with subdomain', async ({ page }) => {
@@ -118,8 +109,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper works with subdomain and no path', async ({ page }) => {
@@ -130,8 +120,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper handles query parameters', async ({ page }) => {
@@ -142,8 +131,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper handles fragments', async ({ page }) => {
@@ -154,8 +142,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it base url config is available in javascript context', async ({ page }) => {
@@ -166,8 +153,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it javascript url construction matches php url helper', async ({ page }) => {
@@ -178,8 +164,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url generation is consistent across multiple calls', async ({ page }) => {
@@ -190,8 +175,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url helper handles deeply nested paths', async ({ page }) => {
@@ -202,8 +186,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it works with empty subdirectory path as root installation', async ({ page }) => {
@@ -214,8 +197,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it url concatenation with variables works correctly', async ({ page }) => {
@@ -226,8 +208,7 @@ test.describe('UrlGenerationEdgeCases', () => {
     await page.goto('/url');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
 });

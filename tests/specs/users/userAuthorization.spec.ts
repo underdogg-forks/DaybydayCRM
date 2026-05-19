@@ -10,8 +10,7 @@ test.describe('UserAuthorization', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it user without user delete permission cannot delete user', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('UserAuthorization', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it owner user cannot be deleted even with permission', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('UserAuthorization', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

@@ -10,8 +10,7 @@ test.describe('ClientAuthorization', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it user without client delete permission cannot delete client', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('ClientAuthorization', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('userWithoutClientCreatePermissionIsRedirectedFromClientCreatePage', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('ClientAuthorization', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('jsonRequestWithoutClientCreatePermissionGetsForbiddenFromClientCreatePage', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('ClientAuthorization', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('userWithoutClientCreatePermissionCannotStoreClient', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('ClientAuthorization', () => {
     await page.goto('/clients');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

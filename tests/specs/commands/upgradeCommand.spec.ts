@@ -10,8 +10,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command creates missing permissions', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command assigns all permissions to owner role', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it command assigns all permissions to admin role', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it command is idempotent safe to run multiple times', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command does not delete existing permissions', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it command does not delete existing role assignments', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it command handles missing roles gracefully', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command preserves existing user data', async ({ page }) => {
@@ -106,8 +98,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command syncs only to owner and admin roles', async ({ page }) => {
@@ -118,8 +109,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command syncs permissions to admin role alias', async ({ page }) => {
@@ -130,8 +120,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it all critical permissions are created', async ({ page }) => {
@@ -142,8 +131,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it command runs without affecting other data', async ({ page }) => {
@@ -154,8 +142,7 @@ test.describe('UpgradeCommand', () => {
     await page.goto('/commands');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

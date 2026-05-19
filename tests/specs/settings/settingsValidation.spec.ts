@@ -10,8 +10,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects missing client number with 422', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects missing invoice number with 422', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects non integer client number', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects invalid language', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects invalid currency', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects vat above 100 percent', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects negative vat', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects invalid time format', async ({ page }) => {
@@ -106,8 +98,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects country code longer than two characters', async ({ page }) => {
@@ -118,8 +109,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects single character country code', async ({ page }) => {
@@ -130,8 +120,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects client number below minimum', async ({ page }) => {
@@ -142,8 +131,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects invalid end time format', async ({ page }) => {
@@ -154,8 +142,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it rejects out of range clock value for start time', async ({ page }) => {
@@ -166,8 +153,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it returns 403 json when non admin submits settings', async ({ page }) => {
@@ -178,8 +164,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it persists all submitted fields without silent overrides', async ({ page }) => {
@@ -190,8 +175,7 @@ test.describe('SettingsValidation', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

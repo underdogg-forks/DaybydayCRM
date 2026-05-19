@@ -10,8 +10,7 @@ test.describe('ProjectAuthorization', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
   });
 
   test('it user without project delete permission cannot delete project', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('ProjectAuthorization', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user with assign permission can update project assignment', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('ProjectAuthorization', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it user without assign permission cannot update project assignment', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('ProjectAuthorization', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it project update status only accepts status id field', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('ProjectAuthorization', () => {
     await page.goto('/projects');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
 });

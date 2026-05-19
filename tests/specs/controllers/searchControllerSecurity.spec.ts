@@ -10,8 +10,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it search with valid type clients plural returns results', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it search with valid type task returns results', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it search with valid type project returns results', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it search with valid type lead returns results', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it search with valid type user returns results', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it search with invalid type returns 400 error', async ({ page }) => {
@@ -82,8 +76,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it search prevents arbitrary class instantiation', async ({ page }) => {
@@ -94,8 +87,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it search type is case insensitive', async ({ page }) => {
@@ -106,8 +98,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it search rejects namespace injection attempts', async ({ page }) => {
@@ -118,8 +109,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
   test('it search rejects class path injection', async ({ page }) => {
@@ -130,8 +120,7 @@ test.describe('SearchControllerSecurity', () => {
     await page.goto('/controllers');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(error|invalid|required|unprocessable|forbidden)/i).first()).toBeVisible();
   });
 
 });

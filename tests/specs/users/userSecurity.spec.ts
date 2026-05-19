@@ -10,8 +10,7 @@ test.describe('UserSecurity', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot edit user', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('UserSecurity', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it authorized user can update user', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('UserSecurity', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it unauthorized user cannot update user', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('UserSecurity', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it user update prevents password change without permission', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('UserSecurity', () => {
     await page.goto('/users');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

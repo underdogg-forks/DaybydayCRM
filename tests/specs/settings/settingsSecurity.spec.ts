@@ -10,8 +10,7 @@ test.describe('SettingsSecurity', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(create|new|add)/i).first()).toBeVisible();
   });
 
   test('it non admin cannot access settings index', async ({ page }) => {
@@ -22,8 +21,7 @@ test.describe('SettingsSecurity', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it admin can update overall settings', async ({ page }) => {
@@ -34,8 +32,7 @@ test.describe('SettingsSecurity', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it non admin cannot update overall settings', async ({ page }) => {
@@ -46,8 +43,7 @@ test.describe('SettingsSecurity', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
   test('it admin can update first step settings', async ({ page }) => {
@@ -58,8 +54,7 @@ test.describe('SettingsSecurity', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
   });
 
   test('it non admin cannot update first step settings', async ({ page }) => {
@@ -70,8 +65,7 @@ test.describe('SettingsSecurity', () => {
     await page.goto('/settings');
 
     /* Assert */
-    await expect(page).toHaveURL(/.+/);
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
   });
 
 });

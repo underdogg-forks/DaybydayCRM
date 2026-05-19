@@ -162,12 +162,12 @@ class ClientService
     }
 
     /**
-     * Get invoices query for client with optimized eager loading
-     * Returns a Builder for DataTables server-side processing.
+     * Get invoices query for client with optimized eager loading.
+     * Returns the HasMany relation (which extends Builder) for DataTables server-side processing.
      *
      * @param Client $client
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function getInvoicesWithRelations(Client $client)
     {

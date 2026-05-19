@@ -147,7 +147,7 @@ class ProjectsController extends Controller
         }
 
         if ( ! $project) {
-            return $this->failureResponse($request, __('Could not find client'), 'project', 422);
+            return $this->failureResponse($request, __('Could not find client'), 'project', 404);
         }
 
         event(new ProjectAction($project, self::CREATED));

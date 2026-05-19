@@ -36,7 +36,22 @@ class AppointmentsController extends Controller
             // Don't convert timezone as that would shift the time
             $appointment->start_at = Carbon::parse($request->start);
             $appointment->end_at   = Carbon::parse($request->end);
-            $appointment->user()->associate(User::query()->where('external_id', $request->group)->first());
+            $assignee = User::query()->where('external_id', $request->group)->first();
+
+            if (! $assignee) {
+                $message = __('Selected assignee was not found.');
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => __('The given data was invalid.'),
+                        'errors'  => ['group' => [$message]],
+                    ], 400);
+                }
+
+                return redirect()->back()->withInput()->withErrors(['group' => $message]);
+            }
+
+            $appointment->user()->associate($assignee);
             $appointment->save();
         } catch (Throwable $exception) {
             report($exception);

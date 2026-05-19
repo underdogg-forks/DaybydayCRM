@@ -19,7 +19,7 @@ If you are a **senior developer**: this is a Laravel 12 CRM monolith with domain
 
 ## Quick demo
 
-Try it here: [demo.daybydaycrm.com](https://demo.daybydaycrm.com/?utm_source=github&utm_medium=daybydaycrmPage&utm_campaign=readme)
+Demo is currently unavailable. See repository screenshots and setup instructions below.
 
 ---
 
@@ -72,7 +72,7 @@ That is what DaybydayCRM is built for.
 
 - Run tests: `php artisan test`
 - Required PHP lint baseline:  
-  `git ls-files '*.php' | xargs -n1 php -l`
+  `git ls-files -z '*.php' | xargs -0 -n1 php -l`
 
 ---
 

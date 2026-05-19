@@ -34,6 +34,7 @@ class StoreUserRequest extends FormRequest
             'image_path'            => ['nullable', 'file'],
             'roles'                 => ['required', 'integer', 'exists:roles,id'],
             'departments'           => ['required', 'integer', 'exists:departments,id'],
+            'language'              => ['nullable', 'string', 'in:en,dk,es'],
         ];
     }
 }

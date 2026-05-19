@@ -16,6 +16,7 @@ use DB;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class OffersController extends Controller
@@ -75,6 +76,15 @@ class OffersController extends Controller
             }
 
             return $this->createOfferForSource($request, $client->id, $client->id, Client::class);
+        } catch (ValidationException $exception) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => __('The given data was invalid.'),
+                    'errors' => $exception->errors(),
+                ], 422);
+            }
+
+            return redirect()->back()->withInput()->withErrors($exception->errors());
         } catch (Throwable $exception) {
             report($exception);
 
@@ -101,14 +111,25 @@ class OffersController extends Controller
                 'source_type' => $sourceType,
             ]);
 
-            foreach ($request->validated() as $line) {
+            foreach ($request->validated() as $index => $line) {
+                $productId = null;
+                if (isset($line['product']) && $line['product']) {
+                    $productId = Product::whereExternalId($line['product'])->value('id');
+
+                    if (! $productId) {
+                        throw ValidationException::withMessages([
+                            $index . '.product' => __('Selected product was not found.'),
+                        ]);
+                    }
+                }
+
                 $invoiceLine = InvoiceLine::make([
                     'title'      => $line['title'],
                     'type'       => $line['type'],
                     'quantity'   => $line['quantity'] ?: 1,
                     'comment'    => $line['comment'] ?? null,
                     'price'      => $line['price'] * 100,
-                    'product_id' => isset($line['product']) && $line['product'] ? Product::whereExternalId($line['product'])->first()->id : null,
+                    'product_id' => $productId,
                 ]);
                 $offer->invoiceLines()->save($invoiceLine);
             }

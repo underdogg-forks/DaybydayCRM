@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
 
 test.describe('PaymentServiceRefactored', () => {
-  test('translated test 1', async ({ page }) => {
+  test('it uses null billing adapter when no integration is configured', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -14,7 +14,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 2', async ({ page }) => {
+  test('it creates a payment record', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -26,7 +26,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 3', async ({ page }) => {
+  test('it marks invoice as paid after full payment', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -38,7 +38,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 4', async ({ page }) => {
+  test('it marks invoice as partial after a partial payment', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -50,7 +50,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 5', async ({ page }) => {
+  test('it throws when adding payment to an unsent invoice', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -62,7 +62,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 6', async ({ page }) => {
+  test('it throws when the payment source is invalid', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -74,7 +74,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 7', async ({ page }) => {
+  test('it soft deletes the payment record', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -86,7 +86,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 8', async ({ page }) => {
+  test('it deletes payment when no billing adapter is configured', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -98,7 +98,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 9', async ({ page }) => {
+  test('it returns 201 json when payment is added', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -110,7 +110,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 10', async ({ page }) => {
+  test('it returns 422 when payment is added to unsent invoice', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -122,7 +122,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 11', async ({ page }) => {
+  test('it returns 422 when payment amount is zero', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -134,7 +134,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 12', async ({ page }) => {
+  test('it returns 422 when payment date is missing', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -146,7 +146,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 13', async ({ page }) => {
+  test('it returns 422 when payment source is invalid', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -158,7 +158,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 14', async ({ page }) => {
+  test('it accepts comma decimal notation for payment amount', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -170,7 +170,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 15', async ({ page }) => {
+  test('it returns 200 json when payment is deleted', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -182,7 +182,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 16', async ({ page }) => {
+  test('it returns 403 when deleting payment without permission', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -194,7 +194,7 @@ test.describe('PaymentServiceRefactored', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 17', async ({ page }) => {
+  test('it returns 403 when adding payment without permission', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 

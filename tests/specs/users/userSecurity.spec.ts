@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
 
 test.describe('UserSecurity', () => {
-  test('translated test 1', async ({ page }) => {
+  test('it authorized user can edit user', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -14,7 +14,7 @@ test.describe('UserSecurity', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 2', async ({ page }) => {
+  test('it unauthorized user cannot edit user', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -26,7 +26,7 @@ test.describe('UserSecurity', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 3', async ({ page }) => {
+  test('it authorized user can update user', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -38,7 +38,7 @@ test.describe('UserSecurity', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 4', async ({ page }) => {
+  test('it unauthorized user cannot update user', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -50,7 +50,7 @@ test.describe('UserSecurity', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 5', async ({ page }) => {
+  test('it user update prevents password change without permission', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 

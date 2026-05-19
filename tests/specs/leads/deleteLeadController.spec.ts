@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
 
 test.describe('DeleteLeadController', () => {
-  test('translated test 1', async ({ page }) => {
+  test('it deletes lead', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -14,7 +14,7 @@ test.describe('DeleteLeadController', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 2', async ({ page }) => {
+  test('it deletes offers if flag given', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -26,7 +26,7 @@ test.describe('DeleteLeadController', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 3', async ({ page }) => {
+  test('it does not delete offers if flag is not given but remove reference', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -38,7 +38,7 @@ test.describe('DeleteLeadController', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 4', async ({ page }) => {
+  test('it can delete lead if flag is given and offers does not exists', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 

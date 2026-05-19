@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
 
 test.describe('UpgradeCommand', () => {
-  test('translated test 1', async ({ page }) => {
+  test('it command executes successfully', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -14,7 +14,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 2', async ({ page }) => {
+  test('it command creates missing permissions', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -26,7 +26,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 3', async ({ page }) => {
+  test('it command assigns all permissions to owner role', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -38,7 +38,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 4', async ({ page }) => {
+  test('it command assigns all permissions to admin role', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -50,7 +50,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 5', async ({ page }) => {
+  test('it command is idempotent safe to run multiple times', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -62,7 +62,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 6', async ({ page }) => {
+  test('it command does not delete existing permissions', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -74,7 +74,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 7', async ({ page }) => {
+  test('it command does not delete existing role assignments', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -86,7 +86,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 8', async ({ page }) => {
+  test('it command handles missing roles gracefully', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -98,7 +98,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 9', async ({ page }) => {
+  test('it command preserves existing user data', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -110,7 +110,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 10', async ({ page }) => {
+  test('it command syncs only to owner and admin roles', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -122,7 +122,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 11', async ({ page }) => {
+  test('it command syncs permissions to admin role alias', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -134,7 +134,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 12', async ({ page }) => {
+  test('it all critical permissions are created', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -146,7 +146,7 @@ test.describe('UpgradeCommand', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 13', async ({ page }) => {
+  test('it command runs without affecting other data', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
 
 test.describe('CreateRouteAuthorization', () => {
-  test('translated test 1', async ({ page }) => {
+  test('it allows owner to access client create page', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -14,7 +14,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 2', async ({ page }) => {
+  test('it allows owner to access task create page', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -26,7 +26,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 3', async ({ page }) => {
+  test('it allows owner to access lead create page', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -38,7 +38,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 4', async ({ page }) => {
+  test('it allows owner to access user create page', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -50,7 +50,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 5', async ({ page }) => {
+  test('it redirects user without client create permission', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -62,7 +62,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 6', async ({ page }) => {
+  test('it redirects user without task create permission', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -74,7 +74,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 7', async ({ page }) => {
+  test('it redirects user without lead create permission', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -86,7 +86,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 8', async ({ page }) => {
+  test('it redirects user without user create permission', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -98,7 +98,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 9', async ({ page }) => {
+  test('json request without client create permission gets 403', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -110,7 +110,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 10', async ({ page }) => {
+  test('json request without task create permission gets 403', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -122,7 +122,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 11', async ({ page }) => {
+  test('json request without lead create permission gets 403', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -134,7 +134,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 12', async ({ page }) => {
+  test('json request without user create permission gets 403', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -146,7 +146,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 13', async ({ page }) => {
+  test('it allows user with only client create permission to access client create', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -158,7 +158,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 14', async ({ page }) => {
+  test('it allows user with only task create permission to access task create', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -170,7 +170,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 15', async ({ page }) => {
+  test('it allows user with only lead create permission to access lead create', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -182,7 +182,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 16', async ({ page }) => {
+  test('it allows user with only user create permission to access user create', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -194,7 +194,7 @@ test.describe('CreateRouteAuthorization', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 17', async ({ page }) => {
+  test('it redirects unauthenticated user to login', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 

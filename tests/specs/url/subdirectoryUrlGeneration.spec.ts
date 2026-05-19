@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
 
 test.describe('SubdirectoryUrlGeneration', () => {
-  test('translated test 1', async ({ page }) => {
+  test('it url helper generates absolute urls with subdirectory', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -14,7 +14,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 2', async ({ page }) => {
+  test('it url helper generates absolute urls at root', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -26,7 +26,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 3', async ({ page }) => {
+  test('it task show page contains correct document upload url', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -38,7 +38,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 4', async ({ page }) => {
+  test('it project show page contains correct document upload url', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -50,7 +50,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 5', async ({ page }) => {
+  test('it products index contains correct creator modal url', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -62,7 +62,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 6', async ({ page }) => {
+  test('it task create page contains correct client create redirect url', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -74,7 +74,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 7', async ({ page }) => {
+  test('it project create page contains correct client create redirect url', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -86,7 +86,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 8', async ({ page }) => {
+  test('it lead create page contains correct client create redirect url', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -98,7 +98,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 9', async ({ page }) => {
+  test('it users index contains correct delete url', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -110,7 +110,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 10', async ({ page }) => {
+  test('it master layout contains base url configuration', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -122,7 +122,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 11', async ({ page }) => {
+  test('it master layout contains base url configuration at root', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -134,7 +134,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 12', async ({ page }) => {
+  test('it url generation works with https subdirectory', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -146,7 +146,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 13', async ({ page }) => {
+  test('it url generation works with port and subdirectory', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -158,7 +158,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 14', async ({ page }) => {
+  test('it master layout loads js assets with correct subdirectory path', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -170,7 +170,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 15', async ({ page }) => {
+  test('it master layout loads js assets at root installation', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -182,7 +182,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 16', async ({ page }) => {
+  test('it calendar page loads js assets with correct subdirectory path', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -194,7 +194,7 @@ test.describe('SubdirectoryUrlGeneration', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 17', async ({ page }) => {
+  test('it calendar page contains base url configuration', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 

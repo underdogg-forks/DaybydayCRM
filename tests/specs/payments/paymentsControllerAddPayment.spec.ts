@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
 
 test.describe('PaymentsControllerAddPayment', () => {
-  test('translated test 1', async ({ page }) => {
+  test('it can add payment', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -14,7 +14,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 2', async ({ page }) => {
+  test('it can add payment with decimals dot separator', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -26,7 +26,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 3', async ({ page }) => {
+  test('it can add payment with decimals comma separator', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -38,7 +38,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 4', async ({ page }) => {
+  test('it adding payment updates invoice status', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -50,7 +50,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 5', async ({ page }) => {
+  test('it adding wrong amount parameter return error', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -62,7 +62,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 6', async ({ page }) => {
+  test('it adding wrong source parameter return error', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -74,7 +74,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 7', async ({ page }) => {
+  test('it adding invalid payment date parameter return error', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -86,7 +86,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 8', async ({ page }) => {
+  test('it can add payment with minus amount', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -98,7 +98,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 9', async ({ page }) => {
+  test('it can add negative payment with comma separator', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -110,7 +110,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 10', async ({ page }) => {
+  test('it can add negative payment with dot separator', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 
@@ -122,7 +122,7 @@ test.describe('PaymentsControllerAddPayment', () => {
     await expect(page.getByRole('main')).toBeVisible();
   });
 
-  test('translated test 11', async ({ page }) => {
+  test('it cant add payment where amount is 0', async ({ page }) => {
     /* Arrange */ // uses seeded data
     const user = TEST_USERS.owner;
 

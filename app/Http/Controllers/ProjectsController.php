@@ -149,7 +149,6 @@ class ProjectsController extends Controller
             return $this->failureResponse($request, __('Could not find client'), 'project', 422);
         }
 
-        session()->flash('flash_message', __('Project successfully added'));
         event(new ProjectAction($project, self::CREATED));
 
         if (null !== $request->images) {

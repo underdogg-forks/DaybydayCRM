@@ -18,7 +18,7 @@ class Controller extends BaseController
 
     protected function expectsJsonResponse(Request $request): bool
     {
-        return $request->expectsJson() || $request->wantsJson() || $request->ajax();
+        return $request->expectsJson();
     }
 
     protected function failureResponse(

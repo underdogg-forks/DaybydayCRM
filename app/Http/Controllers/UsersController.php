@@ -217,7 +217,7 @@ class UsersController extends Controller
                 $user->secondary_number = $request->secondary_number;
                 $user->password         = bcrypt($request->password);
                 $user->image_path       = $path;
-                $user->language         = $request->language == 'dk' ?: 'en';
+                $user->language         = $request->language == 'dk' ? 'dk' : 'en';
                 $user->save();
                 $user->roles()->attach($request->roles);
                 $user->department()->attach($request->departments);

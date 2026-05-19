@@ -144,7 +144,6 @@ class TasksController extends Controller
             $validated = $request->validated();
             $task      = $this->taskService->create($validated, auth()->id());
 
-            session()->flash('flash_message', __('Task successfully added'));
             event(new TaskAction($task, self::CREATED));
 
             if (null !== $request->images) {

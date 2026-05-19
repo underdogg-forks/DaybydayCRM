@@ -1,82 +1,131 @@
 import { test, expect } from '@playwright/test';
 import { TEST_USERS, SEED_CLIENT_NAME, SEED_LEAD_TITLES } from '../../playwright/fixtures/users';
+import { TasksPage } from '../../pages/TasksPage';
+import { LoginPage } from '../../pages/LoginPage';
 
 test.describe('TaskSecurity', () => {
   test('it authorized user can delete task', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(TEST_USERS.owner.email, TEST_USERS.owner.password);
+
+    const tasksPage = new TasksPage(page);
+    const taskTitle = `PW Task Sec Delete ${Date.now()}`;
+    await tasksPage.goto();
+    await tasksPage.create({ title: taskTitle, description: 'Task security delete test' });
 
     /* Act */
-    await page.goto('/tasks');
+    await tasksPage.delete(taskTitle);
 
     /* Assert */
-    await expect(page.getByText(/(delete|removed|warning|cannot)/i).first()).toBeVisible();
+    await tasksPage.assertNotVisible(taskTitle);
   });
 
   test('it unauthorized user cannot delete task', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(TEST_USERS.employee.email, TEST_USERS.employee.password);
+
+    const tasksPage = new TasksPage(page);
+    await tasksPage.goto();
 
     /* Act */
-    await page.goto('/tasks');
+    const firstRow = page.getByRole('row').nth(1);
 
     /* Assert */
-    await expect(page.getByText(/(forbidden|unauthorized|permission|login|warning|error)/i).first()).toBeVisible();
+    await expect(firstRow.getByRole('button', { name: /delete/i })).not.toBeVisible();
   });
 
   test('it updates status only accepts status id field', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(TEST_USERS.owner.email, TEST_USERS.owner.password);
+
+    const tasksPage = new TasksPage(page);
+    const taskTitle = `PW Task Sec Status ${Date.now()}`;
+    await tasksPage.goto();
+    await tasksPage.create({ title: taskTitle, description: 'Task security status test' });
 
     /* Act */
-    await page.goto('/tasks');
+    await tasksPage.close(taskTitle);
 
     /* Assert */
-    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
+    await tasksPage.assertTaskClosed(taskTitle);
   });
 
   test('it updates status with invalid status external id returns error', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(TEST_USERS.owner.email, TEST_USERS.owner.password);
+
+    const tasksPage = new TasksPage(page);
+    await tasksPage.goto();
 
     /* Act */
-    await page.goto('/tasks');
+    const response = await page.request.patch('/tasks/1/status', {
+      data: { external_id: 'invalid_external_id' }
+    });
 
     /* Assert */
-    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
+    expect(response.status()).toBe(422);
   });
 
   test('it updates status via ajax with valid external id', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(TEST_USERS.owner.email, TEST_USERS.owner.password);
+
+    const tasksPage = new TasksPage(page);
+    const taskTitle = `PW Task Ajax Status ${Date.now()}`;
+    await tasksPage.goto();
+    await tasksPage.create({ title: taskTitle, description: 'Task ajax status test' });
 
     /* Act */
-    await page.goto('/tasks');
+    await tasksPage.close(taskTitle);
 
     /* Assert */
-    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
+    await tasksPage.assertTaskClosed(taskTitle);
   });
 
   test('it updates status rejects invalid status type', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(TEST_USERS.owner.email, TEST_USERS.owner.password);
+
+    const tasksPage = new TasksPage(page);
+    await tasksPage.goto();
 
     /* Act */
-    await page.goto('/tasks');
+    const response = await page.request.patch('/tasks/1/status', {
+      data: { status: 'invalid_status_type' }
+    });
 
     /* Assert */
-    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
+    expect(response.status()).toBe(422);
   });
 
   test('it updates status rejects nonexistent status id', async ({ page }) => {
-    /* Arrange */ // uses seeded data
-    const user = TEST_USERS.owner;
+    /* Arrange */
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(TEST_USERS.owner.email, TEST_USERS.owner.password);
+
+    const tasksPage = new TasksPage(page);
+    await tasksPage.goto();
 
     /* Act */
-    await page.goto('/tasks');
+    const response = await page.request.patch('/tasks/1/status', {
+      data: { status_id: 99999 }
+    });
 
     /* Assert */
-    await expect(page.getByText(/(update|updated|saved|assigned|status|restored)/i).first()).toBeVisible();
+    expect(response.status()).toBe(422);
   });
 
 });

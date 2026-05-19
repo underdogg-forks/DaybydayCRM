@@ -1,3 +1,5 @@
+# Feature Inventory
+
 | PHP file | `#[Test]` count | Intent summary |
 |---|---:|---|
 | `tests/Feature/Absenses/AbsenceControllerTest.php` | 2 | it returns web error when absence creation throws exception, it returns json error when absence creation throws exception |

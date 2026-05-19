@@ -10,9 +10,8 @@ use App\Repositories\Currency\Currency;
 use App\Repositories\Format\GetDateFormat;
 use App\Repositories\Tax\Tax;
 use App\Services\ClientNumber\ClientNumberService;
-use App\Services\ClientNumber\ClientNumberValidator;
 use App\Services\InvoiceNumber\InvoiceNumberService;
-use App\Services\InvoiceNumber\InvoiceNumberValidator;
+use App\Services\Setting\UpdateOverallSettingsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -143,24 +142,12 @@ class SettingsController extends Controller
     /**
      * @return mixed
      */
-    public function updateOverall(UpdateSettingOverallRequest $request)
+    public function updateOverall(UpdateSettingOverallRequest $request, UpdateOverallSettingsService $service)
     {
         try {
-            $setting = Setting::first();
-            if ( ! $setting) {
-                $setting = Setting::query()->create([
-                    'company'        => 'Default Company',
-                    'currency'       => 'USD',
-                    'country'        => 'US',
-                    'language'       => 'en',
-                    'vat'            => 0,
-                    'client_number'  => 1,
-                    'invoice_number' => 1,
-                    'max_users'      => 10,
-                ]);
-            }
+            $result = $service->handle($request->validated());
 
-            if ( ! app(ClientNumberValidator::class)->validateClientNumber((int) $request->client_number)) {
+            if ($result->status === 'client_number_invalid') {
                 if ($request->expectsJson()) {
                     return response()->json(['message' => __('Client number invalid')], 400);
                 }
@@ -169,7 +156,7 @@ class SettingsController extends Controller
                 return redirect()->back();
             }
 
-            if ( ! app(InvoiceNumberValidator::class)->validateInvoiceNumber((int) $request->invoice_number)) {
+            if ($result->status === 'invoice_number_invalid') {
                 if ($request->expectsJson()) {
                     return response()->json(['message' => __('Invoice number invalid')], 400);
                 }
@@ -177,49 +164,6 @@ class SettingsController extends Controller
 
                 return redirect()->back();
             }
-            if ($request->currency == $setting->currency && ! empty($request->vat)) {
-                $setting->vat = $request->vat * 100;
-            } elseif ($request->currency != $setting->currency) {
-                // Currency is changing
-                if (app(Currency::class, ['code' => $request->currency])->hasCurrency($request->currency)) {
-                    $setting->currency = $request->currency;
-                    if (empty($request->vat)) {
-                        // Use default VAT for new currency
-                        $setting->vat = app(Currency::class, ['code' => $request->currency])->getCurrency($request->currency)['vatPercentage'];
-                    } else {
-                        // Use provided VAT
-                        $setting->vat = $request->vat * 100;
-                    }
-                }
-            } elseif (! empty($request->vat)) {
-                // Currency unchanged, but VAT provided
-                $setting->vat = $request->vat * 100;
-            }
-            $start_time = Carbon::parse('2020-01-01 ' . $request->start_time . ':00');
-            $end_time   = Carbon::parse('2020-01-01 ' . $request->end_time . ':00');
-            if ($start_time->gt($end_time)) {
-                $end_tmp    = clone $end_time;
-                $end_time   = $start_time;
-                $start_time = $end_tmp;
-            } elseif ($start_time->eq($end_time)) {
-                $end_time->addHour();
-            }
-
-            foreach (BusinessHour::all() as $businessHour) {
-                $businessHour->update([
-                    'open_time'  => $start_time->format('H:i:s'),
-                    'close_time' => $end_time->format('H:i:s'),
-                ]);
-            }
-
-            $setting->client_number                      = $request->client_number;
-            $setting->invoice_number                     = $request->invoice_number;
-            isset($request->company) ? $setting->company = $request->company : null;
-            $setting->country                            = $request->country;
-            $setting->language                           = $request->language;
-            $setting->save();
-
-            cache()->delete(GetDateFormat::CACHE_KEY);
 
             if ($request->expectsJson()) {
                 return response()->json(['message' => __('Overall settings successfully updated')], 200);

@@ -119,7 +119,7 @@ class UsersControllerTest extends AbstractTestCase
         Storage::shouldReceive('put')->once()->andThrow(new RuntimeException('Simulated storage failure'));
 
         /* Act */
-        $response = $this->json('POST', route('users.store'), $this->validUserPayload($role->id, $department->id));
+        $response = $this->withHeaders(['Accept' => 'application/json'])->post(route('users.store'), $this->validUserPayload($role->id, $department->id));
 
         /* Assert */
         $response->assertStatus(500);

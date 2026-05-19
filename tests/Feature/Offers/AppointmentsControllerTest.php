@@ -177,9 +177,9 @@ class AppointmentsControllerTest extends AbstractTestCase
         ]);
 
         /* Assert */
-        $response->assertStatus(500);
-        $response->assertJson([
-            'message' => __('Appointment could not be updated. Please try again.'),
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors([
+            'group',
         ]);
     }
 

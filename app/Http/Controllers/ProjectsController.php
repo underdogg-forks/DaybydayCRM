@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ProjectAction;
+use App\Enums\ProjectStatus;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectAssignRequest;
 use App\Http\Requests\Project\UpdateProjectDeadlineRequest;
@@ -168,12 +169,12 @@ class ProjectsController extends Controller
      */
     public function create($client_external_id = null)
     {
-        $client = Client::whereExternalId($client_external_id);
+        $client = $client_external_id ? Client::whereExternalId($client_external_id)->first() : null;
 
         return view('projects.create')
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->withClients(Client::query()->pluck('company_name', 'external_id'))
-            ->withClient($client ?: null)
+            ->withClient($client)
             ->withStatuses(Status::typeOfProject()->pluck('title', 'id'))
             ->with('filesystem_integration', Integration::whereApiType('file')->first());
     }
@@ -185,7 +186,9 @@ class ProjectsController extends Controller
             $completionPercentage = 0;
         } else {
             $completedTasks = $project->tasks()->whereHas('status', function ($q) {
-                $q->where('title', 'closed');
+                $q->where(function ($statusQuery) {
+                    $statusQuery->whereRaw('LOWER(title) = ?', [mb_strtolower(ProjectStatus::CLOSED->value)]);
+                });
             })->count();
             $completionPercentage = round($completedTasks / $tasks * 100);
         }

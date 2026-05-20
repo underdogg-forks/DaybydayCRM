@@ -35,7 +35,7 @@ class ProjectIndexButtonVisibilityTest extends AbstractTestCase
     public function it_does_not_show_new_project_button_when_user_lacks_project_create_permission()
     {
         /* Arrange */
-        $unprivilegedUser = User::factory()->withRole('employee')->create();
+        $unprivilegedUser = User::factory()->create();
         $this->actingAs($unprivilegedUser);
 
         /* Act */

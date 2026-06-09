@@ -312,4 +312,5 @@ class DropboxTest extends AbstractTestCase
         /* Assert */
         $this->assertEquals($expectedPath, $result['file_path']);
 
+    }
 }

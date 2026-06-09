@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Country;
+use App\Enums\PermissionName;
 use App\Enums\InvoiceStatus;
 use App\Events\ClientAction;
 use App\Http\Requests\Client\StoreClientRequest;
@@ -47,6 +48,11 @@ class ClientsController extends Controller
         $this->middleware('client.update', ['only' => ['edit', 'updateAssign']]);
         $this->middleware('client.delete', ['only' => ['destroy']]);
         $this->middleware('is.demo', ['only' => ['destroy']]);
+        $this->middleware(function ($request, $next) {
+            abort_unless(auth()->user()?->can(PermissionName::CLIENT_VIEW->value), 403);
+
+            return $next($request);
+        }, ['only' => ['index', 'show', 'anyData']]);
     }
 
     /**

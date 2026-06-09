@@ -5,6 +5,7 @@ namespace App\Http;
 use App\Http\Middleware\Client\CanClientCreate;
 use App\Http\Middleware\Client\CanClientDelete;
 use App\Http\Middleware\Client\CanClientUpdate;
+use App\Http\Middleware\Client\CanClientView;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\Lead\CanLeadCreate;
 use App\Http\Middleware\Lead\CanLeadUpdateStatus;
@@ -68,6 +69,7 @@ class Kernel extends HttpKernel
         'client.create'         => [CanClientCreate::class],
         'client.update'         => [CanClientUpdate::class],
         'client.delete'         => [CanClientDelete::class],
+        'client.view'           => [CanClientView::class],
         'user.create'           => [CanUserCreate::class],
         'user.update'           => [CanUserUpdate::class],
         'task.create'           => [CanTaskCreate::class],

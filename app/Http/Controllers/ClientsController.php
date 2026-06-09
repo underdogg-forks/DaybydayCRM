@@ -43,6 +43,7 @@ class ClientsController extends Controller
 
     public function __construct(private ClientService $clientService)
     {
+        $this->middleware('client.view', ['only' => ['index', 'show']]);
         $this->middleware('client.create', ['only' => ['create']]);
         $this->middleware('client.update', ['only' => ['edit', 'updateAssign']]);
         $this->middleware('client.delete', ['only' => ['destroy']]);

@@ -60,7 +60,7 @@ Route::group(['middleware' => ['auth']], static function () {
     Route::resource('clients', 'ClientsController');
     Route::get('document/{external_id}', 'DocumentsController@view')->name('document.view');
     Route::get('document/download/{external_id}', 'DocumentsController@download')->name('document.download');
-    Route::resource('documents', 'DocumentsController');
+    //Route::resource('documents', 'DocumentsController');
 
     /*
      * Tasks
@@ -84,7 +84,7 @@ Route::group(['middleware' => ['auth']], static function () {
      * Leads
      */
     Route::group(['prefix' => 'leads'], static function () {
-        Route::get('/all-leads-data', 'LeadsController@allLeads')->name('leads.all');
+        //Route::get('/all-leads-data', 'LeadsController@allLeads')->name('leads.all');
         Route::get('/data', 'LeadsController@leadsJson')->name('leads.data');
         Route::patch('/updateassign/{external_id}', 'LeadsController@updateAssign')->name('leads.updateAssign');
         Route::post('/updateassign/{external_id}', 'LeadsController@updateAssign');

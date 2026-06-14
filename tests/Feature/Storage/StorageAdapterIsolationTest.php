@@ -34,27 +34,6 @@ class StorageAdapterIsolationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_resolves_the_storage_registry_via_the_container()
-    {
-        /* Act */
-        $registry = app(StorageAdapterRegistry::class);
-
-        /* Assert */
-        $this->assertInstanceOf(StorageAdapterRegistry::class, $registry);
-    }
-
-    #[Test]
-    public function it_returns_the_same_storage_registry_instance_on_each_resolution()
-    {
-        /* Act */
-        $a = app(StorageAdapterRegistry::class);
-        $b = app(StorageAdapterRegistry::class);
-
-        /* Assert */
-        $this->assertSame($a, $b);
-    }
-
-    #[Test]
     public function it_returns_422_json_when_upload_is_attempted_with_no_storage_enabled()
     {
         /* Arrange – bind NullStorageAdapter so isEnabled() returns false,
@@ -95,5 +74,26 @@ class StorageAdapterIsolationTest extends AbstractTestCase
 
         /* Assert – unauthorized response, before any storage initialization */
         $response->assertStatus(403);
+    }
+
+    #[Test]
+    public function it_resolves_the_storage_registry_via_the_container()
+    {
+        /* Act */
+        $registry = app(StorageAdapterRegistry::class);
+
+        /* Assert */
+        $this->assertInstanceOf(StorageAdapterRegistry::class, $registry);
+    }
+
+    #[Test]
+    public function it_returns_the_same_storage_registry_instance_on_each_resolution()
+    {
+        /* Act */
+        $a = app(StorageAdapterRegistry::class);
+        $b = app(StorageAdapterRegistry::class);
+
+        /* Assert */
+        $this->assertSame($a, $b);
     }
 }

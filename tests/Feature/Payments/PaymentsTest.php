@@ -132,6 +132,135 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_can_add_payment_with_minus_amount()
+    {
+        /* Arrange */
+        $isEmpty = $this->invoice->payments->isEmpty();
+
+        /* Act */
+        $response = $this->post(route('payment.add', $this->invoice->external_id), [
+            'amount'       => -50,
+            'payment_date' => '2020-01-01',
+            'source'       => 'bank',
+            'description'  => 'A random description',
+        ]);
+
+        /* Assert */
+        $this->assertTrue($isEmpty);
+        $response->assertStatus(201);
+        $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
+        $this->assertEquals(-5000, $this->invoice->refresh()->payments->first()->amount);
+    }
+
+    #[Test]
+    public function it_can_add_negative_payment_with_comma_separator()
+    {
+        /* Arrange */
+        $isEmpty = $this->invoice->payments->isEmpty();
+
+        /* Act */
+        $response = $this->post(route('payment.add', $this->invoice->external_id), [
+            'amount'       => '-5000,234',
+            'payment_date' => '2020-01-01',
+            'source'       => 'bank',
+            'description'  => 'A random description',
+        ]);
+
+        /* Assert */
+        $this->assertTrue($isEmpty);
+        $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
+        $response->assertStatus(201);
+    }
+
+    #[Test]
+    public function it_can_add_negative_payment_with_dot_separator()
+    {
+        /* Arrange */
+        $isEmpty = $this->invoice->payments->isEmpty();
+
+        /* Act */
+        $response = $this->post(route('payment.add', $this->invoice->external_id), [
+            'amount'       => -5000.234,
+            'payment_date' => '2020-01-01',
+            'source'       => 'bank',
+            'description'  => 'A random description',
+        ]);
+
+        /* Assert */
+        $this->assertTrue($isEmpty);
+        $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
+        $response->assertStatus(201);
+    }
+
+    #[Test]
+    #[Group('junie_repaired')]
+    public function it_cannot_create_payment_if_no_permission()
+    {
+        /* Arrange */
+        $this->actingAs(User::factory()->create());
+
+        /* Act */
+        $response = $this->post(route('payment.add', $this->invoice->external_id), [
+            'amount'       => 5000,
+            'payment_date' => '2020-01-01',
+            'source'       => 'bank',
+            'description'  => 'AThisVeryColInvoice12313',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertTrue(Payment::query()->where('description', 'AThisVeryColInvoice12313')->get()->isEmpty());
+    }
+
+    #[Test]
+    public function it_cant_add_payment_where_amount_is_0()
+    {
+        /* Arrange */
+        $invoiceStatus = $this->invoice->status;
+
+        /* Act */
+        $response = $this->post(route('payment.add', $this->invoice->external_id), [
+            'amount'       => 0,
+            'payment_date' => '2020-01-01',
+            'source'       => 'bank',
+            'description'  => 'A random description',
+        ]);
+
+        /* Assert */
+        $this->assertEquals('unpaid', $invoiceStatus);
+        $response->assertStatus(422);
+    }
+
+    #[Test]
+    public function it_can_delete_payment()
+    {
+        /* Arrange */
+        $paymentId = $this->payment->id;
+
+        /* Act */
+        $this->delete(route('payment.destroy', $this->payment->external_id));
+
+        /* Assert */
+        $this->assertNull(Payment::find($paymentId));
+        $this->assertNotNull(Payment::withTrashed()->find($paymentId));
+    }
+
+    #[Test]
+    #[Group('junie_repaired')]
+    public function it_cannot_delete_payment_if_no_permission()
+    {
+        /* Arrange */
+        $this->actingAs(User::factory()->create());
+        $payment = Payment::factory()->create();
+
+        /* Act */
+        $response = $this->delete(route('payment.destroy', $payment->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertNotNull(Payment::find($payment->id));
+    }
+    #[Test]
     public function it_adding_payment_updates_invoice_status()
     {
         /* Arrange */
@@ -208,133 +337,4 @@ class PaymentsTest extends AbstractTestCase
         $response->assertStatus(422);
     }
 
-    #[Test]
-    public function it_can_add_payment_with_minus_amount()
-    {
-        /* Arrange */
-        $isEmpty = $this->invoice->payments->isEmpty();
-
-        /* Act */
-        $response = $this->post(route('payment.add', $this->invoice->external_id), [
-            'amount'       => -50,
-            'payment_date' => '2020-01-01',
-            'source'       => 'bank',
-            'description'  => 'A random description',
-        ]);
-
-        /* Assert */
-        $this->assertTrue($isEmpty);
-        $response->assertStatus(201);
-        $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
-        $this->assertEquals(-5000, $this->invoice->refresh()->payments->first()->amount);
-    }
-
-    #[Test]
-    public function it_can_add_negative_payment_with_comma_separator()
-    {
-        /* Arrange */
-        $isEmpty = $this->invoice->payments->isEmpty();
-
-        /* Act */
-        $response = $this->post(route('payment.add', $this->invoice->external_id), [
-            'amount'       => '-5000,234',
-            'payment_date' => '2020-01-01',
-            'source'       => 'bank',
-            'description'  => 'A random description',
-        ]);
-
-        /* Assert */
-        $this->assertTrue($isEmpty);
-        $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
-        $response->assertStatus(201);
-    }
-
-    #[Test]
-    public function it_can_add_negative_payment_with_dot_separator()
-    {
-        /* Arrange */
-        $isEmpty = $this->invoice->payments->isEmpty();
-
-        /* Act */
-        $response = $this->post(route('payment.add', $this->invoice->external_id), [
-            'amount'       => -5000.234,
-            'payment_date' => '2020-01-01',
-            'source'       => 'bank',
-            'description'  => 'A random description',
-        ]);
-
-        /* Assert */
-        $this->assertTrue($isEmpty);
-        $this->assertFalse($this->invoice->refresh()->payments->isEmpty());
-        $response->assertStatus(201);
-    }
-
-    #[Test]
-    public function it_cant_add_payment_where_amount_is_0()
-    {
-        /* Arrange */
-        $invoiceStatus = $this->invoice->status;
-
-        /* Act */
-        $response = $this->post(route('payment.add', $this->invoice->external_id), [
-            'amount'       => 0,
-            'payment_date' => '2020-01-01',
-            'source'       => 'bank',
-            'description'  => 'A random description',
-        ]);
-
-        /* Assert */
-        $this->assertEquals('unpaid', $invoiceStatus);
-        $response->assertStatus(422);
-    }
-
-    #[Test]
-    public function it_can_delete_payment()
-    {
-        /* Arrange */
-        $paymentId = $this->payment->id;
-
-        /* Act */
-        $this->delete(route('payment.destroy', $this->payment->external_id));
-
-        /* Assert */
-        $this->assertNull(Payment::find($paymentId));
-        $this->assertNotNull(Payment::withTrashed()->find($paymentId));
-    }
-
-    #[Test]
-    #[Group('junie_repaired')]
-    public function it_cannot_delete_payment_if_no_permission()
-    {
-        /* Arrange */
-        $this->actingAs(User::factory()->create());
-        $payment = Payment::factory()->create();
-
-        /* Act */
-        $response = $this->delete(route('payment.destroy', $payment->external_id));
-
-        /* Assert */
-        $response->assertStatus(403);
-        $this->assertNotNull(Payment::find($payment->id));
-    }
-
-    #[Test]
-    #[Group('junie_repaired')]
-    public function it_cannot_create_payment_if_no_permission()
-    {
-        /* Arrange */
-        $this->actingAs(User::factory()->create());
-
-        /* Act */
-        $response = $this->post(route('payment.add', $this->invoice->external_id), [
-            'amount'       => 5000,
-            'payment_date' => '2020-01-01',
-            'source'       => 'bank',
-            'description'  => 'AThisVeryColInvoice12313',
-        ]);
-
-        /* Assert */
-        $response->assertStatus(403);
-        $this->assertTrue(Payment::query()->where('description', 'AThisVeryColInvoice12313')->get()->isEmpty());
-    }
 }

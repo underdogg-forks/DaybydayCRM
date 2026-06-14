@@ -64,7 +64,6 @@ class TaskSecurityTest extends AbstractTestCase
         $response->assertStatus(403);
         $this->assertDatabaseHas('tasks', ['id' => $this->task->id, 'deleted_at' => null]);
     }
-
     #[Test]
     public function it_updates_status_only_accepts_status_id_field()
     {
@@ -166,4 +165,5 @@ class TaskSecurityTest extends AbstractTestCase
         $response->assertStatus(400);
         $response->assertJson(['error' => 'Invalid status for task']);
     }
+
 }

@@ -61,9 +61,11 @@
     }
     .table-actions {
         opacity: 0;
+        white-space: nowrap;
     }
     #leads-table tbody tr:hover .table-actions {
         opacity: 1;
+        display: flex;
     }
     .title-table-tab {
         width:260px;

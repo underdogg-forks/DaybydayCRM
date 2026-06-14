@@ -292,9 +292,9 @@ class UsersController extends Controller
             ->withCompanyname(Setting::first()->company)
             ->with('task_statistics', $user->totalOpenAndClosedTasks($external_id))
             ->with('lead_statistics', $user->totalOpenAndClosedLeads($external_id))
-            ->with('lead_statuses', Status::typeOfLead()->get())
-            ->with('task_statuses', Status::typeOfTask()->get())
-            ->with('project_statuses', Status::typeOfProject()->get());
+            ->with('lead_statuses', Status::typeOfLead()->get()->unique('title'))
+            ->with('task_statuses', Status::typeOfTask()->get()->unique('title'))
+            ->with('project_statuses', Status::typeOfProject()->get()->unique('title'));
     }
 
     /**

@@ -75,3 +75,4 @@ storage/debugbar/
 blob-report/
 package-lock.json
 tests/e2e/setup/no-tour-state.json
+.claude/worktrees/

@@ -195,7 +195,17 @@
                     @if(Session::has('flash_message'))
                         <message message="{{ Session::get('flash_message') }}" type="success"></message>
                     @endif
-                    <h1 class="global-heading">@yield('heading')</h1>
+                    <div class="row" style="margin-bottom: 20px; margin-top: 20px;">
+                        <div class="col-md-9">
+                            <h1 class="global-heading" style="margin: 0;">@yield('heading')</h1>
+                        </div>
+                        <div class="col-md-3">
+                            @yield('actions')
+                        </div>
+                    </div>
+                    <div class="row" style="display: none;">
+                        @yield('alerts')
+                    </div>
                     @yield('content')
                 </div>
             </div>

@@ -186,7 +186,7 @@ class ClientsTest extends AbstractTestCase
 
         /* Act */
         $response = $this->withHeaders([
-            'Accept' => 'application/json',
+            'Accept'           => 'application/json',
             'X-Requested-With' => 'XMLHttpRequest',
         ])->post(route('clients.store'), [
             'name'             => 'James Test',
@@ -245,7 +245,7 @@ class ClientsTest extends AbstractTestCase
 
         /* Act */
         $response = $this->withHeaders([
-            'Accept' => 'application/json',
+            'Accept'           => 'application/json',
             'X-Requested-With' => 'XMLHttpRequest',
         ])->post(route('clients.store'), $this->validClientPayload($industry->id, $user->id));
 
@@ -395,7 +395,7 @@ class ClientsTest extends AbstractTestCase
 
         /* Act */
         $response = $this->withHeaders([
-            'Accept' => 'application/json',
+            'Accept'           => 'application/json',
             'X-Requested-With' => 'XMLHttpRequest',
         ])->post('/clients/updateassign/' . $client->external_id, [
             'user_external_id' => $this->user->external_id,
@@ -429,7 +429,7 @@ class ClientsTest extends AbstractTestCase
 
         /* Act */
         $response = $this->withHeaders([
-            'Accept' => 'application/json',
+            'Accept'           => 'application/json',
             'X-Requested-With' => 'XMLHttpRequest',
         ])->delete(route('clients.destroy', $this->client->external_id));
 

@@ -3,6 +3,12 @@
     {{__('All Leads')}}
 @stop
 
+@section('actions')
+    @if(Entrust::can('lead-create'))
+        <a href="{{ route('leads.create') }}" class="btn btn-brand">@lang('Create Lead')</a>
+    @endif
+@stop
+
 @section('content')
     <table class="table table-hover" id="leads-table">
         <thead>

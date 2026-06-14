@@ -308,7 +308,7 @@ class ClientsTest extends AbstractTestCase
             'X-Requested-With' => 'XMLHttpRequest',
         ])->post(route('clients.store'), [
             'name'             => 'James Test',
-            'email'            => 'james_' . uniqid() . '@test.com',
+            'email'            => 'james_' . uniqid('', true) . '@test.com',
             'primary_number'   => '2342342342',
             'secondary_number' => '423423432',
             'vat'              => '12312334',
@@ -361,7 +361,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_update_client()
+    public function it_can_update_client(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -386,7 +386,7 @@ class ClientsTest extends AbstractTestCase
         /* Act */
         $response = $this->patch(route('clients.update', $client->external_id), [
             'name'             => 'Mads',
-            'email'            => 'mads_' . uniqid() . '@test.com',
+            'email'            => 'mads_' . uniqid('', true) . '@test.com',
             'primary_number'   => '2342342342',
             'secondary_number' => '423423432',
             'vat'              => '12312335',
@@ -413,7 +413,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_update_assignee()
+    public function it_can_update_assignee(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -434,7 +434,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_update_client_without_primary_contact()
+    public function it_can_update_client_without_primary_contact(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -451,7 +451,7 @@ class ClientsTest extends AbstractTestCase
         /* Act */
         $response = $this->patch(route('clients.update', $client->external_id), [
             'name'             => 'No Contact Name',
-            'email'            => 'noprimary_' . uniqid() . '@test.com',
+            'email'            => 'noprimary_' . uniqid('', true) . '@test.com',
             'primary_number'   => '1234567890',
             'secondary_number' => '0987654321',
             'vat'              => '8888888888',
@@ -474,7 +474,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_cant_update_assignee_without_permission()
+    public function it_cant_update_assignee_without_permission(): void
     {
         /* Arrange */
         $client     = Client::factory()->create();
@@ -495,7 +495,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_delete_without_any_relations_client()
+    public function it_can_delete_without_any_relations_client(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -511,7 +511,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_user_with_client_delete_permission_can_delete_client()
+    public function it_user_with_client_delete_permission_can_delete_client(): void
     {
         /* Arrange */
         $this->user = $this->userWithPermission;
@@ -526,7 +526,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_user_without_client_delete_permission_cannot_delete_client()
+    public function it_user_without_client_delete_permission_cannot_delete_client(): void
     {
         /* Arrange */
         $this->actingAs($this->userWithoutPermission);
@@ -543,7 +543,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_lists_clients_without_n_plus_1_queries()
+    public function it_lists_clients_without_n_plus_1_queries(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -585,7 +585,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_shows_client_detail_without_n_plus_1_queries()
+    public function it_shows_client_detail_without_n_plus_1_queries(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -631,7 +631,7 @@ class ClientsTest extends AbstractTestCase
     public function it_denies_unauthorized_user_from_listing_clients(): void
     {
         /* Arrange – user with no permissions */
-        $this->user = User::factory()->create(['email' => 'noperms_' . uniqid() . '@test.com']);
+        $this->user = User::factory()->create(['email' => 'noperms_' . uniqid('', true) . '@test.com']);
         $this->actingAs($this->user);
 
         /* Act */
@@ -646,7 +646,7 @@ class ClientsTest extends AbstractTestCase
     {
         /* Arrange – user with no permissions */
         $client     = Client::factory()->create();
-        $this->user = User::factory()->create(['email' => 'noperms_' . uniqid() . '@test.com']);
+        $this->user = User::factory()->create(['email' => 'noperms_' . uniqid('', true) . '@test.com']);
         $this->actingAs($this->user);
 
         /* Act */
@@ -665,7 +665,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_returns_web_error_and_early_returns_when_client_creation_fails()
+    public function it_returns_web_error_and_early_returns_when_client_creation_fails(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -686,7 +686,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_returns_json_error_and_early_returns_when_client_creation_fails()
+    public function it_returns_json_error_and_early_returns_when_client_creation_fails(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();
@@ -722,7 +722,7 @@ class ClientsTest extends AbstractTestCase
     {
         return [
             'name'             => 'James Test',
-            'email'            => 'james_' . uniqid() . '@test.com',
+            'email'            => 'james_' . uniqid('', true) . '@test.com',
             'primary_number'   => '2342342342',
             'secondary_number' => '423423432',
             'vat'              => '12312334',

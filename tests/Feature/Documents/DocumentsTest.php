@@ -23,7 +23,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
-#[Group('security')]
 #[Group('document_authorization')]
 class DocumentsTest extends AbstractTestCase
 {
@@ -147,7 +146,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_creator_of_task_can_view_task_document()
+    public function it_creator_of_task_can_view_task_document(): void
     {
         /* Arrange */
         $task = Task::factory()->create([
@@ -171,7 +170,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_user_can_view_document_attached_to_their_task_as_creator()
+    public function it_user_can_view_document_attached_to_their_task_as_creator(): void
     {
         /* Arrange */
         $task = Task::factory()->create([
@@ -197,7 +196,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_user_can_view_document_attached_to_their_task_as_assignee()
+    public function it_user_can_view_document_attached_to_their_task_as_assignee(): void
     {
         /* Arrange */
         $role = $this->owner->roles()->first() ?? \App\Models\Role::query()->firstOrCreate(['name' => 'owner']);
@@ -233,7 +232,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_user_can_view_document_attached_to_task_via_client_ownership()
+    public function it_user_can_view_document_attached_to_task_via_client_ownership(): void
     {
         /* Arrange */
         $task = Task::factory()->create([
@@ -260,7 +259,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_user_cannot_view_document_attached_to_another_users_task()
+    public function it_user_cannot_view_document_attached_to_another_users_task(): void
     {
         /* Arrange */
         $otherClient = Client::factory()->create(['user_id' => $this->otherUser->id]);

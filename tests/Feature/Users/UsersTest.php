@@ -18,7 +18,7 @@ use RuntimeException;
 use Tests\AbstractTestCase;
 
 #[CoversClass(UsersController::class)]
-class UsersControllerTest extends AbstractTestCase
+class UsersTest extends AbstractTestCase
 {
     use RefreshDatabase;
 

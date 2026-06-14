@@ -190,7 +190,7 @@ class AppointmentsTest extends AbstractTestCase
         ]);
 
         /* Act */
-        $response = $this->post(route('appointments.update', $appointment->external_id), [
+        $response = $this->postJson(route('appointments.update', $appointment->external_id), [
             'id'    => $appointment->id,
             'start' => Carbon::now()->addDay()->toISOString(),
             'end'   => Carbon::now()->addDay()->addHour()->toISOString(),

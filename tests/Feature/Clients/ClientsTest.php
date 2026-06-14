@@ -447,7 +447,7 @@ class ClientsTest extends AbstractTestCase
         $this->actingAs($this->userWithoutPermission);
 
         /* Act */
-        $response = $this->get(route('clients.create'));
+        $response = $this->getJson(route('clients.create'));
 
         /* Assert */
         $response

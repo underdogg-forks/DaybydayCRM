@@ -3,9 +3,9 @@
 namespace Tests\Feature\Documents;
 
 use App\Enums\PermissionName;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Client;
 use App\Models\Document;
-use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Integration;
 use App\Models\Lead;
 use App\Models\Permission;
@@ -524,36 +524,6 @@ class DocumentsTest extends AbstractTestCase
         $response->assertStatus(404);
     }
 
-    private function bindFakeStorageProvider(): void
-    {
-        $this->app->instance(GetStorageProvider::class, new class () {
-            public function getStorage(...$args)
-            {
-                return new class () {
-                    public function enabled(): bool
-                    {
-                        return true;
-                    }
-
-                    public function isEnabled(): bool
-                    {
-                        return true;
-                    }
-
-                    public function view(...$args)
-                    {
-                        return 'fake file content';
-                    }
-
-                    public function download(...$args)
-                    {
-                        return 'fake file content';
-                    }
-                };
-            }
-        });
-    }
-
     // ─── Positive-path access ─────────────────────────────────────────────────
 
     #[Test]
@@ -709,34 +679,6 @@ class DocumentsTest extends AbstractTestCase
 
         /* Assert – unauthorized user gets 403, not a storage error */
         $response->assertStatus(403);
-    }
-
-    // ─── Helpers ──────────────────────────────────────────────────────────────
-
-    /**
-     * Create a document that $this->unrelated has no connection to.
-     *
-     * The document is owned by $this->creator (as task creator) and
-     * $this->assignee (as task assignee), while its client belongs to
-     * $this->creator (not $this->clientOwner).  This means $this->unrelated
-     * has no path to the document through any of the three ownership checks
-     * (creator / assignee / client owner).
-     */
-    private function createUnownedDocument(): Document
-    {
-        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
-        $task        = Task::factory()->create([
-            'user_created_id'  => $this->creator->id,
-            'user_assigned_id' => $this->assignee->id,
-            'client_id'        => $otherClient->id,
-        ]);
-
-        return Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
     }
 
     #[Test]
@@ -943,5 +885,63 @@ class DocumentsTest extends AbstractTestCase
         /* Assert */
         $response->assertRedirect();
         $response->assertSessionHas('flash_message_warning', __('Project not found'));
+    }
+
+    private function bindFakeStorageProvider(): void
+    {
+        $this->app->instance(GetStorageProvider::class, new class () {
+            public function getStorage(...$args)
+            {
+                return new class () {
+                    public function enabled(): bool
+                    {
+                        return true;
+                    }
+
+                    public function isEnabled(): bool
+                    {
+                        return true;
+                    }
+
+                    public function view(...$args)
+                    {
+                        return 'fake file content';
+                    }
+
+                    public function download(...$args)
+                    {
+                        return 'fake file content';
+                    }
+                };
+            }
+        });
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Create a document that $this->unrelated has no connection to.
+     *
+     * The document is owned by $this->creator (as task creator) and
+     * $this->assignee (as task assignee), while its client belongs to
+     * $this->creator (not $this->clientOwner).  This means $this->unrelated
+     * has no path to the document through any of the three ownership checks
+     * (creator / assignee / client owner).
+     */
+    private function createUnownedDocument(): Document
+    {
+        $otherClient = Client::factory()->create(['user_id' => $this->creator->id]);
+        $task        = Task::factory()->create([
+            'user_created_id'  => $this->creator->id,
+            'user_assigned_id' => $this->assignee->id,
+            'client_id'        => $otherClient->id,
+        ]);
+
+        return Document::factory()->create([
+            'source_type' => Task::class,
+            'source_id'   => $task->id,
+            'mime'        => 'text/plain',
+            'path'        => 'fake/path.txt',
+        ]);
     }
 }

@@ -136,4 +136,9 @@ abstract class AbstractTestCase extends BaseTestCase
             app('url')->forceScheme($scheme);
         }
     }
+
+    protected function getJsonRequest(string $url)
+    {
+        return $this->get($url, ['Accept' => 'application/json']);
+    }
 }

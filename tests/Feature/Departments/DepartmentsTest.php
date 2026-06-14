@@ -2,13 +2,17 @@
 
 namespace Tests\Feature\Departments;
 
+use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\DepartmentsController;
 use App\Models\Department;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
+#[CoversClass(DepartmentsController::class)]
 class DepartmentsTest extends AbstractTestCase
 {
     use RefreshDatabase;
@@ -26,7 +30,7 @@ class DepartmentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_create_department()
+    public function it_can_create_department(): void
     {
         /* Arrange */
         /* Act */
@@ -41,7 +45,7 @@ class DepartmentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_delete_department()
+    public function it_can_delete_department(): void
     {
         /* Arrange */
         $department = Department::factory()->create();
@@ -55,7 +59,7 @@ class DepartmentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_cant_delete_department_if_user_is_associated()
+    public function it_cant_delete_department_if_user_is_associated(): void
     {
         /* Arrange */
         $department = Department::factory()->create();

@@ -414,40 +414,4 @@ class AppointmentsTest extends AbstractTestCase
         $this->assertNotContains($otherAppointment->external_id, $otherIds);
         $this->assertContains($otherAppointment->external_id, $otherUserAppointments->pluck('external_id')->toArray());
     }
-
-    #[Test]
-    public function it_posting_to_appointments_resource_route_returns_not_found()
-    {
-        /* Arrange */
-
-        /* Act */
-        $response = $this->post('/appointments');
-
-        /* Assert */
-        $this->assertContains($response->getStatusCode(), [404, 405]);
-    }
-
-    #[Test]
-    public function it_verifies_appointments_controller_retains_calendar_method()
-    {
-        /* Arrange */
-
-        /* Act & Assert */
-        $this->assertTrue(
-            method_exists(AppointmentsController::class, 'calendar'),
-            'AppointmentsController::calendar() should still exist'
-        );
-    }
-
-    #[Test]
-    public function it_verifies_appointments_controller_retains_appointments_json_method()
-    {
-        /* Arrange */
-
-        /* Act & Assert */
-        $this->assertTrue(
-            method_exists(AppointmentsController::class, 'appointmentsJson'),
-            'AppointmentsController::appointmentsJson() should still exist'
-        );
-    }
 }

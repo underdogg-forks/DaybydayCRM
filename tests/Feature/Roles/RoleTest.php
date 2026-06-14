@@ -13,7 +13,7 @@ use RuntimeException;
 use Tests\AbstractTestCase;
 
 #[CoversClass(RolesController::class)]
-class RoleControllerTest extends AbstractTestCase
+class RoleTest extends AbstractTestCase
 {
     use RefreshDatabase;
 

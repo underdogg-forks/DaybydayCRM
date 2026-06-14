@@ -105,7 +105,6 @@
         Dropzone.autoDiscover = false;
         $(document).ready(function () {
           if ($('#client_external_id').length) {
-              $('#client_external_id').selectpicker();
               $('#client_external_id').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                 var value = $("#client_external_id").val();
                 if(value == "new_client") {

@@ -3,6 +3,12 @@
     {{ __('All tasks')}}
 @stop
 
+@section('actions')
+    @if(Entrust::can('task-create'))
+        <a href="{{ route('tasks.create') }}" class="btn btn-brand">@lang('Create Task')</a>
+    @endif
+@stop
+
 @section('content')
     <table class="table table-hover" id="tasks-table">
         <thead>

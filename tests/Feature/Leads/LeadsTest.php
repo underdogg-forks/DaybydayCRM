@@ -12,6 +12,7 @@ use App\Models\Offer;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Status;
+use App\Models\Task;
 use App\Models\User;
 use App\Services\Lead\LeadService;
 use Carbon\Carbon;
@@ -28,6 +29,18 @@ use Tests\AbstractTestCase;
 class LeadsTest extends AbstractTestCase
 {
     use RefreshDatabase;
+
+    private User $authorizedUser;
+
+    private User $unauthorizedUser;
+
+    private User $newAssignee;
+
+    protected $lead;
+
+    private User $userWithPermission;
+
+    private User $userWithoutPermission;
 
     private $client;
 
@@ -55,6 +68,28 @@ class LeadsTest extends AbstractTestCase
         );
         $this->user->attachRole($role);
         $this->withPermissions(PermissionName::LEAD_DELETE);
+
+        /* Arrange */
+        $this->authorizedUser   = User::factory()->create();
+        $this->unauthorizedUser = User::factory()->create();
+        $this->newAssignee      = User::factory()->create();
+
+        $client     = Client::factory()->create();
+
+        $this->lead = Lead::factory()->create([
+            'user_assigned_id' => $this->authorizedUser->id,
+            'client_id'        => $client->id,
+        ]);
+
+        $this->userWithPermission    = User::factory()->create();
+        $this->userWithoutPermission = User::factory()->create();
+
+        $this->lead = Lead::factory()->create();
+
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->actingAs($this->user);
+
+        $this->unauthorizedUser = User::factory()->withRole('employee')->create();
 
         $this->withoutMiddleware(VerifyCsrfToken::class);
     }
@@ -338,5 +373,290 @@ class LeadsTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(200);
         $this->assertNotNull($lead->refresh()->deleted_at);
+    }
+
+    #[Test]
+    public function it_authorized_user_can_reassign_lead()
+    {
+        /* Arrange */
+        $originalAssignee = $this->lead->user_assigned_id;
+        $this->user       = $this->authorizedUser;
+        $this->withPermissions(PermissionName::LEAD_ASSIGN);
+        $this->user = $this->user->fresh();
+        $this->assertTrue($this->user->can('can-assign-new-user-to-lead'));
+        $this->assertEquals($this->user->id, $originalAssignee);
+
+        /* Act */
+        $response = $this->actingAs($this->user)
+            ->patch(route('leads.updateAssign', $this->lead->external_id), [
+                'user_assigned_id' => $this->newAssignee->id,
+            ]);
+
+        /* Assert */
+        $response->assertRedirect();
+        $response->assertSessionHas('flash_message');
+        $this->assertDatabaseHas('leads', [
+            'id'               => $this->lead->id,
+            'user_assigned_id' => $this->newAssignee->id,
+        ]);
+        $this->assertEquals($this->newAssignee->id, $this->lead->refresh()->user_assigned_id);
+    }
+
+    #[Test]
+    public function it_unauthorized_user_cannot_reassign_lead()
+    {
+        /* Arrange */
+        $originalAssignee = $this->lead->user_assigned_id;
+        \Illuminate\Support\Facades\Cache::tags('role_user')->flush();
+        $this->unauthorizedUser = $this->unauthorizedUser->fresh();
+        $this->assertFalse($this->unauthorizedUser->can('can-assign-new-user-to-lead'));
+
+        /* Act */
+        $response = $this->actingAs($this->unauthorizedUser)
+            ->patch(route('leads.updateAssign', $this->lead->external_id), [
+                'user_assigned_id' => $this->newAssignee->id,
+            ]);
+
+        /* Assert */
+        $response->assertRedirect();
+        $response->assertSessionHas('flash_message_warning');
+        $this->assertDatabaseHas('leads', [
+            'id'               => $this->lead->id,
+            'user_assigned_id' => $originalAssignee,
+        ]);
+        $this->assertEquals($originalAssignee, $this->lead->refresh()->user_assigned_id);
+    }
+
+    #[Test]
+    public function it_user_with_lead_delete_permission_can_delete_lead()
+    {
+        /* Arrange */
+        $this->user = $this->userWithPermission;
+        $this->withPermissions(PermissionName::LEAD_DELETE);
+
+        /* Act */
+        $response = $this->delete(route('leads.destroy', $this->lead->external_id));
+
+        /* Assert */
+        $response->assertStatus(302);
+        $this->assertSoftDeleted('leads', ['id' => $this->lead->id]);
+    }
+
+    #[Test]
+    public function it_user_without_lead_delete_permission_cannot_delete_lead()
+    {
+        /* Arrange */
+        $this->actingAs($this->userWithoutPermission);
+
+        /* Act */
+        $response = $this->delete(route('leads.destroy', $this->lead->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('leads', ['id' => $this->lead->id, 'deleted_at' => null]);
+    }
+
+    #[Test]
+    public function it_lead_update_assign_only_accepts_user_assigned_id_field()
+    {
+        /* Arrange */
+        $user       = User::factory()->create();
+        $this->user = $user;
+        $this->withPermissions(PermissionName::LEAD_ASSIGN);
+
+        $newUser             = User::factory()->create();
+        $originalTitle       = $this->lead->title;
+        $originalDescription = $this->lead->description;
+
+        /* Act */
+        $response = $this->patch(route('leads.updateAssign', $this->lead->external_id), [
+            'user_assigned_id' => $newUser->id,
+            'title'            => 'Malicious Title Change',
+            'description'      => 'Malicious Description Change',
+            'status_id'        => 999,
+        ]);
+
+        /* Assert */
+        $this->lead->refresh();
+
+        $response->assertStatus(302);
+        $this->assertEquals($newUser->id, $this->lead->user_assigned_id);
+        $this->assertEquals($originalTitle, $this->lead->title);
+        $this->assertEquals($originalDescription, $this->lead->description);
+        $this->assertNotEquals(999, $this->lead->status_id);
+    }
+
+    #[Test]
+    public function it_lead_update_status_only_accepts_status_id_field()
+    {
+        /* Arrange */
+        $user       = User::factory()->create();
+        $this->user = $user;
+        $this->withPermissions(PermissionName::LEAD_UPDATE_STATUS);
+
+        $newStatus = Status::factory()->create(['source_type' => Lead::class]);
+        while ($newStatus->id == $this->lead->status_id) {
+            $newStatus = Status::factory()->create(['source_type' => Lead::class]);
+        }
+
+        $originalTitle       = $this->lead->title;
+        $originalDescription = $this->lead->description;
+
+        /* Act */
+        $response = $this->patch(route('lead.update.status', $this->lead->external_id), [
+            'status_id'        => $newStatus->id,
+            'title'            => 'Malicious Title Change',
+            'description'      => 'Malicious Description Change',
+            'user_assigned_id' => 999,
+        ]);
+
+        /* Assert */
+        $this->lead->refresh();
+
+        $response->assertStatus(302);
+        $this->assertEquals($newStatus->id, $this->lead->status_id);
+        $this->assertEquals($originalTitle, $this->lead->title);
+        $this->assertEquals($originalDescription, $this->lead->description);
+        $this->assertNotEquals(999, $this->lead->user_assigned_id);
+    }
+
+    #[Test]
+    public function it_authorized_user_can_delete_lead()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::LEAD_DELETE);
+
+        /* Act */
+        $response = $this->delete(route('leads.destroy', $this->lead->external_id));
+
+        /* Assert */
+        $response->assertRedirect();
+        $this->assertSoftDeleted('leads', ['id' => $this->lead->id]);
+    }
+
+    #[Test]
+    public function it_unauthorized_user_cannot_delete_lead()
+    {
+        /* Arrange */
+        $this->actingAs($this->unauthorizedUser);
+
+        /* Act */
+        $response = $this->delete(route('leads.destroy', $this->lead->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('leads', ['id' => $this->lead->id, 'deleted_at' => null]);
+    }
+
+    #[Test]
+    public function it_unauthorized_user_cannot_delete_lead_via_json()
+    {
+        /* Arrange */
+        $this->actingAs($this->unauthorizedUser);
+
+        /* Act */
+        $response = $this->delete('/leads/' . $this->lead->external_id . '/json');
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('leads', ['id' => $this->lead->id, 'deleted_at' => null]);
+    }
+
+    #[Test]
+    public function it_updates_assign_only_accepts_user_assigned_id_field()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::LEAD_ASSIGN);
+
+        $newUser        = User::factory()->create();
+        $originalStatus = $this->lead->status_id;
+        $originalTitle  = $this->lead->title;
+
+        /* Act */
+        $response = $this->patch(route('leads.updateAssign', $this->lead->external_id), [
+            'user_assigned_id' => $newUser->id,
+            'status_id'        => 999,
+            'title'            => 'Hacked Title',
+        ]);
+
+        /* Assert */
+        $this->lead->refresh();
+
+        $this->assertEquals($newUser->id, $this->lead->user_assigned_id);
+
+        $this->assertEquals($originalStatus, $this->lead->status_id);
+
+        $this->assertEquals($originalTitle, $this->lead->title);
+    }
+
+    #[Test]
+    public function it_updates_status_only_accepts_status_id_field()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::LEAD_UPDATE_STATUS);
+
+        $newStatus        = Status::factory()->create(['source_type' => Lead::class]);
+        $originalAssignee = $this->lead->user_assigned_id;
+
+        /* Act */
+        $response = $this->patch(route('lead.update.status', $this->lead->external_id), [
+            'status_id'        => $newStatus->id,
+            'user_assigned_id' => $this->user->id,
+            'title'            => 'Hacked Title',
+        ]);
+
+        /* Assert */
+        $this->lead->refresh();
+
+        $this->assertEquals($newStatus->id, $this->lead->status_id);
+
+        $this->assertEquals($originalAssignee, $this->lead->user_assigned_id);
+
+        $this->assertNotEquals('Hacked Title', $this->lead->title);
+    }
+
+    #[Test]
+    public function it_updates_status_rejects_invalid_status_type()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::LEAD_UPDATE_STATUS);
+
+        $taskStatus     = Status::factory()->create(['source_type' => Task::class]);
+        $originalStatus = $this->lead->status_id;
+
+        /* Act */
+        $response = $this->patch(route('lead.update.status', $this->lead->external_id), [
+            'status_id' => $taskStatus->id,
+        ]);
+
+        /* Assert */
+        $this->lead->refresh();
+
+        $this->assertEquals($originalStatus, $this->lead->status_id);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('flash_message_warning', __('Invalid status for lead'));
+    }
+
+    #[Test]
+    public function it_updates_status_rejects_nonexistent_status_id()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::LEAD_UPDATE_STATUS);
+
+        $originalStatus = $this->lead->status_id;
+
+        /* Act */
+        $response = $this->patch(route('lead.update.status', $this->lead->external_id), [
+            'status_id' => 999999,
+        ]);
+
+        /* Assert */
+        $this->lead->refresh();
+
+        $this->assertEquals($originalStatus, $this->lead->status_id);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('flash_message_warning', __('Invalid status for lead'));
     }
 }

@@ -2,14 +2,21 @@
 
 namespace Tests\Feature\Payments;
 
+use App\Enums\PermissionName;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Invoice;
 use App\Models\InvoiceLine;
+use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
-class PaymentsControllerAddPaymentTest extends AbstractTestCase
+#[CoversClass(PaymentsController::class)]
+class PaymentsTest extends AbstractTestCase
 {
     use RefreshDatabase;
 
@@ -17,12 +24,28 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
 
     private $invoiceLine;
 
+    private $payment;
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withPermissions(PermissionName::PAYMENT_DELETE);
+        $this->withoutMiddleware([VerifyCsrfToken::class]);
+        $this->invoice = Invoice::factory()->create([
+            'sent_at' => today(),
+            'status'  => 'unpaid',
+        ]);
+        $this->payment     = Payment::factory()->create();
+        $this->invoiceLine = InvoiceLine::factory()->create([
+            'invoice_id' => $this->invoice->id,
+            'price'      => 5000,
+            'quantity'   => 1,
+            'type'       => 'hours',
+        ]);
+
         $this->asOwner();
         \Illuminate\Support\Facades\Cache::tags('role_user')->flush();
-        \App\Models\Setting::updateOrCreate(
+        \App\Models\Setting::query()->updateOrCreate(
             ['id' => 1],
             [
                 'client_number'  => 10000,
@@ -263,5 +286,55 @@ class PaymentsControllerAddPaymentTest extends AbstractTestCase
         /* Assert */
         $this->assertEquals('unpaid', $invoiceStatus);
         $response->assertStatus(422);
+    }
+
+    #[Test]
+    public function it_can_delete_payment()
+    {
+        /* Arrange */
+        $paymentId = $this->payment->id;
+
+        /* Act */
+        $this->delete(route('payment.destroy', $this->payment->external_id));
+
+        /* Assert */
+        $this->assertNull(Payment::find($paymentId));
+        $this->assertNotNull(Payment::withTrashed()->find($paymentId));
+    }
+
+    #[Test]
+    #[Group('junie_repaired')]
+    public function it_cannot_delete_payment_if_no_permission()
+    {
+        /* Arrange */
+        $this->actingAs(User::factory()->create());
+        $payment = Payment::factory()->create();
+
+        /* Act */
+        $response = $this->delete(route('payment.destroy', $payment->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertNotNull(Payment::find($payment->id));
+    }
+
+    #[Test]
+    #[Group('junie_repaired')]
+    public function it_cannot_create_payment_if_no_permission()
+    {
+        /* Arrange */
+        $this->actingAs(User::factory()->create());
+
+        /* Act */
+        $response = $this->post(route('payment.add', $this->invoice->external_id), [
+            'amount'       => 5000,
+            'payment_date' => '2020-01-01',
+            'source'       => 'bank',
+            'description'  => 'AThisVeryColInvoice12313',
+        ]);
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertTrue(Payment::query()->where('description', 'AThisVeryColInvoice12313')->get()->isEmpty());
     }
 }

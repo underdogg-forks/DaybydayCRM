@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class AlterLeadsTableSupportQualified extends Migration
@@ -31,6 +32,9 @@ class AlterLeadsTableSupportQualified extends Migration
         Schema::table('leads', static function (Blueprint $table) {
             $table->dropColumn('qualified');
             $table->dropColumn('result');
+            if (DB::getDriverName() !== 'sqlite') {
+                $table->dropForeign(['invoice_id']);
+            }
             $table->dropColumn('invoice_id');
         });
     }

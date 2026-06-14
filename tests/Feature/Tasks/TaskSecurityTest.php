@@ -44,7 +44,7 @@ class TaskSecurityTest extends AbstractTestCase
         $this->withPermissions(PermissionName::TASK_DELETE);
 
         /* Act */
-        $response = $this->delete(route('tasks.destroy', $this->task->external_id));
+        $response = $this->delete(route('tasks.destroy', $this->task->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -58,7 +58,7 @@ class TaskSecurityTest extends AbstractTestCase
         $this->actingAs($this->unauthorizedUser);
 
         /* Act */
-        $response = $this->delete(route('tasks.destroy', $this->task->external_id));
+        $response = $this->delete(route('tasks.destroy', $this->task->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(403);

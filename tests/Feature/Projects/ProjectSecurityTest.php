@@ -37,7 +37,7 @@ class ProjectSecurityTest extends AbstractTestCase
         $this->withPermissions(PermissionName::PROJECT_DELETE);
 
         /* Act */
-        $response = $this->delete(route('projects.destroy', $this->project->external_id));
+        $response = $this->delete(route('projects.destroy', $this->project->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -51,7 +51,7 @@ class ProjectSecurityTest extends AbstractTestCase
         $this->actingAs($this->unauthorizedUser);
 
         /* Act */
-        $response = $this->delete(route('projects.destroy', $this->project->external_id));
+        $response = $this->delete(route('projects.destroy', $this->project->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(403);

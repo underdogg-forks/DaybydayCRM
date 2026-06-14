@@ -16,7 +16,7 @@
                     </div>
                     @if(Entrust::can('offer-create'))
                     <div class="tablet__head"  style="padding: 6px 2px;">
-                        <button class="btn btn-brand" id="create-offer-btn">@lang('New Offer')</button>
+                        <button class="btn btn-brand" data-toggle="modal" data-target="#create-offer">@lang('New Offer')</button>
                     </div>
                     @endif
                 </div>
@@ -222,9 +222,6 @@
             $('#ModalLostOffer').on('show.bs.modal', function(e) {
                 var offerExternalId = $(e.relatedTarget).data('offer-external_id');
                 $(e.currentTarget).find('input[name="offer_external_id"]').val(offerExternalId);
-            });
-            $('#create-offer-btn').on('click', function () {
-                $('#create-offer').modal('show');
             });
 
             $('[data-toggle="tooltip"]').tooltip();

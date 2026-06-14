@@ -48,6 +48,7 @@ class DeleteProjectControllerTest extends AbstractTestCase
         $response->assertStatus(200);
         $this->assertNotNull($project->refresh()->deleted_at);
     }
+
     #[Test]
     public function it_deletes_project()
     {
@@ -98,5 +99,4 @@ class DeleteProjectControllerTest extends AbstractTestCase
         $this->assertNull($task->refresh()->deleted_at);
         $this->assertNull($task->refresh()->project_id);
     }
-
 }

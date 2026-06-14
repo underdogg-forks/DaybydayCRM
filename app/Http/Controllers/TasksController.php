@@ -70,7 +70,7 @@ class TasksController extends Controller
     public function index()
     {
         return view('tasks.index')
-            ->withStatuses(Status::typeOfTask()->get());
+            ->withStatuses(Status::typeOfTask()->get()->unique('title'));
     }
 
     public function anyData()

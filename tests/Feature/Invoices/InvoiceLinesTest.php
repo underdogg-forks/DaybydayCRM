@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
-class InvoiceLinesControllerTest extends AbstractTestCase
+class InvoiceLinesTest extends AbstractTestCase
 {
     use RefreshDatabase;
 

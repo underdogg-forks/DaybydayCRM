@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
-class IntegrationsControllerTest extends AbstractTestCase
+class IntegrationsTest extends AbstractTestCase
 {
     use RefreshDatabase;
 

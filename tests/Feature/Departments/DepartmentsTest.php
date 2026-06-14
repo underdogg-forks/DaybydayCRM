@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Session;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\AbstractTestCase;
 
-class DepartmentsControllerTest extends AbstractTestCase
+class DepartmentsTest extends AbstractTestCase
 {
     use RefreshDatabase;
 

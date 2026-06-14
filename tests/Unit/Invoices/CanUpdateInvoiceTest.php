@@ -44,6 +44,20 @@ class CanUpdateInvoiceTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_can_update_invoice_with_null_sent_at()
+    {
+        /* Arrange */
+        $this->invoice->sent_at = null;
+        $this->invoice->save();
+
+        /* Act */
+        $result = $this->invoice->canUpdateInvoice();
+
+        /* Assert */
+        $this->assertTrue($result);
+    }
+
+    #[Test]
     public function it_cant_update_invoice_if_its_sent()
     {
         /* Arrange */
@@ -69,19 +83,5 @@ class CanUpdateInvoiceTest extends AbstractTestCase
 
         /* Assert */
         $this->assertFalse($result);
-    }
-
-    #[Test]
-    public function it_can_update_invoice_with_null_sent_at()
-    {
-        /* Arrange */
-        $this->invoice->sent_at = null;
-        $this->invoice->save();
-
-        /* Act */
-        $result = $this->invoice->canUpdateInvoice();
-
-        /* Assert */
-        $this->assertTrue($result);
     }
 }

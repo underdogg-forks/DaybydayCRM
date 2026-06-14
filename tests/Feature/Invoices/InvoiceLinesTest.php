@@ -33,6 +33,23 @@ class InvoiceLinesTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_cant_delete_without_permission()
+    {
+        /* Arrange */
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->assertNotNull(InvoiceLine::query()->where('external_id', $this->invoiceLine->external_id)->first());
+
+        /* Act */
+        $response = $this->delete(route('invoiceLine.destroy', $this->invoiceLine->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+        $response->assertJson(['message' => __('You do not have permission to modify invoice lines')]);
+        $this->assertNotNull(InvoiceLine::query()->where('external_id', $this->invoiceLine->external_id)->first());
+    }
+
+    #[Test]
     public function it_happy_path()
     {
         /* Arrange */
@@ -74,22 +91,5 @@ class InvoiceLinesTest extends AbstractTestCase
         /* Assert */
         $r->assertStatus(302);
         $this->assertSoftDeleted('invoice_lines', ['external_id' => $this->invoiceLine->external_id]);
-    }
-
-    #[Test]
-    public function it_cant_delete_without_permission()
-    {
-        /* Arrange */
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        $this->assertNotNull(InvoiceLine::query()->where('external_id', $this->invoiceLine->external_id)->first());
-
-        /* Act */
-        $response = $this->delete(route('invoiceLine.destroy', $this->invoiceLine->external_id));
-
-        /* Assert */
-        $response->assertStatus(403);
-        $response->assertJson(['message' => __('You do not have permission to modify invoice lines')]);
-        $this->assertNotNull(InvoiceLine::query()->where('external_id', $this->invoiceLine->external_id)->first());
     }
 }

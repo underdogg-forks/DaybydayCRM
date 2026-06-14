@@ -30,6 +30,21 @@ class TasksControllerTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_can_list_tasks()
+    {
+        /* Arrange */
+        Task::factory()->create();
+
+        /* Act */
+        $error = $this->get(route('tasks.data'))
+            ->assertSuccessful()
+            ->json('error');
+
+        /* Assert */
+        $this->assertNull($error);
+    }
+
+    #[Test]
     #[Group('junie_repaired')]
     public function it_can_create_task()
     {
@@ -74,42 +89,6 @@ class TasksControllerTest extends AbstractTestCase
         $response->assertRedirect(route('tasks.index'));
         $response->assertSessionHas('flash_message', __('Task created'));
         $this->assertCount(1, Task::all());
-    }
-
-    #[Test]
-    public function it_returns_web_error_when_task_creation_throws_exception()
-    {
-        /* Arrange */
-        $this->withPermissions(['task-create']);
-        $this->bindFailingTaskService();
-        $status = Status::factory()->create(['source_type' => Task::class]);
-
-        /* Act */
-        $response = $this->from(route('tasks.create'))
-            ->post(route('tasks.store'), $this->validTaskPayload($status->id));
-
-        /* Assert */
-        $response->assertRedirect(route('tasks.create'));
-        $response->assertSessionHasErrors(['task']);
-    }
-
-    #[Test]
-    #[Group('postJson')]
-    public function it_returns_json_error_when_task_creation_throws_exception()
-    {
-        /* Arrange */
-        $this->withPermissions(['task-create']);
-        $this->bindFailingTaskService();
-        $status = Status::factory()->create(['source_type' => Task::class]);
-
-        /* Act */
-        $response = $this->post(route('tasks.store'), $this->validTaskPayload($status->id));
-
-        /* Assert */
-        $response->assertStatus(500);
-        $response->assertJson([
-            'message' => __('Task could not be created. Please try again.'),
-        ]);
     }
 
     #[Test]
@@ -197,18 +176,39 @@ class TasksControllerTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_list_tasks()
+    public function it_returns_web_error_when_task_creation_throws_exception()
     {
         /* Arrange */
-        Task::factory()->create();
+        $this->withPermissions(['task-create']);
+        $this->bindFailingTaskService();
+        $status = Status::factory()->create(['source_type' => Task::class]);
 
         /* Act */
-        $error = $this->get(route('tasks.data'))
-            ->assertSuccessful()
-            ->json('error');
+        $response = $this->from(route('tasks.create'))
+            ->post(route('tasks.store'), $this->validTaskPayload($status->id));
 
         /* Assert */
-        $this->assertNull($error);
+        $response->assertRedirect(route('tasks.create'));
+        $response->assertSessionHasErrors(['task']);
+    }
+
+    #[Test]
+    #[Group('postJson')]
+    public function it_returns_json_error_when_task_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->withPermissions(['task-create']);
+        $this->bindFailingTaskService();
+        $status = Status::factory()->create(['source_type' => Task::class]);
+
+        /* Act */
+        $response = $this->post(route('tasks.store'), $this->validTaskPayload($status->id));
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Task could not be created. Please try again.'),
+        ]);
     }
 
     private function bindFailingTaskService(): void

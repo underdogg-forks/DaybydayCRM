@@ -71,41 +71,6 @@ class ProjectsControllerTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_returns_web_error_when_project_creation_throws_exception()
-    {
-        /* Arrange */
-        $this->withPermissions(['project-create']);
-        $this->bindFailingProjectService();
-        $status = Status::factory()->create(['source_type' => Project::class]);
-
-        /* Act */
-        $response = $this->from(route('projects.create'))
-            ->post(route('projects.store'), $this->validProjectPayload($status->id));
-
-        /* Assert */
-        $response->assertRedirect(route('projects.create'));
-        $response->assertSessionHasErrors(['project']);
-    }
-
-    #[Test]
-    public function it_returns_json_error_when_project_creation_throws_exception()
-    {
-        /* Arrange */
-        $this->withPermissions(['project-create']);
-        $this->bindFailingProjectService();
-        $status = Status::factory()->create(['source_type' => Project::class]);
-
-        /* Act */
-        $response = $this->post(route('projects.store'), $this->validProjectPayload($status->id));
-
-        /* Assert */
-        $response->assertStatus(500);
-        $response->assertJson([
-            'message' => __('Project could not be created. Please try again.'),
-        ]);
-    }
-
-    #[Test]
     public function it_can_update_assignee()
     {
         /* Arrange */
@@ -165,6 +130,41 @@ class ProjectsControllerTest extends AbstractTestCase
         $expectedIso = Carbon::parse('2020-08-06 00:00:00')->toISOString();
         $this->assertEquals($expectedIso, Carbon::parse($rawDeadline)->toISOString(), 'Raw DB deadline mismatch');
         $this->assertEquals($expectedIso, $project->refresh()->deadline->toISOString());
+    }
+
+    #[Test]
+    public function it_returns_web_error_when_project_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->withPermissions(['project-create']);
+        $this->bindFailingProjectService();
+        $status = Status::factory()->create(['source_type' => Project::class]);
+
+        /* Act */
+        $response = $this->from(route('projects.create'))
+            ->post(route('projects.store'), $this->validProjectPayload($status->id));
+
+        /* Assert */
+        $response->assertRedirect(route('projects.create'));
+        $response->assertSessionHasErrors(['project']);
+    }
+
+    #[Test]
+    public function it_returns_json_error_when_project_creation_throws_exception()
+    {
+        /* Arrange */
+        $this->withPermissions(['project-create']);
+        $this->bindFailingProjectService();
+        $status = Status::factory()->create(['source_type' => Project::class]);
+
+        /* Act */
+        $response = $this->post(route('projects.store'), $this->validProjectPayload($status->id));
+
+        /* Assert */
+        $response->assertStatus(500);
+        $response->assertJson([
+            'message' => __('Project could not be created. Please try again.'),
+        ]);
     }
 
     private function bindFailingProjectService(): void

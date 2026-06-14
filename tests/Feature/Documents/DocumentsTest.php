@@ -49,10 +49,6 @@ class DocumentsTest extends AbstractTestCase
 
     private Client $client;
 
-    private Task $task;
-
-    private Project $project;
-
     private User $userWithTaskUploadPermission;
 
     private User $userWithProjectUploadPermission;

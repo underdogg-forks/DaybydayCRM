@@ -147,6 +147,30 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_creator_of_task_can_view_task_document()
+    {
+        /* Arrange */
+        $task = Task::factory()->create([
+            'user_created_id'  => $this->creator->id,
+            'user_assigned_id' => $this->assignee->id,
+            'client_id'        => $this->client->id,
+        ]);
+        $document = Document::factory()->create([
+            'source_type' => Task::class,
+            'source_id'   => $task->id,
+            'mime'        => 'text/plain',
+            'path'        => 'fake/path.txt',
+        ]);
+        $this->actingAs($this->creator);
+
+        /* Act */
+        $response = $this->get(route('document.view', $document->external_id));
+
+        /* Assert – creator must get a 200, not a redirect or error */
+        $response->assertStatus(200);
+    }
+
+    #[Test]
     public function it_user_can_view_document_attached_to_their_task_as_creator()
     {
         /* Arrange */
@@ -454,6 +478,103 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_assignee_of_task_can_view_task_document()
+    {
+        /* Arrange */
+        $task = Task::factory()->create([
+            'user_created_id'  => $this->creator->id,
+            'user_assigned_id' => $this->assignee->id,
+            'client_id'        => $this->client->id,
+        ]);
+        $document = Document::factory()->create([
+            'source_type' => Task::class,
+            'source_id'   => $task->id,
+            'mime'        => 'text/plain',
+            'path'        => 'fake/path.txt',
+        ]);
+        $this->actingAs($this->assignee);
+
+        /* Act */
+        $response = $this->get(route('document.view', $document->external_id));
+
+        /* Assert */
+        $response->assertStatus(200);
+    }
+
+    #[Test]
+    public function it_client_owner_can_view_document_attached_to_their_client_task()
+    {
+        /* Arrange */
+        $task = Task::factory()->create([
+            'user_created_id'  => $this->unrelated->id,
+            'user_assigned_id' => $this->unrelated->id,
+            'client_id'        => $this->client->id,
+        ]);
+        $document = Document::factory()->create([
+            'source_type' => Task::class,
+            'source_id'   => $task->id,
+            'mime'        => 'text/plain',
+            'path'        => 'fake/path.txt',
+        ]);
+        $this->actingAs($this->clientOwner);
+
+        /* Act */
+        $response = $this->get(route('document.view', $document->external_id));
+
+        /* Assert */
+        $response->assertStatus(200);
+    }
+
+    #[Test]
+    public function it_unrelated_user_cannot_view_document_they_have_no_connection_to()
+    {
+        /* Arrange */
+        $document = $this->createUnownedDocument();
+        $this->actingAs($this->unrelated);
+
+        /* Act */
+        $response = $this->get(route('document.view', $document->external_id));
+
+        /* Assert */
+        $response->assertStatus(302); // redirects back with flash message
+        $this->assertTrue(
+            session()->has('flash_message_warning'),
+            'Unrelated user should see a warning flash message'
+        );
+    }
+
+    #[Test]
+    public function it_json_request_returns_403_json_for_unauthorized_document_view()
+    {
+        /* Arrange */
+        $document = $this->createUnownedDocument();
+        $this->actingAs($this->unrelated);
+
+        /* Act */
+        $response = $this->get(route('document.view', $document->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+    }
+
+    #[Test]
+    public function it_authorization_is_checked_before_storage_access_on_view()
+    {
+        /* Arrange – no storage configured but still expect auth to run first */
+        \App\Models\Integration::whereApiType('file')->delete();
+        app(\App\Services\Storage\StorageAdapterRegistry::class)->reset();
+
+        $document = $this->createUnownedDocument();
+        $this->actingAs($this->unrelated);
+
+        /* Act */
+        $response = $this->get(route('document.view', $document->external_id));
+
+        /* Assert – unauthorized user gets 403, not a storage error */
+        $response->assertStatus(403);
+    }
+
+    #[Test]
     public function it_user_can_download_document_attached_to_their_task()
     {
         /* Arrange */
@@ -503,132 +624,6 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_returns_404_when_document_not_found()
-    {
-        /* Arrange */
-        $fakeUuid = Str::uuid();
-
-        $this->assertDatabaseMissing('documents', [
-            'external_id' => $fakeUuid,
-        ]);
-
-        /* Act */
-        $response = $this->actingAs($this->owner)
-            ->get(route('document.view', $fakeUuid));
-
-        /* Assert */
-        $response->assertStatus(404);
-    }
-
-    // ─── Positive-path access ─────────────────────────────────────────────────
-
-    #[Test]
-    public function it_creator_of_task_can_view_task_document()
-    {
-        /* Arrange */
-        $task = Task::factory()->create([
-            'user_created_id'  => $this->creator->id,
-            'user_assigned_id' => $this->assignee->id,
-            'client_id'        => $this->client->id,
-        ]);
-        $document = Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
-        $this->actingAs($this->creator);
-
-        /* Act */
-        $response = $this->get(route('document.view', $document->external_id));
-
-        /* Assert – creator must get a 200, not a redirect or error */
-        $response->assertStatus(200);
-    }
-
-    #[Test]
-    public function it_assignee_of_task_can_view_task_document()
-    {
-        /* Arrange */
-        $task = Task::factory()->create([
-            'user_created_id'  => $this->creator->id,
-            'user_assigned_id' => $this->assignee->id,
-            'client_id'        => $this->client->id,
-        ]);
-        $document = Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
-        $this->actingAs($this->assignee);
-
-        /* Act */
-        $response = $this->get(route('document.view', $document->external_id));
-
-        /* Assert */
-        $response->assertStatus(200);
-    }
-
-    #[Test]
-    public function it_client_owner_can_view_document_attached_to_their_client_task()
-    {
-        /* Arrange */
-        $task = Task::factory()->create([
-            'user_created_id'  => $this->unrelated->id,
-            'user_assigned_id' => $this->unrelated->id,
-            'client_id'        => $this->client->id,
-        ]);
-        $document = Document::factory()->create([
-            'source_type' => Task::class,
-            'source_id'   => $task->id,
-            'mime'        => 'text/plain',
-            'path'        => 'fake/path.txt',
-        ]);
-        $this->actingAs($this->clientOwner);
-
-        /* Act */
-        $response = $this->get(route('document.view', $document->external_id));
-
-        /* Assert */
-        $response->assertStatus(200);
-    }
-
-    // ─── Negative-path access ─────────────────────────────────────────────────
-
-    #[Test]
-    public function it_unrelated_user_cannot_view_document_they_have_no_connection_to()
-    {
-        /* Arrange */
-        $document = $this->createUnownedDocument();
-        $this->actingAs($this->unrelated);
-
-        /* Act */
-        $response = $this->get(route('document.view', $document->external_id));
-
-        /* Assert */
-        $response->assertStatus(302); // redirects back with flash message
-        $this->assertTrue(
-            session()->has('flash_message_warning'),
-            'Unrelated user should see a warning flash message'
-        );
-    }
-
-    #[Test]
-    public function it_json_request_returns_403_json_for_unauthorized_document_view()
-    {
-        /* Arrange */
-        $document = $this->createUnownedDocument();
-        $this->actingAs($this->unrelated);
-
-        /* Act */
-        $response = $this->get(route('document.view', $document->external_id));
-
-        /* Assert */
-        $response->assertStatus(403);
-    }
-
-    #[Test]
     public function it_unrelated_user_cannot_download_document_they_have_no_connection_to()
     {
         /* Arrange */
@@ -657,23 +652,6 @@ class DocumentsTest extends AbstractTestCase
         $response = $this->get(route('document.download', $document->external_id));
 
         /* Assert */
-        $response->assertStatus(403);
-    }
-
-    #[Test]
-    public function it_authorization_is_checked_before_storage_access_on_view()
-    {
-        /* Arrange – no storage configured but still expect auth to run first */
-        \App\Models\Integration::whereApiType('file')->delete();
-        app(\App\Services\Storage\StorageAdapterRegistry::class)->reset();
-
-        $document = $this->createUnownedDocument();
-        $this->actingAs($this->unrelated);
-
-        /* Act */
-        $response = $this->get(route('document.view', $document->external_id));
-
-        /* Assert – unauthorized user gets 403, not a storage error */
         $response->assertStatus(403);
     }
 
@@ -881,6 +859,24 @@ class DocumentsTest extends AbstractTestCase
         /* Assert */
         $response->assertRedirect();
         $response->assertSessionHas('flash_message_warning', __('Project not found'));
+    }
+
+    #[Test]
+    public function it_returns_404_when_document_not_found()
+    {
+        /* Arrange */
+        $fakeUuid = Str::uuid();
+
+        $this->assertDatabaseMissing('documents', [
+            'external_id' => $fakeUuid,
+        ]);
+
+        /* Act */
+        $response = $this->actingAs($this->owner)
+            ->get(route('document.view', $fakeUuid));
+
+        /* Assert */
+        $response->assertStatus(404);
     }
 
     private function bindFakeStorageProvider(): void

@@ -41,6 +41,53 @@ class SettingsValidationTest extends AbstractTestCase
     // ─── Positive path ───────────────────────────────────────────────────────
 
     #[Test]
+    public function it_persists_all_submitted_fields_without_silent_overrides()
+    {
+        /* Arrange */
+        $this->asAdmin();
+        $before = Setting::first();
+
+        /* Act */
+        $this->patch(route('settings.updateOverall'), [
+            'company'        => 'Determinism Test Co',
+            'country'        => 'US',
+            'language'       => 'en',
+            'client_number'  => 10001,
+            'invoice_number' => 10002,
+            'currency'       => 'USD',
+            'start_time'     => '08:00',
+            'end_time'       => '16:00',
+        ]);
+
+        $after = Setting::first();
+
+        /* Assert – submitted values are stored, not silently replaced by defaults */
+        $this->assertEquals('Determinism Test Co', $after->company);
+        $this->assertEquals('US', $after->country);
+        $this->assertEquals('en', $after->language);
+        $this->assertEquals(10001, $after->client_number);
+        $this->assertEquals(10002, $after->invoice_number);
+        $this->assertEquals('USD', $after->currency);
+    }
+
+    #[Test]
+    public function it_returns_403_json_when_non_admin_submits_settings()
+    {
+        /* Arrange */
+        $nonAdmin = \App\Models\User::factory()->create();
+        $this->actingAs($nonAdmin);
+
+        /* Act */
+        $response = $this->patch(route('settings.updateOverall'), [
+            'client_number'  => 10000,
+            'invoice_number' => 10000,
+        ]);
+
+        /* Assert */
+        $response->assertStatus(403);
+    }
+
+    #[Test]
     public function it_accepts_valid_settings_and_returns_200_json()
     {
         /* Arrange */
@@ -70,8 +117,6 @@ class SettingsValidationTest extends AbstractTestCase
             'currency'       => 'GBP',
         ]);
     }
-
-    // ─── Validation failures ──────────────────────────────────────────────────
 
     #[Test]
     public function it_rejects_missing_client_number_with_422()
@@ -303,56 +348,5 @@ class SettingsValidationTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['start_time']);
-    }
-
-    // ─── Authorization ───────────────────────────────────────────────────────
-
-    #[Test]
-    public function it_returns_403_json_when_non_admin_submits_settings()
-    {
-        /* Arrange */
-        $nonAdmin = \App\Models\User::factory()->create();
-        $this->actingAs($nonAdmin);
-
-        /* Act */
-        $response = $this->patch(route('settings.updateOverall'), [
-            'client_number'  => 10000,
-            'invoice_number' => 10000,
-        ]);
-
-        /* Assert */
-        $response->assertStatus(403);
-    }
-
-    // ─── Determinism ─────────────────────────────────────────────────────────
-
-    #[Test]
-    public function it_persists_all_submitted_fields_without_silent_overrides()
-    {
-        /* Arrange */
-        $this->asAdmin();
-        $before = Setting::first();
-
-        /* Act */
-        $this->patch(route('settings.updateOverall'), [
-            'company'        => 'Determinism Test Co',
-            'country'        => 'US',
-            'language'       => 'en',
-            'client_number'  => 10001,
-            'invoice_number' => 10002,
-            'currency'       => 'USD',
-            'start_time'     => '08:00',
-            'end_time'       => '16:00',
-        ]);
-
-        $after = Setting::first();
-
-        /* Assert – submitted values are stored, not silently replaced by defaults */
-        $this->assertEquals('Determinism Test Co', $after->company);
-        $this->assertEquals('US', $after->country);
-        $this->assertEquals('en', $after->language);
-        $this->assertEquals(10001, $after->client_number);
-        $this->assertEquals(10002, $after->invoice_number);
-        $this->assertEquals('USD', $after->currency);
     }
 }

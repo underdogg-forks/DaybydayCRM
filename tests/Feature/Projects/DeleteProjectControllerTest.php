@@ -36,6 +36,19 @@ class DeleteProjectControllerTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_can_delete_project_if_there_is_no_tasks()
+    {
+        /* Arrange */
+        $project = Project::factory()->create();
+
+        /* Act */
+        $response = $this->delete(route('projects.destroy', $project->external_id));
+
+        /* Assert */
+        $response->assertStatus(200);
+        $this->assertNotNull($project->refresh()->deleted_at);
+    }
+    #[Test]
     public function it_deletes_project()
     {
         /* Arrange */
@@ -86,17 +99,4 @@ class DeleteProjectControllerTest extends AbstractTestCase
         $this->assertNull($task->refresh()->project_id);
     }
 
-    #[Test]
-    public function it_can_delete_project_if_there_is_no_tasks()
-    {
-        /* Arrange */
-        $project = Project::factory()->create();
-
-        /* Act */
-        $response = $this->delete(route('projects.destroy', $project->external_id));
-
-        /* Assert */
-        $response->assertStatus(200);
-        $this->assertNotNull($project->refresh()->deleted_at);
-    }
 }

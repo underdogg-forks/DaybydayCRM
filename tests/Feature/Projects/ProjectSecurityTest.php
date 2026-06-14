@@ -57,7 +57,6 @@ class ProjectSecurityTest extends AbstractTestCase
         $response->assertStatus(403);
         $this->assertDatabaseHas('projects', ['id' => $this->project->id, 'deleted_at' => null]);
     }
-
     #[Test]
     public function it_updates_status_only_accepts_status_id_field()
     {
@@ -155,4 +154,5 @@ class ProjectSecurityTest extends AbstractTestCase
         $response->assertRedirect();
         $response->assertSessionHas('flash_message_warning', __('Invalid status for project'));
     }
+
 }

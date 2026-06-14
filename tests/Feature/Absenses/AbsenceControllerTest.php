@@ -63,26 +63,6 @@ class AbsenceControllerTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function it_creates_absence_for_authenticated_user_when_user_external_id_not_provided()
-    {
-        /* Arrange */
-
-        /* Act */
-        $response = $this->post(route('absence.store'), [
-            'reason'              => 'Sick',
-            'start_date'          => '2020-01-01',
-            'end_date'            => '2020-01-02',
-            'medical_certificate' => null,
-            'comment'             => 'Sick kid',
-        ]);
-
-        /* Assert */
-        $response->assertRedirect(route('absence.index'));
-        $this->assertCount(1, $this->user->fresh()->absences);
-    }
-
-    #[Test]
-    #[Group('junie_repaired')]
     public function it_creates_absence_for_authenticated_user_when_attempting_to_create_for_other_user_without_permission()
     {
         /* Arrange */
@@ -103,6 +83,26 @@ class AbsenceControllerTest extends AbstractTestCase
         /* Assert */
         $response->assertRedirect(route('absence.index'));
         $this->assertCount(0, $absentUser->fresh()->absences);
+        $this->assertCount(1, $this->user->fresh()->absences);
+    }
+
+    #[Test]
+    #[Group('junie_repaired')]
+    public function it_creates_absence_for_authenticated_user_when_user_external_id_not_provided()
+    {
+        /* Arrange */
+
+        /* Act */
+        $response = $this->post(route('absence.store'), [
+            'reason'              => 'Sick',
+            'start_date'          => '2020-01-01',
+            'end_date'            => '2020-01-02',
+            'medical_certificate' => null,
+            'comment'             => 'Sick kid',
+        ]);
+
+        /* Assert */
+        $response->assertRedirect(route('absence.index'));
         $this->assertCount(1, $this->user->fresh()->absences);
     }
 

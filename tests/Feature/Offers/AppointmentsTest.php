@@ -95,26 +95,17 @@ class AppointmentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_get_appointments_within_time_slot()
+    public function it_verifies_appointments_controller_does_not_have_create_request_dependency()
     {
         /* Arrange */
-        $correctAppointment = null;
+        $reflector = new ReflectionClass(AppointmentsController::class);
 
         /* Act */
-        $r = $this->get('/appointments/data');
+        $methods     = $reflector->getMethods(ReflectionMethod::IS_PUBLIC);
+        $methodNames = array_map(fn ($m) => $m->getName(), $methods);
 
         /* Assert */
-        foreach ($r->json() as $appointment) {
-            $this->assertNotTrue($appointment['external_id'] == $this->appointmentsWithToLate->external_id);
-            $this->assertNotTrue($appointment['external_id'] == $this->appointmentsWithToEarly->external_id);
-            if ($appointment['external_id'] == $this->appointmentsWithInTime->external_id) {
-                $correctAppointment = $appointment;
-            }
-        }
-
-        $this->assertEquals($this->appointmentsWithInTime->start_at->toISOString(), $correctAppointment['start_at']);
-        $this->assertEquals($this->appointmentsWithInTime->end_at->toISOString(), $correctAppointment['end_at']);
-        $this->assertCount(3, User::whereExternalId($this->user->external_id)->first()->appointments);
+        $this->assertNotContains('store', $methodNames);
     }
 
     #[Test]
@@ -149,32 +140,6 @@ class AppointmentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_destroy_appointment()
-    {
-        /* Arrange */
-        $this->withPermissions(PermissionName::APPOINTMENT_DELETE);
-        $appointment = Appointment::factory()->create([
-            'user_id'     => $this->user->id,
-            'start_at'    => Carbon::now(),
-            'end_at'      => Carbon::now()->addHour(),
-            'source_id'   => $this->user->id,
-            'source_type' => User::class,
-            'title'       => 'test',
-            'color'       => '#FFFFFF',
-        ]);
-        $appointmentExternalId = $appointment->external_id;
-
-        /* Act */
-        $response = $this->withSession(['_token' => csrf_token()])->delete(route('appointments.destroy', $appointmentExternalId), [
-            '_token' => csrf_token(),
-        ]);
-
-        /* Assert */
-        $response->assertSuccessful();
-        $this->assertNull(Appointment::whereExternalId($appointmentExternalId)->first());
-    }
-
-    #[Test]
     public function it_returns_json_error_when_appointment_update_fails()
     {
         /* Arrange */
@@ -202,6 +167,211 @@ class AppointmentsTest extends AbstractTestCase
         $response->assertJsonValidationErrors([
             'group',
         ]);
+    }
+
+    #[Test]
+    public function it_authorized_user_can_update_appointment()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::APPOINTMENT_EDIT);
+        $expectedStart = Carbon::now()->addDay();
+        $expectedEnd   = Carbon::now()->addDay()->addHour();
+
+        /* Act */
+        $response = $this->withSession(['_token' => csrf_token()])->post(route('appointments.update', $this->appointment->external_id), [
+            'id'     => $this->appointment->id,
+            'start'  => $expectedStart->toISOString(),
+            'end'    => $expectedEnd->toISOString(),
+            'group'  => $this->unauthorizedUser->external_id,
+            '_token' => csrf_token(),
+        ]);
+
+        /* Assert */
+        $response->assertStatus(200);
+
+        $this->appointment->refresh();
+
+        $this->assertSame($expectedStart->toISOString(), $this->appointment->start_at->toISOString());
+        $this->assertSame($expectedEnd->toISOString(), $this->appointment->end_at->toISOString());
+        $this->assertSame($this->unauthorizedUser->id, $this->appointment->user_id);
+    }
+
+    #[Test]
+    public function it_unauthorized_user_cannot_update_appointment()
+    {
+        /* Arrange */
+        $this->actingAs($this->unauthorizedUser);
+
+        /* Act */
+        $response = $this->post(route('appointments.update', $this->appointment->external_id), [
+            'start' => Carbon::now()->addDay()->toISOString(),
+            'end'   => Carbon::now()->addDay()->addHour()->toISOString(),
+            'group' => $this->user->external_id,
+        ]);
+
+        /* Assert */
+        $response->assertStatus(403);
+    }
+
+    #[Test]
+    public function it_requires_permission_check_for_appointment_update()
+    {
+        /* Arrange */
+        $this->user->roles()->detach();
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->actingAs($this->user);
+
+        /* Act */
+        $response = $this->withSession(['_token' => csrf_token()])->post(route('appointments.update', $this->appointment->external_id), [
+            'id'     => $this->appointment->id,
+            'start'  => Carbon::now()->addDay()->toISOString(),
+            'end'    => Carbon::now()->addDay()->addHour()->toISOString(),
+            'group'  => $this->user->external_id,
+            '_token' => csrf_token(),
+        ]);
+
+        /* Assert */
+        $response->assertStatus(403);
+    }
+
+    #[Test]
+    public function it_verifies_appointments_controller_retains_update_method()
+    {
+        /* Arrange */
+
+        /* Act & Assert */
+        $this->assertTrue(
+            method_exists(AppointmentsController::class, 'update'),
+            'AppointmentsController::update() should still exist'
+        );
+    }
+
+    #[Test]
+    public function it_authorized_user_can_delete_appointment()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::APPOINTMENT_DELETE);
+
+        /* Act */
+        $response = $this->withSession(['_token' => csrf_token()])->delete(route('appointments.destroy', $this->appointment->external_id), [
+            '_token' => csrf_token(),
+        ]);
+
+        /* Assert */
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('appointments', ['id' => $this->appointment->id]);
+    }
+
+    #[Test]
+    public function it_can_destroy_appointment()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::APPOINTMENT_DELETE);
+        $appointment = Appointment::factory()->create([
+            'user_id'     => $this->user->id,
+            'start_at'    => Carbon::now(),
+            'end_at'      => Carbon::now()->addHour(),
+            'source_id'   => $this->user->id,
+            'source_type' => User::class,
+            'title'       => 'test',
+            'color'       => '#FFFFFF',
+        ]);
+        $appointmentExternalId = $appointment->external_id;
+
+        /* Act */
+        $response = $this->withSession(['_token' => csrf_token()])->delete(route('appointments.destroy', $appointmentExternalId), [
+            '_token' => csrf_token(),
+        ]);
+
+        /* Assert */
+        $response->assertSuccessful();
+        $this->assertNull(Appointment::whereExternalId($appointmentExternalId)->first());
+    }
+
+    #[Test]
+    public function it_unauthorized_user_cannot_delete_appointment()
+    {
+        /* Arrange */
+        $this->actingAs($this->unauthorizedUser);
+
+        /* Act */
+        $response = $this->withSession(['_token' => csrf_token()])->delete(route('appointments.destroy', $this->appointment->external_id), [
+            '_token' => csrf_token(),
+        ]);
+
+        /* Assert */
+        $response->assertStatus(403);
+    }
+
+    #[Test]
+    public function it_verifies_appointments_controller_retains_destroy_method()
+    {
+        /* Arrange */
+
+        /* Act & Assert */
+        $this->assertTrue(
+            method_exists(AppointmentsController::class, 'destroy'),
+            'AppointmentsController::destroy() should still exist'
+        );
+    }
+
+    #[Test]
+    public function it_creates_appointment_calendar_request_class_no_longer_used_by_controller()
+    {
+        /* Arrange */
+        $reflector = new ReflectionClass(AppointmentsController::class);
+        $methods   = $reflector->getMethods(ReflectionMethod::IS_PUBLIC);
+
+        /* Act & Assert */
+        foreach ($methods as $method) {
+            $params = $method->getParameters();
+            foreach ($params as $param) {
+                $type = $param->getType();
+                if ($type && ! $type->isBuiltin()) {
+                    $typeName = $type instanceof ReflectionNamedType ? $type->getName() : (string) $type;
+                    $this->assertNotEquals(
+                        CreateAppointmentCalendarRequest::class,
+                        $typeName,
+                        'CreateAppointmentCalendarRequest should not be used in any controller method'
+                    );
+                }
+            }
+        }
+    }
+
+    #[Test]
+    public function it_verifies_appointments_controller_does_not_have_store_method()
+    {
+        /* Arrange */
+
+        /* Act & Assert */
+        $this->assertFalse(
+            method_exists(AppointmentsController::class, 'store'),
+            'AppointmentsController::store() should have been removed'
+        );
+    }
+
+    #[Test]
+    public function it_can_get_appointments_within_time_slot()
+    {
+        /* Arrange */
+        $correctAppointment = null;
+
+        /* Act */
+        $r = $this->get('/appointments/data');
+
+        /* Assert */
+        foreach ($r->json() as $appointment) {
+            $this->assertNotTrue($appointment['external_id'] == $this->appointmentsWithToLate->external_id);
+            $this->assertNotTrue($appointment['external_id'] == $this->appointmentsWithToEarly->external_id);
+            if ($appointment['external_id'] == $this->appointmentsWithInTime->external_id) {
+                $correctAppointment = $appointment;
+            }
+        }
+
+        $this->assertEquals($this->appointmentsWithInTime->start_at->toISOString(), $correctAppointment['start_at']);
+        $this->assertEquals($this->appointmentsWithInTime->end_at->toISOString(), $correctAppointment['end_at']);
+        $this->assertCount(3, User::whereExternalId($this->user->external_id)->first()->appointments);
     }
 
     #[Test]
@@ -246,128 +416,6 @@ class AppointmentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_authorized_user_can_update_appointment()
-    {
-        /* Arrange */
-        $this->withPermissions(PermissionName::APPOINTMENT_EDIT);
-        $expectedStart = Carbon::now()->addDay();
-        $expectedEnd   = Carbon::now()->addDay()->addHour();
-
-        /* Act */
-        $response = $this->withSession(['_token' => csrf_token()])->post(route('appointments.update', $this->appointment->external_id), [
-            'id'     => $this->appointment->id,
-            'start'  => $expectedStart->toISOString(),
-            'end'    => $expectedEnd->toISOString(),
-            'group'  => $this->unauthorizedUser->external_id,
-            '_token' => csrf_token(),
-        ]);
-
-        /* Assert */
-        $response->assertStatus(200);
-
-        $this->appointment->refresh();
-
-        $this->assertSame($expectedStart->toISOString(), $this->appointment->start_at->toISOString());
-        $this->assertSame($expectedEnd->toISOString(), $this->appointment->end_at->toISOString());
-        $this->assertSame($this->unauthorizedUser->id, $this->appointment->user_id);
-    }
-
-    #[Test]
-    public function it_authorized_user_can_delete_appointment()
-    {
-        /* Arrange */
-        $this->withPermissions(PermissionName::APPOINTMENT_DELETE);
-
-        /* Act */
-        $response = $this->withSession(['_token' => csrf_token()])->delete(route('appointments.destroy', $this->appointment->external_id), [
-            '_token' => csrf_token(),
-        ]);
-
-        /* Assert */
-        $response->assertStatus(200);
-        $this->assertSoftDeleted('appointments', ['id' => $this->appointment->id]);
-    }
-
-    #[Test]
-    public function it_unauthorized_user_cannot_update_appointment()
-    {
-        /* Arrange */
-        $this->actingAs($this->unauthorizedUser);
-
-        /* Act */
-        $response = $this->post(route('appointments.update', $this->appointment->external_id), [
-            'start' => Carbon::now()->addDay()->toISOString(),
-            'end'   => Carbon::now()->addDay()->addHour()->toISOString(),
-            'group' => $this->user->external_id,
-        ]);
-
-        /* Assert */
-        $response->assertStatus(403);
-    }
-
-    #[Test]
-    public function it_requires_permission_check_for_appointment_update()
-    {
-        /* Arrange */
-        $this->user->roles()->detach();
-        $this->user = User::factory()->withRole('employee')->create();
-        $this->actingAs($this->user);
-
-        /* Act */
-        $response = $this->withSession(['_token' => csrf_token()])->post(route('appointments.update', $this->appointment->external_id), [
-            'id'     => $this->appointment->id,
-            'start'  => Carbon::now()->addDay()->toISOString(),
-            'end'    => Carbon::now()->addDay()->addHour()->toISOString(),
-            'group'  => $this->user->external_id,
-            '_token' => csrf_token(),
-        ]);
-
-        /* Assert */
-        $response->assertStatus(403);
-    }
-
-    #[Test]
-    public function it_unauthorized_user_cannot_delete_appointment()
-    {
-        /* Arrange */
-        $this->actingAs($this->unauthorizedUser);
-
-        /* Act */
-        $response = $this->withSession(['_token' => csrf_token()])->delete(route('appointments.destroy', $this->appointment->external_id), [
-            '_token' => csrf_token(),
-        ]);
-
-        /* Assert */
-        $response->assertStatus(403);
-    }
-
-    #[Test]
-    public function it_verifies_appointments_controller_does_not_have_store_method()
-    {
-        /* Arrange */
-
-        /* Act & Assert */
-        $this->assertFalse(
-            method_exists(AppointmentsController::class, 'store'),
-            'AppointmentsController::store() should have been removed'
-        );
-    }
-
-    #[Test]
-    public function it_verifies_appointments_controller_does_not_have_create_request_dependency()
-    {
-        /* Arrange */
-        $reflector = new ReflectionClass(AppointmentsController::class);
-
-        /* Act */
-        $methods     = $reflector->getMethods(ReflectionMethod::IS_PUBLIC);
-        $methodNames = array_map(fn ($m) => $m->getName(), $methods);
-
-        /* Assert */
-        $this->assertNotContains('store', $methodNames);
-    }
-
-    #[Test]
     public function it_posting_to_appointments_resource_route_returns_not_found()
     {
         /* Arrange */
@@ -392,30 +440,6 @@ class AppointmentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_verifies_appointments_controller_retains_update_method()
-    {
-        /* Arrange */
-
-        /* Act & Assert */
-        $this->assertTrue(
-            method_exists(AppointmentsController::class, 'update'),
-            'AppointmentsController::update() should still exist'
-        );
-    }
-
-    #[Test]
-    public function it_verifies_appointments_controller_retains_destroy_method()
-    {
-        /* Arrange */
-
-        /* Act & Assert */
-        $this->assertTrue(
-            method_exists(AppointmentsController::class, 'destroy'),
-            'AppointmentsController::destroy() should still exist'
-        );
-    }
-
-    #[Test]
     public function it_verifies_appointments_controller_retains_appointments_json_method()
     {
         /* Arrange */
@@ -425,29 +449,5 @@ class AppointmentsTest extends AbstractTestCase
             method_exists(AppointmentsController::class, 'appointmentsJson'),
             'AppointmentsController::appointmentsJson() should still exist'
         );
-    }
-
-    #[Test]
-    public function it_creates_appointment_calendar_request_class_no_longer_used_by_controller()
-    {
-        /* Arrange */
-        $reflector = new ReflectionClass(AppointmentsController::class);
-        $methods   = $reflector->getMethods(ReflectionMethod::IS_PUBLIC);
-
-        /* Act & Assert */
-        foreach ($methods as $method) {
-            $params = $method->getParameters();
-            foreach ($params as $param) {
-                $type = $param->getType();
-                if ($type && ! $type->isBuiltin()) {
-                    $typeName = $type instanceof ReflectionNamedType ? $type->getName() : (string) $type;
-                    $this->assertNotEquals(
-                        CreateAppointmentCalendarRequest::class,
-                        $typeName,
-                        'CreateAppointmentCalendarRequest should not be used in any controller method'
-                    );
-                }
-            }
-        }
     }
 }

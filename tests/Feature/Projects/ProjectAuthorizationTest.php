@@ -32,34 +32,6 @@ class ProjectAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_user_with_project_delete_permission_can_delete_project()
-    {
-        /* Arrange */
-        $this->withPermissions(PermissionName::PROJECT_DELETE);
-
-        /* Act */
-        $response = $this->delete(route('projects.destroy', $this->project->external_id));
-
-        /* Assert */
-        $response->assertStatus(200);
-        $this->assertSoftDeleted('projects', ['id' => $this->project->id]);
-    }
-
-    #[Test]
-    public function it_user_without_project_delete_permission_cannot_delete_project()
-    {
-        /* Arrange */
-        $this->actingAs($this->userWithoutPermission);
-
-        /* Act */
-        $response = $this->delete(route('projects.destroy', $this->project->external_id));
-
-        /* Assert */
-        $response->assertStatus(403);
-        $this->assertDatabaseHas('projects', ['id' => $this->project->id, 'deleted_at' => null]);
-    }
-
-    #[Test]
     public function it_user_with_assign_permission_can_update_project_assignment()
     {
         /* Arrange */
@@ -122,5 +94,33 @@ class ProjectAuthorizationTest extends AbstractTestCase
         $this->assertEquals($originalTitle, $this->project->title);
         $this->assertEquals($originalDescription, $this->project->description);
         $this->assertNotEquals(999, $this->project->user_assigned_id);
+    }
+
+    #[Test]
+    public function it_user_with_project_delete_permission_can_delete_project()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::PROJECT_DELETE);
+
+        /* Act */
+        $response = $this->delete(route('projects.destroy', $this->project->external_id));
+
+        /* Assert */
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('projects', ['id' => $this->project->id]);
+    }
+
+    #[Test]
+    public function it_user_without_project_delete_permission_cannot_delete_project()
+    {
+        /* Arrange */
+        $this->actingAs($this->userWithoutPermission);
+
+        /* Act */
+        $response = $this->delete(route('projects.destroy', $this->project->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('projects', ['id' => $this->project->id, 'deleted_at' => null]);
     }
 }

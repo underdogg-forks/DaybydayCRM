@@ -147,8 +147,11 @@ class TasksController extends Controller
     public function create($client_external_id = null, $project_external_id = null)
     {
         $projects = null;
-        $client   = $client_external_id ? Client::whereExternalId($client_external_id)->first() : null;
+        $client   = $client_external_id ? Client::whereExternalId($client_external_id) : null;
         $project  = Project::whereExternalId($project_external_id)->first();
+        if (!$client && $project) {
+            $client = $project->client;
+        }
         if ($client) {
             $projects = $client->projects()->whereHas('status', function ($q) {
                 return $q->whereRaw('LOWER(title) != ?', [mb_strtolower(ProjectStatus::CLOSED->value)]);

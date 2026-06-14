@@ -260,6 +260,7 @@ class PaymentsTest extends AbstractTestCase
         $response->assertStatus(403);
         $this->assertNotNull(Payment::find($payment->id));
     }
+
     #[Test]
     public function it_adding_payment_updates_invoice_status()
     {
@@ -336,5 +337,4 @@ class PaymentsTest extends AbstractTestCase
         $this->assertEquals('unpaid', $invoiceStatus);
         $response->assertStatus(422);
     }
-
 }

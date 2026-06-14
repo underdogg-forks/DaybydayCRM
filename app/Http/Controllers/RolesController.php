@@ -10,7 +10,7 @@ use App\Models\Role;
 use App\Services\Role\RoleService;
 use Illuminate\Support\Facades\Session;
 use Throwable;
-use Yajra\Datatables\DataTables;
+use Yajra\DataTables\DataTables;
 
 class RolesController extends Controller
 {

@@ -4,33 +4,69 @@ namespace Tests\Feature\Clients;
 
 use App\Enums\PermissionName;
 use App\Http\Controllers\ClientsController;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Industry;
-use App\Models\Role;
+use App\Models\Lead;
+use App\Models\Project;
 use App\Models\Setting;
+use App\Models\Status;
+use App\Models\Task;
 use App\Models\User;
 use App\Services\Client\ClientService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 use Tests\AbstractTestCase;
 
 #[CoversClass(ClientsController::class)]
-class ClientsControllerTest extends AbstractTestCase
+class ClientsTest extends AbstractTestCase
 {
     use RefreshDatabase;
+
+    private Client $client;
+
+    private User $userWithPermission;
+
+    private User $userWithoutPermission;
 
     protected function setUp(): void
     {
         parent::setUp();
+
         Carbon::setTestNow('2024-01-15 12:00:00');
+
+        $this->client                = Client::factory()->create();
+        $this->userWithPermission    = User::factory()->create();
+        $this->userWithoutPermission = User::factory()->create();
+
+        Setting::query()->firstOrCreate(
+            ['id' => 1],
+            [
+                'client_number'  => 10000,
+                'invoice_number' => 10000,
+                'country'        => 'US',
+                'company'        => 'Test Company',
+                'max_users'      => 10,
+                'vat'            => 0,
+            ]
+        );
+
+        $this->withoutMiddleware(VerifyCsrfToken::class);
+
+        // Flush query log to ensure clean state
+        DB::flushQueryLog();
     }
 
     protected function tearDown(): void
     {
+        // Disable query logging and flush to prevent memory leaks
+        DB::disableQueryLog();
+        DB::flushQueryLog();
         Carbon::setTestNow();
         parent::tearDown();
     }
@@ -71,7 +107,7 @@ class ClientsControllerTest extends AbstractTestCase
     public function it_can_open_edit_form_for_client(): void
     {
         /* Arrange */
-        $client  = Client::factory()->create();
+        $client = Client::factory()->create();
         Contact::factory()->create(['client_id' => $client->id, 'is_primary' => true]);
 
         /* Act */
@@ -359,6 +395,364 @@ class ClientsControllerTest extends AbstractTestCase
         /* Assert */
         $response->assertStatus(403);
         $this->assertNotEquals($this->user->id, $client->refresh()->user_id);
+    }
+
+    #[Test]
+    public function it_user_with_client_delete_permission_can_delete_client()
+    {
+        /* Arrange */
+        $this->user = $this->userWithPermission;
+        $this->withPermissions(PermissionName::CLIENT_DELETE);
+
+        /* Act */
+        $response = $this->delete(route('clients.destroy', $this->client->external_id));
+
+        /* Assert */
+        $response->assertStatus(302);
+        $this->assertSoftDeleted('clients', ['id' => $this->client->id]);
+    }
+
+    #[Test]
+    public function it_user_without_client_delete_permission_cannot_delete_client()
+    {
+        /* Arrange */
+        $this->actingAs($this->userWithoutPermission);
+
+        /* Act */
+        $response = $this->delete(route('clients.destroy', $this->client->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('clients', ['id' => $this->client->id, 'deleted_at' => null]);
+    }
+
+    #[Test]
+    public function userWithoutClientCreatePermissionIsRedirectedFromClientCreatePage()
+    {
+        /* Arrange */
+        $this->actingAs($this->userWithoutPermission);
+
+        /* Act */
+        $response = $this->get(route('clients.create'));
+
+        /* Assert */
+        $response->assertRedirect(route('clients.index'));
+        $response->assertSessionHas('flash_message_warning');
+    }
+
+    #[Test]
+    public function jsonRequestWithoutClientCreatePermissionGetsForbiddenFromClientCreatePage()
+    {
+        /* Arrange */
+        $this->actingAs($this->userWithoutPermission);
+
+        /* Act */
+        $response = $this->get(route('clients.create'));
+
+        /* Assert */
+        $response
+            ->assertForbidden()
+            ->assertJson(['message' => __("You don't have permission to create a client")]);
+    }
+
+    #[Test]
+    public function userWithoutClientCreatePermissionCannotStoreClient()
+    {
+        /* Arrange */
+        $industry = Industry::factory()->create();
+        $owner    = User::factory()->create();
+
+        $this->actingAs($this->userWithoutPermission);
+
+        /* Act */
+        $response = $this->post(route('clients.store'), [
+            'name'             => 'James Test',
+            'email'            => 'james_' . uniqid() . '@test.com',
+            'primary_number'   => '2342342342',
+            'secondary_number' => '423423432',
+            'vat'              => '12312334',
+            'company_name'     => 'James & Co',
+            'address'          => 'james street',
+            'zipcode'          => '2222',
+            'city'             => 'Bond city',
+            'company_type'     => 'Aps',
+            'industry_id'      => $industry->id,
+            'user_id'          => $owner->id,
+        ]);
+
+        /* Assert */
+        $response->assertForbidden();
+        $this->assertDatabaseMissing('clients', ['company_name' => 'James & Co']);
+    }
+
+    #[Test]
+    public function it_lists_clients_without_n_plus_1_queries()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_VIEW);
+        $this->user = $this->user->fresh();
+
+        $industry = Industry::factory()->create();
+
+        // Create 50 clients to simulate load
+        Client::factory()
+            ->count(50)
+            ->create([
+                'industry_id' => $industry->id,
+                'user_id'     => $this->user->id,
+            ]);
+
+        /* Act & Assert */
+        // Flush and enable query logging
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        DB::flushQueryLog();
+
+        $response = $this->actingAs($this->user)->get(route('clients.data'));
+
+        $queryCount = count(DB::getQueryLog());
+
+        /* Assert */
+        $response->assertStatus(200);
+
+        // With proper eager loading, should be very few queries:
+        // 1. Select clients
+        // 2-3. Datatables internal queries
+        // Should NOT be 50+ queries (one per client)
+        $this->assertLessThan(
+            10,
+            $queryCount,
+            "Expected less than 10 queries but got {$queryCount}. This indicates an N+1 problem."
+        );
+    }
+
+    #[Test]
+    public function it_shows_client_detail_without_n_plus_1_queries()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_VIEW);
+        $this->user = $this->user->fresh();
+
+        $industry     = Industry::factory()->create();
+        $assignedUser = User::factory()->create();
+
+        $client = Client::factory()->create([
+            'industry_id' => $industry->id,
+            'user_id'     => $assignedUser->id,
+        ]);
+
+        Contact::factory()->create([
+            'client_id'  => $client->id,
+            'is_primary' => true,
+        ]);
+
+        /* Act */
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response = $this->actingAs($this->user)->get(route('clients.show', $client->external_id));
+
+        $queryCount = count(DB::getQueryLog());
+
+        /* Assert */
+        $response->assertStatus(200);
+
+        // With proper eager loading, should be minimal queries:
+        // 1. Get client
+        // 2. Get related data (invoices, users, etc)
+        // Should NOT have dozens of separate queries
+        $this->assertLessThan(
+            20,
+            $queryCount,
+            "Expected less than 20 queries but got {$queryCount}. This indicates an N+1 problem in client detail view."
+        );
+    }
+
+    #[Test]
+    public function it_loads_task_datatable_without_n_plus_1_queries()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_VIEW, PermissionName::TASK_VIEW);
+        $this->user = $this->user->fresh();
+
+        $industry     = Industry::factory()->create();
+        $assignedUser = User::factory()->create();
+
+        $client = Client::factory()->create([
+            'industry_id' => $industry->id,
+            'user_id'     => $this->user->id,
+        ]);
+
+        $taskStatus = Status::factory()->create([
+            'source_type' => Task::class,
+        ]);
+
+        // Create 20 tasks
+        Task::factory()->count(20)->create([
+            'client_id'        => $client->id,
+            'user_assigned_id' => $assignedUser->id,
+            'status_id'        => $taskStatus->id,
+        ]);
+
+        /* Act */
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response = $this->actingAs($this->user)->get(route('clients.taskDataTable', $client->external_id));
+
+        $queryCount = count(DB::getQueryLog());
+
+        /* Assert */
+        $response->assertStatus(200);
+
+        // Should have minimal queries with proper eager loading
+        // Query count assertion verifies assigned_user relationship is eager loaded to prevent N+1 queries
+        $this->assertLessThan(
+            10,
+            $queryCount,
+            "Expected less than 10 queries but got {$queryCount}. This indicates an N+1 problem in task datatable."
+        );
+    }
+
+    #[Test]
+    public function it_loads_project_datatable_without_n_plus_1_queries()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_VIEW, PermissionName::PROJECT_VIEW);
+        $this->user = $this->user->fresh();
+
+        $industry     = Industry::factory()->create();
+        $assignedUser = User::factory()->create();
+
+        $client = Client::factory()->create([
+            'industry_id' => $industry->id,
+            'user_id'     => $this->user->id,
+        ]);
+
+        $projectStatus = Status::factory()->create([
+            'source_type' => Project::class,
+        ]);
+
+        // Create 20 projects
+        Project::factory()->count(20)->create([
+            'client_id'        => $client->id,
+            'user_assigned_id' => $assignedUser->id,
+            'status_id'        => $projectStatus->id,
+        ]);
+
+        /* Act */
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response = $this->actingAs($this->user)->get(route('clients.projectDataTable', $client->external_id));
+
+        $queryCount = count(DB::getQueryLog());
+
+        /* Assert */
+        $response->assertStatus(200);
+
+        // Should have minimal queries with proper eager loading
+        // Query count assertion verifies assignee relationship is eager loaded to prevent N+1 queries
+        $this->assertLessThan(
+            10,
+            $queryCount,
+            "Expected less than 10 queries but got {$queryCount}. This indicates an N+1 problem in project datatable."
+        );
+    }
+
+    #[Test]
+    public function it_loads_lead_datatable_without_n_plus_1_queries()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_VIEW, PermissionName::LEAD_VIEW);
+        $this->user = $this->user->fresh();
+
+        $industry     = Industry::factory()->create();
+        $assignedUser = User::factory()->create();
+
+        $client = Client::factory()->create([
+            'industry_id' => $industry->id,
+            'user_id'     => $this->user->id,
+        ]);
+
+        $leadStatus = Status::factory()->create([
+            'source_type' => Lead::class,
+        ]);
+
+        // Create 20 leads
+        Lead::factory()->count(20)->create([
+            'client_id'        => $client->id,
+            'user_assigned_id' => $assignedUser->id,
+            'status_id'        => $leadStatus->id,
+        ]);
+
+        /* Act */
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response = $this->actingAs($this->user)->get(route('clients.leadDataTable', $client->external_id));
+
+        $queryCount = count(DB::getQueryLog());
+
+        /* Assert */
+        $response->assertStatus(200);
+
+        // Should have minimal queries with proper eager loading
+        // Query count assertion verifies assigned_user relationship is eager loaded to prevent N+1 queries
+        $this->assertLessThan(
+            10,
+            $queryCount,
+            "Expected less than 10 queries but got {$queryCount}. This indicates an N+1 problem in lead datatable."
+        );
+    }
+
+    #[Test]
+    public function it_handles_large_client_load_efficiently()
+    {
+        /* Arrange */
+        $this->user = User::factory()->withRole('employee')->create();
+        $this->withPermissions(PermissionName::CLIENT_VIEW);
+        $this->user = $this->user->fresh();
+
+        $industry = Industry::factory()->create();
+
+        // Create 100 clients with contacts to simulate realistic load
+        $clients = Client::factory()
+            ->count(100)
+            ->create([
+                'industry_id' => $industry->id,
+                'user_id'     => $this->user->id,
+            ]);
+
+        foreach ($clients as $client) {
+            Contact::factory()->create([
+                'client_id'  => $client->id,
+                'is_primary' => true,
+            ]);
+        }
+
+        /* Act */
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $response = $this->actingAs($this->user)->get(route('clients.data'));
+
+        $queryCount = count(DB::getQueryLog());
+
+        /* Assert */
+        $response->assertStatus(200);
+
+        // Should be very few queries regardless of client count
+        $this->assertLessThan(
+            10,
+            $queryCount,
+            "Query count should not scale with number of clients. Got {$queryCount} queries for 100 clients."
+        );
     }
 
     private function bindFailingClientService(): void

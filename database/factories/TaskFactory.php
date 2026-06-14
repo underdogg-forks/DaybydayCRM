@@ -5,7 +5,6 @@ namespace Database\Factories;
 /* @var Factory $factory */
 
 use App\Models\Client;
-use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factory;

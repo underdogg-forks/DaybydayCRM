@@ -2,8 +2,8 @@
 
 namespace Database\Seeders\Concerns;
 
-use App\Enums\OfferStatus;
 use App\Enums\AbsenceReason;
+use App\Enums\OfferStatus;
 use App\Models\Absence;
 use App\Models\Appointment;
 use App\Models\Client;

@@ -19,6 +19,7 @@ use App\Services\Client\ClientService;
 use App\Services\Invoice\InvoiceCalculator;
 use App\Services\Storage\GetStorageProvider;
 use Carbon\Carbon;
+use Closure;
 use Exception;
 use Illuminate\Http\Request;
 use Throwable;
@@ -256,8 +257,8 @@ class ClientsController extends Controller
             ->withUsers(User::with('department')->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->with('filesystem_integration', $filesystemIntegration)
             ->with('documents', $filteredDocuments)
-            ->with('lead_statuses', Status::typeOfLead()->get())
-            ->with('task_statuses', Status::typeOfTask()->get())
+            ->with('lead_statuses', Status::typeOfLead()->get()->unique('title'))
+            ->with('task_statuses', Status::typeOfTask()->get()->unique('title'))
             ->withRecentAppointments($recentAppointments);
     }
 
@@ -270,9 +271,9 @@ class ClientsController extends Controller
      */
     public function edit($external_id)
     {
-        $client  = $this->clientService->findByExternalId($external_id);
-        $contact = $client->primaryContact;
-        $merged  = $contact ? array_merge($contact->toArray(), $client->toArray()) : $client->toArray();
+        $client   = $this->clientService->findByExternalId($external_id);
+        $contact  = $client->primaryContact;
+        $merged   = $contact ? array_merge($contact->toArray(), $client->toArray()) : $client->toArray();
         $defaults = [
             'name'             => '',
             'email'            => '',
@@ -288,7 +289,7 @@ class ClientsController extends Controller
             'user_id'          => '',
         ];
         $merged = array_merge($defaults, $merged);
-        $client  = (object) $merged;
+        $client = (object) $merged;
 
         return view('clients.edit')
             ->withClient($client)
@@ -368,14 +369,14 @@ class ClientsController extends Controller
         return Industry::query()->pluck('name', 'id');
     }
 
-    private function formatDateColumn(string $column): \Closure
+    private function formatDateColumn(string $column): Closure
     {
         return fn ($model) => $model->{$column}
             ? with(new Carbon($model->{$column}))->format(carbonDate())
             : '';
     }
 
-    private function statusBadgeColumn(): \Closure
+    private function statusBadgeColumn(): Closure
     {
         return fn ($model) => '<span class="label label-success" style="background-color:' . $model->status->color . '"> ' . $model->status->title . '</span>';
     }

@@ -48,7 +48,7 @@ abstract class AbstractTestCase extends BaseTestCase
      * Accepts a single PermissionName, an array, or variadic args:
      *   withPermissions(PermissionName::CLIENT_VIEW)
      *   withPermissions(PermissionName::CLIENT_VIEW, PermissionName::TASK_VIEW)
-     *   withPermissions([PermissionName::CLIENT_VIEW, PermissionName::TASK_VIEW])
+     *   withPermissions([PermissionName::CLIENT_VIEW, PermissionName::TASK_VIEW]).
      */
     public function withPermissions(array|PermissionName $permissions, PermissionName ...$extra): self
     {

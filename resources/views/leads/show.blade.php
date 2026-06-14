@@ -66,9 +66,7 @@
     <div class="modal fade" id="create-offer" tabindex="-1" role="dialog" aria-hidden="true"
          style="display:none;">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="background:white;">
-                <invoice-line-modal type="offer" :resource="{{$lead}}"/>
-            </div>
+            <invoice-line-modal type="offer" :resource="{{$lead}}"/>
         </div>
     </div>
     @endif

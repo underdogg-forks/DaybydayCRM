@@ -185,7 +185,10 @@ class ClientsTest extends AbstractTestCase
         $user     = User::factory()->create();
 
         /* Act */
-        $response = $this->post(route('clients.store'), [
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])->post(route('clients.store'), [
             'name'             => 'James Test',
             'email'            => 'james_' . uniqid() . '@test.com',
             'primary_number'   => '2342342342',
@@ -241,7 +244,10 @@ class ClientsTest extends AbstractTestCase
         $this->bindFailingClientService();
 
         /* Act */
-        $response = $this->post(route('clients.store'), $this->validClientPayload($industry->id, $user->id));
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])->post(route('clients.store'), $this->validClientPayload($industry->id, $user->id));
 
         /* Assert */
         $response->assertStatus(500);
@@ -388,7 +394,10 @@ class ClientsTest extends AbstractTestCase
         $this->actingAs($this->user);
 
         /* Act */
-        $response = $this->post('/clients/updateassign/' . $client->external_id, [
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])->post('/clients/updateassign/' . $client->external_id, [
             'user_external_id' => $this->user->external_id,
         ]);
 
@@ -419,7 +428,10 @@ class ClientsTest extends AbstractTestCase
         $this->actingAs($this->userWithoutPermission);
 
         /* Act */
-        $response = $this->delete(route('clients.destroy', $this->client->external_id));
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ])->delete(route('clients.destroy', $this->client->external_id));
 
         /* Assert */
         $response->assertStatus(403);

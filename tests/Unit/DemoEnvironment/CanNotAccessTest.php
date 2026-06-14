@@ -40,25 +40,20 @@ class CanNotAccessTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_access_integrations_page()
+    public function it_updates_user()
     {
         /* Arrange */
+        $authUser = User::factory()->create();
+        $role     = Role::query()->firstOrCreate(['name' => 'employee'], ['display_name' => 'Employee']);
+        $authUser->attachRole($role);
+        $permission = \App\Models\Permission::query()->firstOrCreate(['name' => 'user-update']);
+        $role->attachPermission($permission);
+        \Illuminate\Support\Facades\Cache::tags('role_user')->flush();
+        $this->actingAs($authUser);
+        $user = User::factory()->create();
 
         /* Act */
-        $response = $this->get(route('integrations.index'));
-
-        /* Assert */
-        $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals(RedirectIfDemo::MEESAGE, $response->getsession()->get('flash_message_warning'));
-    }
-
-    #[Test]
-    public function it_connect_integrations_integration()
-    {
-        /* Arrange */
-
-        /* Act */
-        $response = $this->post(route('integrations.store'));
+        $response = $this->patch(route('users.update', $user->external_id));
 
         /* Assert */
         $this->assertEquals(302, $response->getStatusCode());
@@ -122,27 +117,6 @@ class CanNotAccessTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_updates_user()
-    {
-        /* Arrange */
-        $authUser = User::factory()->create();
-        $role     = Role::query()->firstOrCreate(['name' => 'employee'], ['display_name' => 'Employee']);
-        $authUser->attachRole($role);
-        $permission = \App\Models\Permission::query()->firstOrCreate(['name' => 'user-update']);
-        $role->attachPermission($permission);
-        \Illuminate\Support\Facades\Cache::tags('role_user')->flush();
-        $this->actingAs($authUser);
-        $user = User::factory()->create();
-
-        /* Act */
-        $response = $this->patch(route('users.update', $user->external_id));
-
-        /* Assert */
-        $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals(RedirectIfDemo::MEESAGE, $response->getsession()->get('flash_message_warning'));
-    }
-
-    #[Test]
     public function it_deletes_department()
     {
         /* Arrange */
@@ -150,6 +124,32 @@ class CanNotAccessTest extends AbstractTestCase
 
         /* Act */
         $response = $this->delete(route('departments.destroy', $department->external_id));
+
+        /* Assert */
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals(RedirectIfDemo::MEESAGE, $response->getsession()->get('flash_message_warning'));
+    }
+
+    #[Test]
+    public function it_access_integrations_page()
+    {
+        /* Arrange */
+
+        /* Act */
+        $response = $this->get(route('integrations.index'));
+
+        /* Assert */
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals(RedirectIfDemo::MEESAGE, $response->getsession()->get('flash_message_warning'));
+    }
+
+    #[Test]
+    public function it_connect_integrations_integration()
+    {
+        /* Arrange */
+
+        /* Act */
+        $response = $this->post(route('integrations.store'));
 
         /* Assert */
         $this->assertEquals(302, $response->getStatusCode());

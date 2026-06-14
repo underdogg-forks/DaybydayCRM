@@ -29,34 +29,6 @@ class TaskAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_user_with_task_delete_permission_can_delete_task()
-    {
-        /* Arrange */
-        $this->withPermissions(PermissionName::TASK_DELETE);
-
-        /* Act */
-        $response = $this->delete(route('tasks.destroy', $this->task->external_id));
-
-        /* Assert */
-        $response->assertStatus(200);
-        $this->assertSoftDeleted('tasks', ['id' => $this->task->id]);
-    }
-
-    #[Test]
-    public function it_user_without_task_delete_permission_cannot_delete_task()
-    {
-        /* Arrange */
-        $this->actingAs(User::factory()->create());
-
-        /* Act */
-        $response = $this->delete(route('tasks.destroy', $this->task->external_id));
-
-        /* Assert */
-        $response->assertStatus(403);
-        $this->assertDatabaseHas('tasks', ['id' => $this->task->id, 'deleted_at' => null]);
-    }
-
-    #[Test]
     public function it_user_with_update_project_permission_can_update_task_project()
     {
         /* Arrange */
@@ -119,5 +91,33 @@ class TaskAuthorizationTest extends AbstractTestCase
         $this->assertEquals($originalTitle, $this->task->title);
         $this->assertEquals($originalDescription, $this->task->description);
         $this->assertNotEquals(999, $this->task->user_assigned_id);
+    }
+
+    #[Test]
+    public function it_user_with_task_delete_permission_can_delete_task()
+    {
+        /* Arrange */
+        $this->withPermissions(PermissionName::TASK_DELETE);
+
+        /* Act */
+        $response = $this->delete(route('tasks.destroy', $this->task->external_id));
+
+        /* Assert */
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('tasks', ['id' => $this->task->id]);
+    }
+
+    #[Test]
+    public function it_user_without_task_delete_permission_cannot_delete_task()
+    {
+        /* Arrange */
+        $this->actingAs(User::factory()->create());
+
+        /* Act */
+        $response = $this->delete(route('tasks.destroy', $this->task->external_id));
+
+        /* Assert */
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('tasks', ['id' => $this->task->id, 'deleted_at' => null]);
     }
 }

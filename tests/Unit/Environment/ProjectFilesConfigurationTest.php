@@ -18,6 +18,22 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
     }
 
     #[Test]
+    public function it_env_example_ends_with_newline(): void
+    {
+        /* Arrange */
+        $content = $this->readFile('.env.example');
+
+        /* Act */
+        $endsWithNewline = str_ends_with($content, "\n");
+
+        /* Assert */
+        $this->assertTrue(
+            $endsWithNewline,
+            '.env.example must end with a trailing newline (fixed in this PR)'
+        );
+    }
+
+    #[Test]
     public function it_env_ci_uses_cache_store_not_cache_driver(): void
     {
         /* Arrange */
@@ -54,6 +70,112 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
             $cacheStore,
             'CACHE_STORE in .env.ci must be "array" for CI test isolation'
         );
+    }
+
+    #[Test]
+    public function it_env_dusk_local_uses_cache_store_not_cache_driver(): void
+    {
+        /* Arrange */
+        $content = $this->readFile('.env.dusk.local');
+
+        /* Act */
+        $hasCacheStore  = str_contains($content, 'CACHE_STORE=');
+        $hasCacheDriver = str_contains($content, 'CACHE_DRIVER=');
+
+        /* Assert */
+        $this->assertTrue(
+            $hasCacheStore,
+            '.env.dusk.local must define CACHE_STORE (not the deprecated CACHE_DRIVER)'
+        );
+        $this->assertFalse(
+            $hasCacheDriver,
+            '.env.dusk.local must not use the deprecated CACHE_DRIVER key'
+        );
+    }
+
+    #[Test]
+    public function it_env_dusk_local_cache_store_is_set_to_array(): void
+    {
+        /* Arrange */
+        $vars = $this->parseEnvFile('.env.dusk.local');
+
+        /* Act */
+        $cacheStore = $vars['CACHE_STORE'] ?? null;
+
+        /* Assert */
+        $this->assertArrayHasKey('CACHE_STORE', $vars);
+        $this->assertEquals('array', $cacheStore);
+    }
+
+    #[Test]
+    public function it_env_testing_uses_cache_store_not_cache_driver(): void
+    {
+        /* Arrange */
+        $content = $this->readFile('.env.testing');
+
+        /* Act */
+        $hasCacheStore  = str_contains($content, 'CACHE_STORE=');
+        $hasCacheDriver = str_contains($content, 'CACHE_DRIVER=');
+
+        /* Assert */
+        $this->assertTrue(
+            $hasCacheStore,
+            '.env.testing must use the CACHE_STORE key'
+        );
+        $this->assertFalse(
+            $hasCacheDriver,
+            '.env.testing must not use the deprecated CACHE_DRIVER key'
+        );
+    }
+
+    #[Test]
+    public function it_env_testing_cache_store_is_array(): void
+    {
+        /* Arrange */
+        $vars = $this->parseEnvFile('.env.testing');
+
+        /* Act */
+        $cacheStore = $vars['CACHE_STORE'] ?? null;
+
+        /* Assert */
+        $this->assertArrayHasKey('CACHE_STORE', $vars);
+        $this->assertEquals('array', $cacheStore);
+    }
+
+    #[Test]
+    public function it_env_example_uses_cache_store_not_cache_driver(): void
+    {
+        /* Arrange */
+        $content = $this->readFile('.env.example');
+
+        /* Act */
+        $hasCacheStore  = str_contains($content, 'CACHE_STORE=');
+        $hasCacheDriver = str_contains($content, 'CACHE_DRIVER=');
+
+        /* Assert */
+        $this->assertTrue(
+            $hasCacheStore,
+            '.env.example must use CACHE_STORE (not the deprecated CACHE_DRIVER)'
+        );
+        $this->assertFalse(
+            $hasCacheDriver,
+            '.env.example must not use the deprecated CACHE_DRIVER key'
+        );
+    }
+
+    #[Test]
+    public function it_gitignore_excludes_ds_store_and_thumbs_db(): void
+    {
+        /* Arrange */
+        $content = $this->readFile('.gitignore');
+
+        /* Act */
+        $hasDsStore  = str_contains($content, '.DS_Store');
+        $hasThumbsDb = str_contains($content, 'Thumbs.db');
+
+        /* Assert */
+        $this->assertTrue($hasDsStore, '.gitignore must exclude .DS_Store (macOS metadata)');
+        $this->assertTrue($hasThumbsDb, '.gitignore must exclude Thumbs.db (Windows thumbnails)');
     }
 
     #[Test]
@@ -109,41 +231,6 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_env_dusk_local_uses_cache_store_not_cache_driver(): void
-    {
-        /* Arrange */
-        $content = $this->readFile('.env.dusk.local');
-
-        /* Act */
-        $hasCacheStore  = str_contains($content, 'CACHE_STORE=');
-        $hasCacheDriver = str_contains($content, 'CACHE_DRIVER=');
-
-        /* Assert */
-        $this->assertTrue(
-            $hasCacheStore,
-            '.env.dusk.local must define CACHE_STORE (not the deprecated CACHE_DRIVER)'
-        );
-        $this->assertFalse(
-            $hasCacheDriver,
-            '.env.dusk.local must not use the deprecated CACHE_DRIVER key'
-        );
-    }
-
-    #[Test]
-    public function it_env_dusk_local_cache_store_is_set_to_array(): void
-    {
-        /* Arrange */
-        $vars = $this->parseEnvFile('.env.dusk.local');
-
-        /* Act */
-        $cacheStore = $vars['CACHE_STORE'] ?? null;
-
-        /* Assert */
-        $this->assertArrayHasKey('CACHE_STORE', $vars);
-        $this->assertEquals('array', $cacheStore);
-    }
-
-    #[Test]
     public function it_env_testing_file_exists(): void
     {
         /* Arrange */
@@ -171,41 +258,6 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
         /* Assert */
         $this->assertArrayHasKey('APP_ENV', $vars);
         $this->assertEquals('testing', $appEnv);
-    }
-
-    #[Test]
-    public function it_env_testing_uses_cache_store_not_cache_driver(): void
-    {
-        /* Arrange */
-        $content = $this->readFile('.env.testing');
-
-        /* Act */
-        $hasCacheStore  = str_contains($content, 'CACHE_STORE=');
-        $hasCacheDriver = str_contains($content, 'CACHE_DRIVER=');
-
-        /* Assert */
-        $this->assertTrue(
-            $hasCacheStore,
-            '.env.testing must use the CACHE_STORE key'
-        );
-        $this->assertFalse(
-            $hasCacheDriver,
-            '.env.testing must not use the deprecated CACHE_DRIVER key'
-        );
-    }
-
-    #[Test]
-    public function it_env_testing_cache_store_is_array(): void
-    {
-        /* Arrange */
-        $vars = $this->parseEnvFile('.env.testing');
-
-        /* Act */
-        $cacheStore = $vars['CACHE_STORE'] ?? null;
-
-        /* Assert */
-        $this->assertArrayHasKey('CACHE_STORE', $vars);
-        $this->assertEquals('array', $cacheStore);
     }
 
     #[Test]
@@ -298,27 +350,6 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_env_example_uses_cache_store_not_cache_driver(): void
-    {
-        /* Arrange */
-        $content = $this->readFile('.env.example');
-
-        /* Act */
-        $hasCacheStore  = str_contains($content, 'CACHE_STORE=');
-        $hasCacheDriver = str_contains($content, 'CACHE_DRIVER=');
-
-        /* Assert */
-        $this->assertTrue(
-            $hasCacheStore,
-            '.env.example must use CACHE_STORE (not the deprecated CACHE_DRIVER)'
-        );
-        $this->assertFalse(
-            $hasCacheDriver,
-            '.env.example must not use the deprecated CACHE_DRIVER key'
-        );
-    }
-
-    #[Test]
     public function it_env_example_php_cli_server_workers_is_commented_out(): void
     {
         /* Arrange */
@@ -338,22 +369,6 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
             0,
             $isUncommented,
             'PHP_CLI_SERVER_WORKERS must not appear as an uncommented key in .env.example'
-        );
-    }
-
-    #[Test]
-    public function it_env_example_ends_with_newline(): void
-    {
-        /* Arrange */
-        $content = $this->readFile('.env.example');
-
-        /* Act */
-        $endsWithNewline = str_ends_with($content, "\n");
-
-        /* Assert */
-        $this->assertTrue(
-            $endsWithNewline,
-            '.env.example must end with a trailing newline (fixed in this PR)'
         );
     }
 
@@ -465,21 +480,6 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
             $hasBuildArtifacts,
             '.gitignore must exclude public/build/ (compiled assets)'
         );
-    }
-
-    #[Test]
-    public function it_gitignore_excludes_ds_store_and_thumbs_db(): void
-    {
-        /* Arrange */
-        $content = $this->readFile('.gitignore');
-
-        /* Act */
-        $hasDsStore  = str_contains($content, '.DS_Store');
-        $hasThumbsDb = str_contains($content, 'Thumbs.db');
-
-        /* Assert */
-        $this->assertTrue($hasDsStore, '.gitignore must exclude .DS_Store (macOS metadata)');
-        $this->assertTrue($hasThumbsDb, '.gitignore must exclude Thumbs.db (Windows thumbnails)');
     }
 
     #[Test]

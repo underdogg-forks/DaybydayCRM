@@ -19,18 +19,6 @@ class HandlerTest extends AbstractTestCase
     use RefreshDatabase;
 
     #[Test]
-    public function it_handler_class_extends_laravel_exception_handler()
-    {
-        /* Arrange */
-
-        /* Act */
-        $handler = app(Handler::class);
-
-        /* Assert */
-        $this->assertInstanceOf(ExceptionHandler::class, $handler);
-    }
-
-    #[Test]
     public function it_handler_dont_report_list_contains_expected_exceptions()
     {
         /* Arrange */
@@ -48,6 +36,18 @@ class HandlerTest extends AbstractTestCase
         $this->assertContains(ValidationException::class, $dontReport);
         $this->assertContains(ModelNotFoundException::class, $dontReport);
         $this->assertContains(HttpException::class, $dontReport);
+    }
+
+    #[Test]
+    public function it_handler_class_extends_laravel_exception_handler()
+    {
+        /* Arrange */
+
+        /* Act */
+        $handler = app(Handler::class);
+
+        /* Assert */
+        $this->assertInstanceOf(ExceptionHandler::class, $handler);
     }
 
     #[Test]

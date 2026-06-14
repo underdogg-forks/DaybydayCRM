@@ -100,7 +100,7 @@ class TaskAuthorizationTest extends AbstractTestCase
         $this->withPermissions(PermissionName::TASK_DELETE);
 
         /* Act */
-        $response = $this->delete(route('tasks.destroy', $this->task->external_id));
+        $response = $this->delete(route('tasks.destroy', $this->task->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -114,7 +114,7 @@ class TaskAuthorizationTest extends AbstractTestCase
         $this->actingAs(User::factory()->create());
 
         /* Act */
-        $response = $this->delete(route('tasks.destroy', $this->task->external_id));
+        $response = $this->delete(route('tasks.destroy', $this->task->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(403);

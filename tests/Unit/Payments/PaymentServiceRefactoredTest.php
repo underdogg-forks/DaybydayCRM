@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Payments;
+namespace Tests\Unit\Payments;
 
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Invoice;

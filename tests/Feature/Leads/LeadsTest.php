@@ -30,13 +30,13 @@ class LeadsTest extends AbstractTestCase
 {
     use RefreshDatabase;
 
+    protected $lead;
+
     private User $authorizedUser;
 
     private User $unauthorizedUser;
 
     private User $newAssignee;
-
-    protected $lead;
 
     private User $userWithPermission;
 
@@ -74,7 +74,7 @@ class LeadsTest extends AbstractTestCase
         $this->unauthorizedUser = User::factory()->create();
         $this->newAssignee      = User::factory()->create();
 
-        $client     = Client::factory()->create();
+        $client = Client::factory()->create();
 
         $this->lead = Lead::factory()->create([
             'user_assigned_id' => $this->authorizedUser->id,
@@ -272,30 +272,6 @@ class LeadsTest extends AbstractTestCase
 
         $this->assertNotNull($rawDeadline);
         $this->assertStringContainsString('2025-03-20', $rawDeadline);
-    }
-
-    private function bindFailingLeadService(): void
-    {
-        $this->app->instance(LeadService::class, new class () extends LeadService {
-            public function create(array $validated, int $userId): Lead
-            {
-                throw new RuntimeException('Simulated lead create failure');
-            }
-        });
-    }
-
-    private function validLeadPayload(int $statusId): array
-    {
-        return [
-            'title'              => 'Leads test',
-            'description'        => 'This is a description',
-            'status_id'          => $statusId,
-            'user_assigned_id'   => $this->user->id,
-            'user_created_id'    => $this->user->id,
-            'client_external_id' => $this->client->external_id,
-            'deadline'           => '2020-01-01',
-            'contact_time'       => '15:00',
-        ];
     }
 
     #[Test]
@@ -658,5 +634,29 @@ class LeadsTest extends AbstractTestCase
 
         $response->assertRedirect();
         $response->assertSessionHas('flash_message_warning', __('Invalid status for lead'));
+    }
+
+    private function bindFailingLeadService(): void
+    {
+        $this->app->instance(LeadService::class, new class () extends LeadService {
+            public function create(array $validated, int $userId): Lead
+            {
+                throw new RuntimeException('Simulated lead create failure');
+            }
+        });
+    }
+
+    private function validLeadPayload(int $statusId): array
+    {
+        return [
+            'title'              => 'Leads test',
+            'description'        => 'This is a description',
+            'status_id'          => $statusId,
+            'user_assigned_id'   => $this->user->id,
+            'user_created_id'    => $this->user->id,
+            'client_external_id' => $this->client->external_id,
+            'deadline'           => '2020-01-01',
+            'contact_time'       => '15:00',
+        ];
     }
 }

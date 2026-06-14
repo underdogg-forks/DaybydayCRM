@@ -172,6 +172,7 @@ class ProjectsController extends Controller
         }
 
         session()->flash('flash_message', __('Project created'));
+
         return redirect()->route('projects.index');
     }
 

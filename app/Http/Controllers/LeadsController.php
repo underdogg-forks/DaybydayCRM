@@ -155,6 +155,7 @@ class LeadsController extends Controller
         }
 
         session()->flash('flash_message', __('Lead successfully added'));
+
         return redirect()->route('leads.show', $lead->external_id);
     }
 

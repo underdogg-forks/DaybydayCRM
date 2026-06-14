@@ -11,8 +11,8 @@ class CreateTaskFromProjectTest extends AbstractTestCase
     /** @test */
     public function test_it_can_access_create_task_from_project_and_has_projects_populated()
     {
-        $client = Client::factory()->create();
-        $status = \App\Models\Status::factory()->create(['source_type' => \App\Models\Project::class, 'title' => 'Open']);
+        $client  = Client::factory()->create();
+        $status  = \App\Models\Status::factory()->create(['source_type' => \App\Models\Project::class, 'title' => 'Open']);
         $project = Project::factory()->create(['client_id' => $client->id, 'status_id' => $status->id]);
 
         $response = $this->get(route('client.project.task.create', [$client->external_id, $project->external_id]));

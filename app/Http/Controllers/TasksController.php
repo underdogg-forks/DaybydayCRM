@@ -103,7 +103,7 @@ class TasksController extends Controller
             })
             ->filterColumn('status.title', function ($query, $keyword) {
                 if (str_starts_with($keyword, '^') && str_ends_with($keyword, '$')) {
-                    $cleanKeyword = substr($keyword, 1, -1);
+                    $cleanKeyword = mb_substr($keyword, 1, -1);
                     $query->whereHas('status', function ($q) use ($cleanKeyword) {
                         $q->where('title', '=', $cleanKeyword);
                     });
@@ -149,7 +149,7 @@ class TasksController extends Controller
         $projects = null;
         $client   = $client_external_id ? Client::whereExternalId($client_external_id) : null;
         $project  = Project::whereExternalId($project_external_id)->first();
-        if (!$client && $project) {
+        if ( ! $client && $project) {
             $client = $project->client;
         }
         if ($client) {
@@ -164,7 +164,7 @@ class TasksController extends Controller
             ->withClient($client)
             ->withProjects($projects ?: null)
             ->withProject($project ?: null)
-            ->withStatuses(Status::typeOfTask()->pluck('title', 'id'))
+            ->withStatuses(Status::typeOfTask()->get()->unique('title')->pluck('title', 'id'))
             ->with('filesystem_integration', Integration::whereApiType('file')->first());
     }
 
@@ -201,6 +201,7 @@ class TasksController extends Controller
         }
 
         session()->flash('flash_message', __('Task created'));
+
         return redirect()->route('tasks.index');
     }
 
@@ -248,7 +249,7 @@ class TasksController extends Controller
             ->withTasks($task)
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->with('company_name', Setting::first()->company ?? '')
-            ->withStatuses(Status::typeOfTask()->pluck('title', 'id'))
+            ->withStatuses(Status::typeOfTask()->get()->unique('title')->pluck('title', 'id'))
             ->withProjects($task->client ? $task->client->projects()->pluck('title', 'external_id') : collect())
             ->withFiles($task->documents)
             ->with('filesystem_integration', Integration::whereApiType('file')->first());

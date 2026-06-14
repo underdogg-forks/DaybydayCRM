@@ -154,7 +154,7 @@ class User extends Authenticatable
     {
         $department = $this->department()->first();
 
-        if (!$department) {
+        if ( ! $department) {
             return $this->name;
         }
 
@@ -167,7 +167,7 @@ class User extends Authenticatable
             ? $this->getRelation('department')->first()
             : $this->department()->first();
 
-        if (!$department) {
+        if ( ! $department) {
             return $this->name;
         }
 

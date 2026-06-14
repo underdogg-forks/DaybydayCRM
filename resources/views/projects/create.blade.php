@@ -61,6 +61,7 @@
                                 <select
                                 name="client_external_id"
                                 id="client_external_id"
+                                class="selectpicker"
                                 data-container="body"
                                 data-live-search="true"
                                 data-style-base="form-control"

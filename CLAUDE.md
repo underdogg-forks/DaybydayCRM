@@ -1,52 +1,257 @@
-# Claude Code — DaybydayCRM Working Guide
+# InvoicePlane v2 — Claude Context
 
-Start with `AGENTS.md`, then use `.github/ARCHITECTURE.md`, `.github/TESTING.md`, and `.github/ROADMAP.md` as needed.
+## What this is
 
-## Non-negotiable rules
+Laravel 11 + Filament v4 + Livewire v3 invoicing app. Modular architecture via `nwidart/laravel-modules`. PHP 8.1+ enums, Spatie roles/permissions, multi-tenancy via Filament's built-in tenant system scoped to `Company`.
 
-### Controller rules
-- Controllers orchestrate requests, authorization, and responses only — no business logic.
-- Business logic belongs in `app/Services/*` or `app/Actions/*`.
-- **Never expose public proxy methods** on controllers (e.g. `getInvoices()`, `findByExternalId()`, `listAllClients()`). Call the service directly.
-- **Authorization must go in `__construct()` middleware** — never inline `auth()->user()->can()` checks inside action methods.
-- **`Model::all()->count()` is forbidden** — use `Model::count()`.
-- **Extract repeated DataTable column closures** to private helpers: `formatDateColumn()`, `statusBadgeColumn()`.
-- **Guard every optional relationship** before calling any method. If `primaryContact` can be null, null-check it: `$contact = $client->primaryContact; $merged = $contact ? array_merge($contact->toArray(), $client->toArray()) : $client->toArray();`
+---
 
-### PHPUnit test rules
-- **Never use `withoutMiddleware()`** in feature tests. Set up correct permissions with `withPermissions()` instead.
-- **Never hardcode email addresses**. Use `'email' => 'user_' . uniqid() . '@test.com'`.
-- **Assert exact flash messages**: `assertSessionHas('flash_message', __('Client successfully updated'))` not just `assertSessionHas('flash_message')`.
-- **Minimum coverage per controller**: index, show (valid id), show (invalid id → 404), store (valid), store (invalid), update, delete, unauthorized access.
-- **`withPermissions()` is variadic** — you can call `withPermissions(PermissionName::A, PermissionName::B)` or pass an array.
+## Directory map
 
-### Playwright e2e test rules
-- **The Bootstrap tour is globally pre-dismissed** via `globalSetup` + `use.storageState` in `playwright.config.ts`. Do NOT remove `globalSetup` or `storageState` from the config — doing so will cause the tour backdrop to block UI interactions in every browser-navigation test.
-- **`dismissTourIfVisible(page)`** (from `tests/e2e/helpers/plain-e2e.js`) remains available as a safety net for edge cases — call it before interacting with any page element if you navigate in a fresh context.
-- **`loginAsAdmin` already calls `waitForLoadState('networkidle')`** — do not remove this line.
-- **After state-changing requests, verify persistence** via a follow-up data fetch — never assert only on HTTP status.
-- **To disable tours server-side**: set `TOUR_DISABLED=true` in your `.env`. This wraps the tour JS in a Blade `@if(!config('app.tour_disabled'))` guard on the dashboard, clients/index, and clients/create pages.
+```
+app/                        # Thin root (Http/Controllers/ empty, Providers/AppServiceProvider.php)
+Modules/                    # All business logic lives here (8 modules)
+bootstrap/                  # app.php
+config/                     # modules.php, ip.php, filament.php, database.php, app.php
+database/migrations/        # Only the exports table — all other migrations are per-module
+database/seeders/           # DatabaseSeeder.php — seeds ivplv2 company at id=22
+resources/css/filament/     # Per-panel Vite themes (company/nord.css, admin/*, user/*)
+routes/                     # Empty — routing is handled entirely by Filament panel providers
+Modules/Core/Providers/     # All three Filament panel providers live here
+```
 
-## Architecture
-- Prefer `app/Services/*` for multi-step workflows, `app/Actions/*` for single-purpose operations.
-- Use `FormRequest` classes for all validation — no inline `$request->validate()` in controllers.
-- Use enums for fixed value sets (`PermissionName`, status types, etc.).
-- Mixed web/API endpoints must branch on `$request->expectsJson()`.
+### Module inventory
 
-## Response pattern
+| Module | Key models |
+|--------|-----------|
+| Core | User, Company, CompanyUser, TaxRate, Numbering, EmailTemplate, CustomField, Upload, Note, AuditLog, Setting, MailQueue |
+| Clients | Relation (table: `relations`), Contact, Address, Communication, ClientCustom (`PK: client_custom_id`) |
+| Invoices | Invoice, InvoiceItem, RecurringInvoice |
+| Quotes | Quote, QuoteItem |
+| Payments | Payment |
+| Products | Product, ProductUnit, ProductCategory |
+| Projects | Project, Task |
+| Expenses | Expense, ExpenseCategory, ExpenseItem |
+
+Every module follows:
+```
+Modules/<Name>/
+  Database/{Factories,Migrations,Seeders}/
+  Models/
+  Filament/{Admin,Company}/Resources/<Resource>/{Pages,Tables,Schemas}/
+  Services/
+  Enums/
+  Events/ Listeners/ Observers/
+  Traits/ Helpers/
+  Http/{Controllers,Requests,Middleware}/
+  Providers/
+  Tests/{Unit,Feature}/
+```
+
+---
+
+## Filament panels
+
+Three providers at `Modules/Core/Providers/`:
+
+| Provider | Panel ID | URL path | Tenanted | Access roles |
+|----------|----------|----------|----------|--------------|
+| AdminPanelProvider | `admin` | `/admin` | No | SUPER_ADMIN, ADMIN, ASSIST |
+| CompanyPanelProvider | `company` | `` (root, default) | Yes — `Company` by `search_code` | CUSTOMER_ADMIN, CUSTOMER |
+| UserPanelProvider | `user` | `/user` | No | (minimal, for future use) |
+
+### Company panel tenant config (critical)
 
 ```php
-if ($request->expectsJson()) {
-    return response()->json(['message' => 'Success'], 200);
+->tenant(Company::class, slugAttribute: 'search_code')
+->tenantMiddleware([
+    SetTenantFromQueryString::class,  // reads ?tenant=<search_code>, sets session + Filament tenant
+    ConfigureTenant::class,           // resolves tenant from route/query/session/user fallback
+    EnsureUserCanAccessCompany::class,// enforces access; 403 if regular user not in company_user
+], isPersistent: true)
+```
+
+URLs look like `/ivplv2/dashboard` (search_code as route segment).
+
+---
+
+## Auth & tenancy flow
+
+1. Login page: `Modules/Core/Filament/Pages/Auth/Login.php`
+   - Rate-limited (5 attempts), checks `$user->is_active`, regenerates session
+   - Returns `app(LoginResponse::class)`
+2. `Modules/Core/Filament/Responses/LoginResponse.php`
+   - Elevated users (super_admin/admin/assist): find company globally → `filament()->setTenant()`
+   - Regular users: find company from `$user->companies()` → set session + Filament tenant
+   - Redirects to `route('filament.company.pages.dashboard', ['tenant' => Str::lower($company->search_code)])`
+3. Company panel middleware chain then enforces access on every subsequent request.
+4. Logout: `Modules/Core/Filament/Responses/LogoutResponse.php` → redirects to `filament.company.auth.login`
+
+### Key relationships
+
+```php
+// User ↔ Company — BelongsToMany via company_user pivot (id, company_id, user_id — no timestamps)
+$user->companies()      // returns Collection<Company>
+$company->users()
+
+// All business models are scoped to a company via BelongsToCompany trait
+// Trait auto-injects company_id on create (from Filament tenant / session / user's first company)
+// Trait adds global scope — queries are always filtered by current company
+```
+
+---
+
+## Roles & permissions (Spatie)
+
+```php
+// Modules/Core/Enums/UserRole.php
+UserRole::SUPER_ADMIN  = 'super_admin'   // full system access
+UserRole::ADMIN        = 'admin'
+UserRole::ASSIST       = 'assist'
+UserRole::CUSTOMER_ADMIN = 'client_admin'  // company-scoped admin
+UserRole::CUSTOMER     = 'client'
+
+UserRole::elevated()   // ['super_admin', 'admin', 'assist'] — can access any panel
+UserRole::nonAdmin()   // ['client_admin', 'client'] — company panel only
+
+// Usage
+$user->hasRole(UserRole::SUPER_ADMIN->value)
+$user->assignRole(UserRole::ADMIN->value)
+$user->isSuperAdmin()  // shorthand
+```
+
+---
+
+## Testing
+
+> **This project uses PHPUnit exclusively. Pest is NOT installed and must NOT be used.**
+> Never write `it()`, `test()`, `describe()`, `uses()`, or Pest `expect()` chains.
+> All tests are class-based, extend one of the base classes below, and use `#[Test]` attributes.
+
+### Base classes
+
+| Class | Extends | Sets up | Use for |
+|-------|---------|---------|---------|
+| `AbstractAdminPanelTestCase` | TestCase + RefreshDatabase | Company factory + superAdmin user; panel='admin'; Carbon frozen 2026-01-01 | Admin panel Livewire tests |
+| `AbstractCompanyPanelTestCase` | TestCase + RefreshDatabase | User with company (search_code='IVPLV2'); Filament tenant set quietly; session current_company_id | Company panel Livewire tests |
+| `AbstractTestCase` | TestCase (no RefreshDatabase) | Nothing | Pure unit tests |
+
+All live at `Modules/Core/Tests/`.
+
+### Patterns
+
+```php
+// Company panel test
+class FooTest extends AbstractCompanyPanelTestCase {
+    public function it_does_something(): void {
+        $response = Livewire::actingAs($this->user)
+            ->test(ListFoo::class, ['tenant' => Str::lower($this->company->search_code)])
+            ->assertSuccessful();
+    }
+    // Or use the helper:
+    $this->testLivewire(ListFoo::class)->assertSuccessful();
 }
-session()->flash('flash_message', 'Success');
-return redirect()->back();
+
+// Admin panel test
+class BarTest extends AbstractAdminPanelTestCase {
+    public function it_does_something(): void {
+        Livewire::actingAs($this->superAdmin())->test(ListBar::class)->assertSuccessful();
+    }
+}
+
+// Create a role in tests (Spatie needs DB record)
+Role::query()->firstOrCreate(['name' => UserRole::SUPER_ADMIN->value, 'guard_name' => 'web']);
+$user->assignRole(UserRole::SUPER_ADMIN->value);
 ```
 
-## Pre-push checklist
+### Factory patterns
 
-```bash
-git ls-files '*.php' | xargs -n1 php -l   # syntax check
-make test                                   # PHPUnit
-make e2e-test                              # Playwright
+```php
+// User with a specific company attached
+User::factory()->withCompany(['search_code' => 'IVPLV2', 'name' => '...'])->create()
+
+// Company-scoped model — pass company via ->for() or via session/tenant
+Invoice::factory()->for($company)->create()
+
+// Active user
+User::factory()->create(['is_active' => true, 'email_verified_at' => now()])
 ```
+
+### PHPUnit test discovery
+
+```xml
+<!-- phpunit.xml -->
+<testsuite name="Unit">   <directory>Modules/*/Tests/Unit</directory>  </testsuite>
+<testsuite name="Feature"><directory>Modules/*/Tests/Feature</directory></testsuite>
+```
+
+### DB for tests
+
+Tests need a DB. Production CI uses MariaDB 11. For local dev without MySQL, set in `.env.testing`:
+```
+DB_CONNECTION=sqlite
+DB_DATABASE=:memory:
+```
+
+---
+
+## Key model notes
+
+- `Company::$primaryKey` = `id` (standard); URL slug is `search_code` (10 chars, unique, e.g. `ivplv2`)
+- `User::$timestamps = false` — no created_at/updated_at on users table
+- `ClientCustom::$primaryKey = 'client_custom_id'` — non-standard PK
+- `Import::$primaryKey = 'import_id'` — non-standard PK
+- `Relation` model → table `relations` (not `customers`, not `clients`)
+- Soft deletes on: Invoice, Quote (and their items)
+- `BelongsToCompany` trait → adds `company()` BelongsTo, `scopeForCompany()`, and global scope
+
+---
+
+## Services
+
+All services extend `Modules\Core\Services\BaseService`:
+```php
+// BaseService gives you:
+$this->create(array $data): Model
+$this->find($id): Model
+$this->update(array $input, $model): Model
+$this->delete($id): bool
+$this->paginate($perPage): LengthAwarePaginator
+$this->getCompanyId(): ?int   // resolves from Filament/session/user
+```
+
+No DTO layer — services accept arrays and return Eloquent models.
+
+---
+
+## Seeder
+
+`database/seeders/DatabaseSeeder.php` seeds:
+- `ivplv2` company hard-coded at `id=22`, `search_code='ivplv2'`, `name='InvoicePlane Corporation'`
+- 5 additional random companies
+- Spatie roles for all UserRole values
+- One user per role, all attached to ivplv2
+
+---
+
+## Common debugging shortcuts
+
+| Symptom | Check |
+|---------|-------|
+| Company-scoped query returns nothing | `session('current_company_id')` set? Filament tenant set? |
+| 403 on company panel route | User in `company_user` pivot for that company? |
+| Redirect after login goes to wrong company | `LoginResponse::DEFAULT_COMPANY_CODE` constant and `whereRaw('LOWER(search_code) = ?')` query |
+| Factory creates model with null company_id | Pass `->for($company)` or set Filament tenant before creation |
+| Livewire test fails with "No tenant" | Call `Filament::setTenant($company)` in test setUp |
+| Test role check fails | Create Role DB record first with `Role::query()->firstOrCreate(...)` |
+
+---
+
+## Don't re-derive these
+
+- The default company is **always** `ivplv2` (search_code, lowercase in URLs)
+- Panel routes are named `filament.<panel-id>.pages.<slug>` and `filament.<panel-id>.resources.<resource>.<action>`
+- `$user->companies()` returns the BelongsToMany — call `.first()`, `.attach()`, `.detach()` on it
+- `Str::lower($company->search_code)` is always the URL tenant parameter
+- The three tenant middleware classes live at `Modules/Core/Http/Middleware/`
+- Panel providers live at `Modules/Core/Providers/`, not `app/Providers/`

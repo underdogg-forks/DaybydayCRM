@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Services\AbsenceService;
 use Illuminate\Http\Request;
 use Throwable;
-use Yajra\DataTables\DataTables;
+use Yajra\Datatables\DataTables;
 
 class AbsenceController extends Controller
 {

@@ -74,18 +74,17 @@ class AppointmentsTest extends AbstractTestCase
             'color'       => '#FFFFFF',
         ]);
 
-        $this->user = User::factory()->withRole('employee')->create();
-        $this->actingAs($this->user);
-
         $this->appointment = Appointment::factory()->create([
             'user_id'  => $this->user->id,
             'start_at' => Carbon::now(),
             'end_at'   => Carbon::now()->addHour(),
         ]);
 
-        $this->unauthorizedUser = User::factory()->withRole('employee')->create();
+        $this->actingAs($this->user);
 
-        $this->withoutMiddleware(VerifyCsrfToken::class);
+        $roleUnauthorized = Role::query()->firstOrCreate(['name' => 'unauthorized'], ['display_name' => 'Unauthorized']);
+        $this->unauthorizedUser = User::factory()->create();
+        $this->unauthorizedUser->attachRole($roleUnauthorized);
     }
 
     protected function tearDown(): void
@@ -203,10 +202,11 @@ class AppointmentsTest extends AbstractTestCase
         $this->actingAs($this->unauthorizedUser);
 
         /* Act */
-        $response = $this->post(route('appointments.update', $this->appointment->external_id), [
-            'start' => Carbon::now()->addDay()->toISOString(),
-            'end'   => Carbon::now()->addDay()->addHour()->toISOString(),
-            'group' => $this->user->external_id,
+        $response = $this->withSession(['_token' => csrf_token()])->post(route('appointments.update', $this->appointment->external_id), [
+            'start'  => Carbon::now()->addDay()->toISOString(),
+            'end'    => Carbon::now()->addDay()->addHour()->toISOString(),
+            'group'  => $this->user->external_id,
+            '_token' => csrf_token(),
         ]);
 
         /* Assert */
@@ -217,8 +217,9 @@ class AppointmentsTest extends AbstractTestCase
     public function it_requires_permission_check_for_appointment_update()
     {
         /* Arrange */
-        $this->user->roles()->detach();
-        $this->user = User::factory()->withRole('employee')->create();
+        $role = Role::query()->firstOrCreate(['name' => 'no-perms'], ['display_name' => 'No Perms']);
+        $this->user = User::factory()->create();
+        $this->user->attachRole($role);
         $this->actingAs($this->user);
 
         /* Act */

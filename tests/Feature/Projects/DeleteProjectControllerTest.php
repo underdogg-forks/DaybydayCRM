@@ -42,7 +42,7 @@ class DeleteProjectControllerTest extends AbstractTestCase
         $project = Project::factory()->create();
 
         /* Act */
-        $response = $this->delete(route('projects.destroy', $project->external_id));
+        $response = $this->delete(route('projects.destroy', $project->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -54,7 +54,7 @@ class DeleteProjectControllerTest extends AbstractTestCase
     {
         /* Arrange */
         /* Act */
-        $response = $this->delete(route('projects.destroy', $this->project->external_id));
+        $response = $this->delete(route('projects.destroy', $this->project->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -72,7 +72,7 @@ class DeleteProjectControllerTest extends AbstractTestCase
         /* Act */
         $response = $this->delete(route('projects.destroy', $this->project->external_id), [
             'delete_tasks' => 'on',
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -90,7 +90,7 @@ class DeleteProjectControllerTest extends AbstractTestCase
         ]);
 
         /* Act */
-        $response = $this->delete(route('projects.destroy', $this->project->external_id));
+        $response = $this->delete(route('projects.destroy', $this->project->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);

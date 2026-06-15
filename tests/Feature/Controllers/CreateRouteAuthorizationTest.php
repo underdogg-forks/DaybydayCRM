@@ -126,7 +126,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     // ─────────────────────────────────────────────
 
     #[Test]
-    public function json_request_without_client_create_permission_gets_403()
+    public function it_returns_403_for_json_request_without_client_create_permission(): void
     {
         $this->actingAs(User::factory()->create());
 
@@ -136,7 +136,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function json_request_without_task_create_permission_gets_403()
+    public function it_returns_403_for_json_request_without_task_create_permission(): void
     {
         $this->actingAs(User::factory()->create());
 
@@ -146,7 +146,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function json_request_without_lead_create_permission_gets_403()
+    public function it_returns_403_for_json_request_without_lead_create_permission(): void
     {
         $this->actingAs(User::factory()->create());
 
@@ -156,7 +156,7 @@ class CreateRouteAuthorizationTest extends AbstractTestCase
     }
 
     #[Test]
-    public function json_request_without_user_create_permission_gets_403()
+    public function it_returns_403_for_json_request_without_user_create_permission(): void
     {
         $this->actingAs(User::factory()->create());
 

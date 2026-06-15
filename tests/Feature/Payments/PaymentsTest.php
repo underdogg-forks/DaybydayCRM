@@ -74,7 +74,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_add_payment()
+    public function it_can_add_payment(): void
     {
         /* Arrange */
         $isEmpty = $this->invoice->payments->isEmpty();
@@ -94,7 +94,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_add_payment_with_decimals_dot_separator()
+    public function it_can_add_payment_with_decimals_dot_separator(): void
     {
         /* Arrange */
         $isEmpty = $this->invoice->payments->isEmpty();
@@ -114,7 +114,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_add_payment_with_decimals_comma_separator()
+    public function it_can_add_payment_with_decimals_comma_separator(): void
     {
         /* Arrange */
         $isEmpty = $this->invoice->payments->isEmpty();
@@ -134,7 +134,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_add_payment_with_minus_amount()
+    public function it_can_add_payment_with_minus_amount(): void
     {
         /* Arrange */
         $isEmpty = $this->invoice->payments->isEmpty();
@@ -155,7 +155,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_add_negative_payment_with_comma_separator()
+    public function it_can_add_negative_payment_with_comma_separator(): void
     {
         /* Arrange */
         $isEmpty = $this->invoice->payments->isEmpty();
@@ -175,7 +175,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_add_negative_payment_with_dot_separator()
+    public function it_can_add_negative_payment_with_dot_separator(): void
     {
         /* Arrange */
         $isEmpty = $this->invoice->payments->isEmpty();
@@ -196,7 +196,7 @@ class PaymentsTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function it_cannot_create_payment_if_no_permission()
+    public function it_cannot_create_payment_if_no_permission(): void
     {
         /* Arrange */
         $this->actingAs(User::factory()->create());
@@ -215,7 +215,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_cant_add_payment_where_amount_is_0()
+    public function it_cannot_add_payment_where_amount_is_0(): void
     {
         /* Arrange */
         $invoiceStatus = $this->invoice->status;
@@ -234,7 +234,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_delete_payment()
+    public function it_can_delete_payment(): void
     {
         /* Arrange */
         $paymentId = $this->payment->id;
@@ -249,7 +249,7 @@ class PaymentsTest extends AbstractTestCase
 
     #[Test]
     #[Group('junie_repaired')]
-    public function it_cannot_delete_payment_if_no_permission()
+    public function it_cannot_delete_payment_if_no_permission(): void
     {
         /* Arrange */
         $this->actingAs(User::factory()->create());
@@ -264,7 +264,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_adding_payment_updates_invoice_status()
+    public function it_updates_invoice_status_when_payment_is_added(): void
     {
         /* Arrange */
         $invoiceStatus = $this->invoice->status;
@@ -284,7 +284,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_adding_wrong_amount_parameter_return_error()
+    public function it_rejects_payment_with_wrong_amount(): void
     {
         /* Arrange */
         $invoiceStatus = $this->invoice->status;
@@ -303,7 +303,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_adding_wrong_source_parameter_return_error()
+    public function it_rejects_payment_with_wrong_source(): void
     {
         /* Arrange */
         $invoiceStatus = $this->invoice->status;
@@ -322,7 +322,7 @@ class PaymentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_adding_invalid_payment_date_parameter_return_error()
+    public function it_rejects_payment_with_invalid_date(): void
     {
         /* Arrange */
         $invoiceStatus = $this->invoice->status;

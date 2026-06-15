@@ -72,7 +72,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_list_clients_index(): void
+    public function it_lists_clients_on_index_page(): void
     {
         $response = $this->get(route('clients.index'));
 
@@ -474,7 +474,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_cant_update_assignee_without_permission(): void
+    public function it_cannot_update_assignee_without_permission(): void
     {
         /* Arrange */
         $client     = Client::factory()->create();
@@ -495,7 +495,7 @@ class ClientsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_can_delete_without_any_relations_client(): void
+    public function it_can_delete_client_without_any_relations(): void
     {
         /* Arrange */
         $this->user = User::factory()->withRole('employee')->create();

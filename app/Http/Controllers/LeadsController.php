@@ -118,7 +118,7 @@ class LeadsController extends Controller
      */
     public function create($client_external_id = null)
     {
-        $client = Client::whereExternalId($client_external_id);
+        $client = Client::whereExternalId($client_external_id)->first();
 
         return view('leads.create')
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))

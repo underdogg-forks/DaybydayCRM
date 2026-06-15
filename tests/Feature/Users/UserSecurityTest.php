@@ -39,7 +39,7 @@ class UserSecurityTest extends AbstractTestCase
         $this->withPermissions(PermissionName::USER_UPDATE);
 
         /* Act */
-        $response = $this->get(route('users.edit', $this->targetUser->external_id));
+        $response = $this->get(route('users.edit', $this->targetUser->external_id), ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -55,7 +55,7 @@ class UserSecurityTest extends AbstractTestCase
         $this->actingAs($this->unauthorizedUser);
 
         /* Act */
-        $response = $this->get(route('users.edit', $this->targetUser->external_id));
+        $response = $this->get(route('users.edit', $this->targetUser->external_id), ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(403);
@@ -97,7 +97,7 @@ class UserSecurityTest extends AbstractTestCase
             'email'      => $this->targetUser->email,
             'department' => $this->targetUser->department()->first()->id,
             'role'       => $this->targetUser->roles->first()->id,
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(403);

@@ -264,14 +264,20 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
     public function it_env_testing_contains_required_database_keys(): void
     {
         /* Arrange */
-        $vars     = $this->parseEnvFile('.env.testing');
-        $required = ['DB_CONNECTION', 'DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME'];
+        $vars       = $this->parseEnvFile('.env.testing');
+        $connection = $vars['DB_CONNECTION'] ?? '';
 
         /* Act */
 
-        /* Assert */
-        foreach ($required as $key) {
-            $this->assertArrayHasKey($key, $vars, ".env.testing is missing required DB key: {$key}");
+        /* Assert — DB_CONNECTION and DB_DATABASE are always required */
+        $this->assertArrayHasKey('DB_CONNECTION', $vars, '.env.testing is missing DB_CONNECTION');
+        $this->assertArrayHasKey('DB_DATABASE', $vars, '.env.testing is missing DB_DATABASE');
+
+        // MySQL/PostgreSQL connections also require host, port, username
+        if ($connection !== 'sqlite') {
+            foreach (['DB_HOST', 'DB_PORT', 'DB_USERNAME'] as $key) {
+                $this->assertArrayHasKey($key, $vars, ".env.testing is missing required DB key: {$key}");
+            }
         }
     }
 
@@ -279,18 +285,25 @@ class ProjectFilesConfigurationTest extends AbstractTestCase
     public function it_env_testing_database_name_is_test_database(): void
     {
         /* Arrange */
-        $vars = $this->parseEnvFile('.env.testing');
+        $vars       = $this->parseEnvFile('.env.testing');
+        $connection = $vars['DB_CONNECTION'] ?? '';
 
         /* Act */
         $dbDatabase = $vars['DB_DATABASE'] ?? '';
 
         /* Assert */
         $this->assertArrayHasKey('DB_DATABASE', $vars);
-        $this->assertStringContainsString(
-            'test',
-            mb_strtolower($dbDatabase),
-            'The test DB_DATABASE name should indicate it is a test database to avoid accidental data loss'
-        );
+
+        // SQLite :memory: is inherently isolated — no risk of data loss
+        if ($connection === 'sqlite' && $dbDatabase === ':memory:') {
+            $this->assertTrue(true, 'SQLite :memory: is safe — no persistent data to lose');
+        } else {
+            $this->assertStringContainsString(
+                'test',
+                mb_strtolower($dbDatabase),
+                'The test DB_DATABASE name should indicate it is a test database to avoid accidental data loss'
+            );
+        }
     }
 
     #[Test]

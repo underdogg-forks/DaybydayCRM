@@ -9,7 +9,7 @@ use Tests\AbstractTestCase;
 class CreateTaskFromProjectTest extends AbstractTestCase
 {
     /** @test */
-    public function test_it_can_access_create_task_from_project_and_has_projects_populated()
+    public function it_can_access_create_task_from_project_and_has_projects_populated()
     {
         $client  = Client::factory()->create();
         $status  = \App\Models\Status::factory()->create(['source_type' => \App\Models\Project::class, 'title' => 'Open']);

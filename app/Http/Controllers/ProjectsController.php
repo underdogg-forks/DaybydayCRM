@@ -18,6 +18,7 @@ use App\Services\Storage\GetStorageProvider;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 use Yajra\DataTables\Facades\DataTables;
@@ -323,13 +324,13 @@ class ProjectsController extends Controller
 
     private function upload($image, $project)
     {
-        if ( ! auth()->user()->can('task-upload-files')) {
+        if ( ! auth()->user()->can('project-upload-files')) {
             session()->flash('flash_message_warning', __('You do not have permission to upload images'));
 
             return redirect()->route('tasks.show', $project->external_id);
         }
         $file        = $image;
-        $filename    = str_random(8) . '_' . $file->getClientOriginalName();
+        $filename    = Str::random(8) . '_' . $file->getClientOriginalName();
         $fileOrginal = $file->getClientOriginalName();
 
         $size       = $file->getSize();

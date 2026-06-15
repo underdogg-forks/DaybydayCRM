@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Storage\StorageAdapterRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 class DocumentsController extends Controller
@@ -123,7 +124,7 @@ class DocumentsController extends Controller
         $client = Client::whereExternalId($external_id)->first();
 
         $file        = $request->file('file');
-        $filename    = str_random(8) . '_' . $file->getClientOriginalName();
+        $filename    = Str::random(8) . '_' . $file->getClientOriginalName();
         $fileOrginal = $file->getClientOriginalName();
 
         $size       = $file->getSize();
@@ -139,20 +140,17 @@ class DocumentsController extends Controller
         $client_folder = $client->external_id;
         $fileSystem    = $this->storage->driver();
         $fileData      = $fileSystem->upload($client_folder, $filename, $file);
-        $input         = array_replace(
-            $request->all(),
-            [
-                'external_id'       => Uuid::uuid4()->toString(),
-                'path'              => $fileData['file_path'],
-                'size'              => $totaltsize,
-                'original_filename' => $fileOrginal,
-                'source_id'         => $client->id,
-                'source_type'       => Client::class,
-                'mime'              => $file->getClientMimeType(),
-                'integration_id'    => $fileData['id'] ?? null,
-                'integration_type'  => get_class($fileSystem),
-            ]
-        );
+        $input         = [
+            'external_id'       => Uuid::uuid4()->toString(),
+            'path'              => $fileData['file_path'],
+            'size'              => $totaltsize,
+            'original_filename' => $fileOrginal,
+            'source_id'         => $client->id,
+            'source_type'       => Client::class,
+            'mime'              => $file->getClientMimeType(),
+            'integration_id'    => $fileData['id'] ?? null,
+            'integration_type'  => get_class($fileSystem),
+        ];
         Document::query()->create($input);
         Session::flash('flash_message', __('File successfully uploaded'));
     }
@@ -181,7 +179,7 @@ class DocumentsController extends Controller
         if (null !== $request->files) {
             foreach ($request->file('files') as $image) {
                 $file        = $image;
-                $filename    = str_random(8) . '_' . $file->getClientOriginalName();
+                $filename    = Str::random(8) . '_' . $file->getClientOriginalName();
                 $fileOrginal = $file->getClientOriginalName();
 
                 $size       = $file->getSize();
@@ -240,7 +238,7 @@ class DocumentsController extends Controller
         if (null !== $request->files) {
             foreach ($request->file('files') as $image) {
                 $file        = $image;
-                $filename    = str_random(8) . '_' . $file->getClientOriginalName();
+                $filename    = Str::random(8) . '_' . $file->getClientOriginalName();
                 $fileOrginal = $file->getClientOriginalName();
 
                 $size       = $file->getSize();

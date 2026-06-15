@@ -38,7 +38,7 @@ class TaskAuthorizationTest extends AbstractTestCase
         /* Act */
         $response = $this->patch(route('tasks.updateProject', $this->task->external_id), [
             'project_external_id' => $project->external_id,
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -81,7 +81,7 @@ class TaskAuthorizationTest extends AbstractTestCase
             'title'            => 'Malicious Title Change',
             'description'      => 'Malicious Description Change',
             'user_assigned_id' => 999,
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $this->task->refresh();

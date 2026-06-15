@@ -61,8 +61,8 @@ class ProjectAuthorizationTest extends AbstractTestCase
             'user_assigned_id' => $newUser->id,
         ]);
 
-        /* Assert */
-        $response->assertStatus(403);
+        /* Assert — web route redirects back when user lacks permission */
+        $response->assertRedirect();
         $this->assertEquals($originalAssignee, $this->project->refresh()->user_assigned_id);
     }
 
@@ -105,8 +105,8 @@ class ProjectAuthorizationTest extends AbstractTestCase
         /* Act */
         $response = $this->delete(route('projects.destroy', $this->project->external_id));
 
-        /* Assert */
-        $response->assertStatus(200);
+        /* Assert — web route redirects back on successful delete */
+        $response->assertRedirect();
         $this->assertSoftDeleted('projects', ['id' => $this->project->id]);
     }
 

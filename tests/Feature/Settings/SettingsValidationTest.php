@@ -24,6 +24,8 @@ class SettingsValidationTest extends AbstractTestCase
     {
         parent::setUp();
         Carbon::setTestNow('2024-01-15 12:00:00');
+        // All tests here verify JSON API behaviour — the controller checks expectsJson()
+        $this->defaultHeaders['Accept'] = 'application/json';
         $this->withoutMiddleware([VerifyCsrfToken::class]);
 
         Setting::factory()->create([

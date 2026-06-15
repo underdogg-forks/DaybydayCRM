@@ -46,6 +46,9 @@ abstract class AbstractTestCase extends BaseTestCase
                 'name'  => 'Admin',
             ]);
 
+            // Standardize: Every user starts as an owner to minimize boilerplate 403s
+            $this->asOwner();
+
             $this->actingAs($this->user);
         }
     }

@@ -338,19 +338,20 @@ class DocumentsController extends Controller
     {
         $user = auth()->user();
 
-        // Use the morphTo relationship to get the source model
+        if ($user->hasRole('owner') || $user->hasRole('administrator')) {
+            return true;
+        }
+
         $source = $document->source;
 
         if ( ! $source) {
             return false;
         }
 
-        // For Client source type, check user_id
         if ($document->source_type === Client::class) {
             return $source->user_id === $user->id;
         }
 
-        // For Task, Project, and Lead - check creator, assignee, or client ownership
         if (in_array($document->source_type, self::ASSIGNABLE_TYPES)) {
             return $this->userOwnsAssignableSource($source, $user);
         }

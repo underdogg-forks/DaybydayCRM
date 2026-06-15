@@ -40,14 +40,11 @@ abstract class AbstractTestCase extends BaseTestCase
 
         // Only create user and run auth setup if the DB is available
         if (Schema::hasTable('users')) {
-            $uniqueEmail = 'testuser_' . uniqid('', true) . '@example.org';
+            $uniqueEmail = 'user_' . uniqid() . '@test.com';
             $this->user  = User::factory()->create([
                 'email' => $uniqueEmail,
                 'name'  => 'Admin',
             ]);
-
-            // Standardize: Every user starts as an owner to minimize boilerplate 403s
-            $this->asOwner();
 
             $this->actingAs($this->user);
         }

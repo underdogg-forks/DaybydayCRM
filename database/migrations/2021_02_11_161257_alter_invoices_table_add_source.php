@@ -45,20 +45,38 @@ class AlterInvoicesTableAddSource extends Migration
                 $table->dropColumn('invoice_id');
             });
         } else {
-            Schema::table('invoice_lines', static function (Blueprint $table) {
-                $table->integer('offer_id')->unsigned()->nullable();
-            });
+            // SQLite cannot ALTER COLUMN — recreate the table to add offer_id and make invoice_id nullable
+            DB::statement('PRAGMA foreign_keys = OFF');
+            DB::statement('CREATE TABLE invoice_lines_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                external_id VARCHAR NOT NULL,
+                title VARCHAR NOT NULL,
+                comment TEXT,
+                price INTEGER NOT NULL,
+                offer_id INTEGER UNSIGNED,
+                invoice_id INTEGER UNSIGNED,
+                type VARCHAR,
+                quantity INTEGER,
+                product_id VARCHAR,
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP,
+                deleted_at TIMESTAMP
+            )');
+            DB::statement('INSERT INTO invoice_lines_new (id, external_id, title, comment, price, invoice_id, type, quantity, product_id, created_at, updated_at, deleted_at) SELECT id, external_id, title, comment, price, invoice_id, type, quantity, product_id, created_at, updated_at, deleted_at FROM invoice_lines');
+            DB::statement('DROP TABLE invoice_lines');
+            DB::statement('ALTER TABLE invoice_lines_new RENAME TO invoice_lines');
+            DB::statement('PRAGMA foreign_keys = ON');
         }
 
-        Schema::table('invoice_lines', function (Blueprint $table) {
-            $table->integer('invoice_id')->unsigned()->nullable()->after('price');
-            if (! (DB::getDriverName() === 'sqlite')) {
+        if (! $isSqlite) {
+            Schema::table('invoice_lines', function (Blueprint $table) {
+                $table->integer('invoice_id')->unsigned()->nullable()->after('price');
                 $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
-            }
-            foreach ($this->invoiceLines as $invoiceLine) {
-                DB::table('invoice_lines')->where('id', $invoiceLine->id)->update(['invoice_id' => $invoiceLine->invoice_id]);
-            }
-        });
+                foreach ($this->invoiceLines as $invoiceLine) {
+                    DB::table('invoice_lines')->where('id', $invoiceLine->id)->update(['invoice_id' => $invoiceLine->invoice_id]);
+                }
+            });
+        }
     }
 
     public function down() {}

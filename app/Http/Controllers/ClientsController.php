@@ -73,17 +73,22 @@ class ClientsController extends Controller
         $clients = $this->clientService->getClientsForDataTable();
 
         return Datatables::of($clients)
-            ->addColumn('namelink', '<a href="{{ route("clients.show",[$external_id]) }}">{{$company_name}}</a>')
-            ->addColumn('view', '
-                <a href="{{ route(\'clients.show\', $external_id) }}" class="btn btn-link" >' . __('View') . '</a>')
-            ->addColumn('edit', '
-                <a href="{{ route(\'clients.edit\', $external_id) }}" class="btn btn-link" >' . __('Edit') . '</a>')
-            ->addColumn('delete', '
-                <form action="{{ route(\'clients.destroy\', $external_id) }}" method="POST">
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="submit" name="submit" value="' . __('Delete') . '" class="btn btn-link" onClick="return confirm(\'Are you sure? All the clients tasks, leads, projects, etc will be deleted as well\')"">
-            {{csrf_field()}}
-            </form>')
+            ->addColumn('namelink', function ($client) {
+                return '<a href="' . route('clients.show', [$client->external_id]) . '">' . e($client->company_name) . '</a>';
+            })
+            ->addColumn('view', function ($client) {
+                return '<a href="' . route('clients.show', $client->external_id) . '" class="btn btn-link">' . __('View') . '</a>';
+            })
+            ->addColumn('edit', function ($client) {
+                return '<a href="' . route('clients.edit', $client->external_id) . '" class="btn btn-link">' . __('Edit') . '</a>';
+            })
+            ->addColumn('delete', function ($client) {
+                return '<form action="' . route('clients.destroy', $client->external_id) . '" method="POST">'
+                    . '<input type="hidden" name="_method" value="DELETE">'
+                    . '<input type="hidden" name="_token" value="' . csrf_token() . '">'
+                    . '<input type="submit" name="submit" value="' . __('Delete') . '" class="btn btn-link" onClick="return confirm(\'Are you sure? All the clients tasks, leads, projects, etc will be deleted as well\')">'
+                    . '</form>';
+            })
             ->rawColumns(['namelink', 'view', 'edit', 'delete'])
             ->make(true);
     }
@@ -94,7 +99,9 @@ class ClientsController extends Controller
         $tasks  = $this->clientService->getTasksWithRelations($client);
 
         return Datatables::of($tasks)
-            ->addColumn('titlelink', '<a href="{{ route("tasks.show",[$external_id]) }}">{{$title}}</a>')
+            ->addColumn('titlelink', function ($task) {
+                return '<a href="' . route('tasks.show', [$task->external_id]) . '">' . e($task->title) . '</a>';
+            })
             ->editColumn('created_at', $this->formatDateColumn('created_at'))
             ->editColumn('deadline', $this->formatDateColumn('deadline'))
             ->editColumn('status_id', $this->statusBadgeColumn())
@@ -109,7 +116,9 @@ class ClientsController extends Controller
         $projects = $this->clientService->getProjectsWithRelations($client);
 
         return Datatables::of($projects)
-            ->addColumn('titlelink', '<a href="{{ route("projects.show",[$external_id]) }}">{{$title}}</a>')
+            ->addColumn('titlelink', function ($project) {
+                return '<a href="' . route('projects.show', [$project->external_id]) . '">' . e($project->title) . '</a>';
+            })
             ->editColumn('created_at', $this->formatDateColumn('created_at'))
             ->editColumn('deadline', $this->formatDateColumn('deadline'))
             ->editColumn('status_id', $this->statusBadgeColumn())
@@ -124,7 +133,9 @@ class ClientsController extends Controller
         $leads  = $this->clientService->getLeadsWithRelations($client);
 
         return Datatables::of($leads)
-            ->addColumn('titlelink', '<a href="{{ route("leads.show",[$external_id]) }}">{{$title}}</a>')
+            ->addColumn('titlelink', function ($lead) {
+                return '<a href="' . route('leads.show', [$lead->external_id]) . '">' . e($lead->title) . '</a>';
+            })
             ->editColumn('created_at', $this->formatDateColumn('created_at'))
             ->editColumn('deadline', $this->formatDateColumn('deadline'))
             ->editColumn('status_id', $this->statusBadgeColumn())
@@ -165,7 +176,7 @@ class ClientsController extends Controller
      */
     public function create()
     {
-        $setting = Setting::first();
+        $setting = Setting::cached();
         $country = $setting ? Country::fromCode($setting->country) : null;
 
         return view('clients.create')
@@ -252,7 +263,7 @@ class ClientsController extends Controller
 
         return view('clients.show')
             ->withClient($client)
-            ->withCompanyname(Setting::first()?->company ?? 'Daybyday')
+            ->withCompanyname(Setting::cached()?->company ?? 'Daybyday')
             ->withInvoices($this->clientService->getInvoices($client))
             ->withUsers(User::with('department')->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
             ->with('filesystem_integration', $filesystemIntegration)

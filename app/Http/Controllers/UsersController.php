@@ -48,7 +48,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        return view('users.index')->withUsers(User::all());
+        return view('users.index')->withUsers(User::with(['department', 'roles'])->get());
     }
 
     public function calendarUsers()
@@ -231,7 +231,7 @@ class UsersController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $settings = Setting::first();
+        $settings = Setting::cached();
         if (User::count() >= $settings->max_users) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => __('Max number of users reached')], 400);
@@ -289,7 +289,7 @@ class UsersController extends Controller
 
         return view('users.show')
             ->withUser($user)
-            ->withCompanyname(Setting::first()->company)
+            ->withCompanyname(Setting::cached()->company)
             ->with('task_statistics', $user->totalOpenAndClosedTasks($external_id))
             ->with('lead_statistics', $user->totalOpenAndClosedLeads($external_id))
             ->with('lead_statuses', Status::typeOfLead()->get()->unique('title'))

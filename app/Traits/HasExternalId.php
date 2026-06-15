@@ -30,4 +30,14 @@ trait HasExternalId
     {
         return 'external_id';
     }
+
+    public static function findByExternalId(string $externalId): ?static
+    {
+        return static::query()->where('external_id', $externalId)->first();
+    }
+
+    public static function whereExternalId(string $externalId)
+    {
+        return static::query()->where('external_id', $externalId);
+    }
 }

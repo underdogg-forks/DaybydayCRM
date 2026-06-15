@@ -46,10 +46,7 @@ class Client extends Model
         parent::boot();
     }
 
-    public static function whereExternalId($external_id)
-    {
-        return self::query()->where('external_id', $external_id)->first();
-    }
+    // findByExternalId() and whereExternalId() are provided by HasExternalId trait
 
     public function updateAssignee(User $user)
     {

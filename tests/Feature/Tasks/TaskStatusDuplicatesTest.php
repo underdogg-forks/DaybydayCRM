@@ -10,7 +10,7 @@ class TaskStatusDuplicatesTest extends AbstractTestCase
 {
     /** @test */
     /** @test */
-    public function test_duplicates_are_removed_in_controller()
+    public function it_removes_duplicate_statuses_in_controller_response()
     {
         // Create duplicate statuses
         Status::factory()->create(['source_type' => Task::class, 'title' => 'Open']);

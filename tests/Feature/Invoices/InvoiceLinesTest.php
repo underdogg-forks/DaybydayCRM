@@ -81,7 +81,7 @@ class InvoiceLinesTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_cant_delete_without_permission(): void
+    public function it_cannot_delete_without_permission(): void
     {
         /* Arrange */
         $user = User::factory()->create();

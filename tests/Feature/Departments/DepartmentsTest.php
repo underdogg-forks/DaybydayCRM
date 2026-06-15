@@ -59,7 +59,7 @@ class DepartmentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function it_cant_delete_department_if_user_is_associated(): void
+    public function it_cannot_delete_department_if_user_is_associated(): void
     {
         /* Arrange */
         $department = Department::factory()->create();

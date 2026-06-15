@@ -76,7 +76,9 @@ class UsersController extends Controller
         $users = User::query()->select(['id', 'external_id', 'name', 'email', 'primary_number']);
 
         return Datatables::of($users)
-            ->addColumn('namelink', '<a href="{{ route("users.show",[$external_id]) }}">{{$name}}</a>')
+            ->addColumn('namelink', function ($user) {
+                return '<a href="' . route('users.show', $user->external_id) . '">' . e($user->name) . '</a>';
+            })
             ->addColumn('view', function ($user) {
                 return '<a href="' . route('users.show', $user->external_id) . '" class="btn btn-link">' . __('View') . '</a>';
             })
@@ -107,7 +109,9 @@ class UsersController extends Controller
             ->orderBy('projects.title', 'asc');
 
         return Datatables::of($projects)
-            ->addColumn('titlelink', '<a href="{{ route("projects.show",[$external_id]) }}">{{$title}}</a>')
+            ->addColumn('titlelink', function ($project) {
+                return '<a href="' . route('projects.show', $project->external_id) . '">' . e($project->title) . '</a>';
+            })
             ->addColumn('client_id', function ($project) {
                 return $project->client ? $project->client->company_name : '';
             })
@@ -135,7 +139,9 @@ class UsersController extends Controller
             ->orderBy('tasks.title', 'asc');
 
         return Datatables::of($tasks)
-            ->addColumn('titlelink', '<a href="{{ route("tasks.show",[$external_id]) }}">{{$title}}</a>')
+            ->addColumn('titlelink', function ($task) {
+                return '<a href="' . route('tasks.show', $task->external_id) . '">' . e($task->title) . '</a>';
+            })
             ->editColumn('created_at', function ($tasks) {
                 return $tasks->created_at ? with(new Carbon($tasks->created_at))
                     ->format(carbonDate()) : '';
@@ -171,7 +177,9 @@ class UsersController extends Controller
             ->orderBy('leads.title', 'asc');
 
         return Datatables::of($leads)
-            ->addColumn('titlelink', '<a href="{{ route("leads.show",[$external_id]) }}">{{$title}}</a>')
+            ->addColumn('titlelink', function ($lead) {
+                return '<a href="' . route('leads.show', $lead->external_id) . '">' . e($lead->title) . '</a>';
+            })
             ->editColumn('created_at', function ($leads) {
                 return $leads->created_at ? with(new Carbon($leads->created_at))
                     ->format(carbonDate()) : '';

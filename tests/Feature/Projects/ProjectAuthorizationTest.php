@@ -63,6 +63,7 @@ class ProjectAuthorizationTest extends AbstractTestCase
 
         /* Assert — web route redirects back when user lacks permission */
         $response->assertRedirect();
+        $response->assertSessionHas('flash_message_warning');
         $this->assertEquals($originalAssignee, $this->project->refresh()->user_assigned_id);
     }
 

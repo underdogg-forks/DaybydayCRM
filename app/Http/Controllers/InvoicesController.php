@@ -21,7 +21,6 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Session;
 use Ramsey\Uuid\Uuid;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -55,12 +54,6 @@ class InvoicesController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        if ( ! auth()->user()->can('invoice-see')) {
-            session()->flash('flash_message_warning', __('You do not have permission to view this invoice'));
-
-            return redirect()->route('clients.index');
-        }
-
         $api = $this->billing->driver();
 
         $apiConnected    = ! ($api instanceof NullBillingAdapter);
@@ -149,7 +142,7 @@ class InvoicesController extends Controller
         $invoice = $this->findByExternalId($external_id);
 
         if ( ! $invoice->canUpdateInvoice()) {
-            Session::flash('flash_message_warning', __("Can't insert new invoice line, to already sent invoice"));
+            session()->flash('flash_message_warning', __("Can't insert new invoice line, to already sent invoice"));
 
             return redirect()->back();
         }

@@ -210,8 +210,8 @@ Route::group(['middleware' => ['auth']], static function () {
      * Documents
      */
     Route::get('/add-documents/{external_id}/{type}', 'DocumentsController@uploadFilesModalView');
-    Route::post('/uploaToTask/{external_id}', 'DocumentsController@uploadToTask')->name('document.task.upload');
-    Route::post('/uploaToProject/{external_id}', 'DocumentsController@uploadToProject')->name('document.project.upload');
+    Route::post('/uploadToTask/{external_id}', 'DocumentsController@uploadToTask')->name('document.task.upload');
+    Route::post('/uploadToProject/{external_id}', 'DocumentsController@uploadToProject')->name('document.project.upload');
     Route::get('/search/{query}/{type?}', 'SearchController@search')->name('search');
 
     /*

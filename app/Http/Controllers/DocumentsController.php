@@ -10,7 +10,6 @@ use App\Models\Task;
 use App\Models\User;
 use App\Services\Storage\StorageAdapterRegistry;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
@@ -132,7 +131,7 @@ class DocumentsController extends Controller
         $totaltsize = mb_substr($mbsize, 0, 4);
 
         if ($totaltsize > 15) {
-            Session::flash('flash_message', __('File Size cannot be bigger than 15MB'));
+            session()->flash('flash_message', __('File Size cannot be bigger than 15MB'));
 
             return redirect()->back();
         }
@@ -152,7 +151,7 @@ class DocumentsController extends Controller
             'integration_type'  => get_class($fileSystem),
         ];
         Document::query()->create($input);
-        Session::flash('flash_message', __('File successfully uploaded'));
+        session()->flash('flash_message', __('File successfully uploaded'));
     }
 
     /**
@@ -187,7 +186,7 @@ class DocumentsController extends Controller
                 $totaltsize = mb_substr($mbsize, 0, 4);
 
                 if ($totaltsize > 15) {
-                    Session::flash('flash_message', __('File Size cannot be bigger than 15MB'));
+                    session()->flash('flash_message', __('File Size cannot be bigger than 15MB'));
 
                     return redirect()->back();
                 }
@@ -209,7 +208,7 @@ class DocumentsController extends Controller
                 ]);
             }
         }
-        Session::flash('flash_message', __('File successfully uploaded'));
+        session()->flash('flash_message', __('File successfully uploaded'));
 
         return response()->json(['external_id' => $task->external_id], 200);
     }
@@ -246,7 +245,7 @@ class DocumentsController extends Controller
                 $totaltsize = mb_substr($mbsize, 0, 4);
 
                 if ($totaltsize > 15) {
-                    Session::flash('flash_message', __('File Size cannot be bigger than 15MB'));
+                    session()->flash('flash_message', __('File Size cannot be bigger than 15MB'));
 
                     return redirect()->back();
                 }
@@ -270,7 +269,7 @@ class DocumentsController extends Controller
                 ]);
             }
         }
-        Session::flash('flash_message', __('File successfully uploaded'));
+        session()->flash('flash_message', __('File successfully uploaded'));
 
         return response()->json(['external_id' => $project->external_id], 200);
     }

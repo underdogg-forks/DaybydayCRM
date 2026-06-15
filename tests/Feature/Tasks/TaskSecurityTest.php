@@ -98,7 +98,7 @@ class TaskSecurityTest extends AbstractTestCase
         /* Act */
         $response = $this->patch(route('task.update.status', $this->task->external_id), [
             'statusExternalId' => 'invalid-uuid-12345',
-        ], ['X-Requested-With' => 'XMLHttpRequest']);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(400)

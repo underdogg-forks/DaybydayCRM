@@ -478,7 +478,7 @@ class OffersTest extends AbstractTestCase
                 'comment'  => 'bad product',
                 'product'  => 'missing-product-external-id',
             ],
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(422);

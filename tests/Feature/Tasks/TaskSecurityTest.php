@@ -135,7 +135,7 @@ class TaskSecurityTest extends AbstractTestCase
         /* Act */
         $response = $this->patch(route('task.update.status', $this->task->external_id), [
             'status_id' => $leadStatus->id,
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $this->task->refresh();
@@ -156,7 +156,7 @@ class TaskSecurityTest extends AbstractTestCase
         /* Act */
         $response = $this->patch(route('task.update.status', $this->task->external_id), [
             'status_id' => 999999,
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $this->task->refresh();

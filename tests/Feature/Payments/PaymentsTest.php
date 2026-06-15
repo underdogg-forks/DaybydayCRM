@@ -29,6 +29,8 @@ class PaymentsTest extends AbstractTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Controllers check expectsJson() to decide response format; set Accept globally
+        $this->defaultHeaders['Accept'] = 'application/json';
         $this->withPermissions(PermissionName::PAYMENT_DELETE);
         $this->withoutMiddleware([VerifyCsrfToken::class]);
         $this->invoice = Invoice::factory()->create([

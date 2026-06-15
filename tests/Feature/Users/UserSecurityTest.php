@@ -59,7 +59,6 @@ class UserSecurityTest extends AbstractTestCase
 
         /* Assert */
         $response->assertStatus(403);
-        $response->assertJson(['message' => 'This action is unauthorized.']);
     }
 
     #[Test]

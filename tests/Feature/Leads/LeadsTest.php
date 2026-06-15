@@ -251,7 +251,7 @@ class LeadsTest extends AbstractTestCase
         ]);
 
         /* Act */
-        $response = $this->delete(route('leads.destroy', $lead->external_id));
+        $response = $this->delete(route('leads.destroy', $lead->external_id), [], ['Accept' => 'application/json']);
         $offer->refresh();
 
         /* Assert */
@@ -271,7 +271,7 @@ class LeadsTest extends AbstractTestCase
         /* Act */
         $response = $this->delete(route('leads.destroy', $lead->external_id), [
             'delete_offers' => 'on',
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -521,7 +521,7 @@ class LeadsTest extends AbstractTestCase
         $lead = Lead::factory()->create();
 
         /* Act */
-        $response = $this->delete(route('leads.destroy', $lead->external_id));
+        $response = $this->delete(route('leads.destroy', $lead->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -543,7 +543,7 @@ class LeadsTest extends AbstractTestCase
         /* Act */
         $response = $this->delete(route('leads.destroy', $lead->external_id), [
             'delete_offers' => 'on',
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(200);
@@ -575,7 +575,7 @@ class LeadsTest extends AbstractTestCase
         $status = Status::factory()->create(['source_type' => Lead::class]);
 
         /* Act */
-        $response = $this->post(route('leads.store'), $this->validLeadPayload($status->id));
+        $response = $this->post(route('leads.store'), $this->validLeadPayload($status->id), ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(500);

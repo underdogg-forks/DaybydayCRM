@@ -26,8 +26,8 @@ class AddCascadingForTables extends Migration
             if (! $isSqlite) {
                 $table->dropForeign('tasks_project_id_foreign');
                 $table->dropForeign('tasks_invoice_id_foreign');
+                $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('set null');
             }
-            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('set null');
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('set null');
         });
         Schema::table('payments', static function (Blueprint $table) use ($isSqlite) {

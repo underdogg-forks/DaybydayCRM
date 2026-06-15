@@ -10,11 +10,6 @@ class AlterInvoicesTableAddSource extends Migration
 {
     protected $invoiceLines;
 
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         $isSqlite = DB::getDriverName() === 'sqlite';
@@ -27,47 +22,44 @@ class AlterInvoicesTableAddSource extends Migration
             $table->foreign('offer_id')->references('id')->on('offers')->onDelete('set null');
         });
 
-        Schema::disableForeignKeyConstraints();
-
-        Schema::table('leads', static function (Blueprint $table) use ($isSqlite) {
-            if (! $isSqlite) {
+        if (! $isSqlite) {
+            Schema::table('leads', static function (Blueprint $table) {
                 $table->dropForeign('leads_invoice_id_foreign');
-            }
-            $table->dropColumn('invoice_id');
-        });
-        Schema::table('tasks', static function (Blueprint $table) use ($isSqlite) {
-            if (! $isSqlite) {
+                $table->dropColumn('invoice_id');
+            });
+            Schema::table('tasks', static function (Blueprint $table) {
                 $table->dropForeign('tasks_invoice_id_foreign');
-            }
-            $table->dropColumn('invoice_id');
-        });
-        Schema::table('invoice_lines', function (Blueprint $table) use ($isSqlite) {
-            $table->integer('offer_id')->unsigned()->nullable()->after('price');
-            $table->foreign('offer_id')->references('id')->on('offers')->onDelete('cascade');
+                $table->dropColumn('invoice_id');
+            });
+        }
+        // On SQLite we leave leads.invoice_id and tasks.invoice_id in place — the extra
+        // nullable column is harmless for testing purposes.
 
-            $this->invoiceLines = InvoiceLine::all();
-            if (! $isSqlite) {
+        $this->invoiceLines = InvoiceLine::all();
+
+        if (! $isSqlite) {
+            Schema::table('invoice_lines', function (Blueprint $table) {
+                $table->integer('offer_id')->unsigned()->nullable()->after('price');
+                $table->foreign('offer_id')->references('id')->on('offers')->onDelete('cascade');
                 $table->dropForeign('invoice_lines_invoice_id_foreign');
-            }
-            $table->dropColumn('invoice_id');
-        });
-
-        Schema::enableForeignKeyConstraints();
+                $table->dropColumn('invoice_id');
+            });
+        } else {
+            Schema::table('invoice_lines', static function (Blueprint $table) {
+                $table->integer('offer_id')->unsigned()->nullable();
+            });
+        }
 
         Schema::table('invoice_lines', function (Blueprint $table) {
             $table->integer('invoice_id')->unsigned()->nullable()->after('price');
-            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+            if (! (DB::getDriverName() === 'sqlite')) {
+                $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+            }
             foreach ($this->invoiceLines as $invoiceLine) {
-                $invoiceLine->invoice_id = $invoiceLine->invoice_id;
-                $invoiceLine->save();
+                DB::table('invoice_lines')->where('id', $invoiceLine->id)->update(['invoice_id' => $invoiceLine->invoice_id]);
             }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down() {}
 }

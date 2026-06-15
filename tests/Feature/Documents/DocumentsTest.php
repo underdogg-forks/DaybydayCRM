@@ -242,7 +242,7 @@ class DocumentsTest extends AbstractTestCase
         ]);
 
         $this->assertEquals($this->client->id, $task->client_id);
-        $this->assertEquals($this->owner->id, $task->client->user_id);
+        $this->assertEquals($this->clientOwner->id, $task->client->user_id);
 
         $document = Document::factory()->create([
             'source_type' => Task::class,
@@ -251,7 +251,7 @@ class DocumentsTest extends AbstractTestCase
         $document->unsetRelation('source')->refresh();
 
         /* Act */
-        $response = $this->actingAs($this->owner)
+        $response = $this->actingAs($this->clientOwner)
             ->get(route('document.view', $document->external_id));
 
         /* Assert */
@@ -449,7 +449,7 @@ class DocumentsTest extends AbstractTestCase
         ]);
 
         /* Act */
-        $response = $this->actingAs($this->owner)
+        $response = $this->actingAs($this->clientOwner)
             ->get(route('document.view', $document->external_id));
 
         /* Assert */
@@ -550,7 +550,7 @@ class DocumentsTest extends AbstractTestCase
         $this->actingAs($this->unrelated);
 
         /* Act */
-        $response = $this->get(route('document.view', $document->external_id));
+        $response = $this->get(route('document.view', $document->external_id), ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(403);
@@ -567,7 +567,7 @@ class DocumentsTest extends AbstractTestCase
         $this->actingAs($this->unrelated);
 
         /* Act */
-        $response = $this->get(route('document.view', $document->external_id));
+        $response = $this->get(route('document.view', $document->external_id), ['Accept' => 'application/json']);
 
         /* Assert – unauthorized user gets 403, not a storage error */
         $response->assertStatus(403);
@@ -648,7 +648,7 @@ class DocumentsTest extends AbstractTestCase
         $this->actingAs($this->unrelated);
 
         /* Act */
-        $response = $this->get(route('document.download', $document->external_id));
+        $response = $this->get(route('document.download', $document->external_id), ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(403);

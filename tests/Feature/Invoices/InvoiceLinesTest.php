@@ -89,7 +89,7 @@ class InvoiceLinesTest extends AbstractTestCase
         $this->assertNotNull(InvoiceLine::query()->where('external_id', $this->invoiceLine->external_id)->first());
 
         /* Act */
-        $response = $this->delete(route('invoiceLine.destroy', $this->invoiceLine->external_id));
+        $response = $this->delete(route('invoiceLine.destroy', $this->invoiceLine->external_id), [], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(403);

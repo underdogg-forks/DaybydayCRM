@@ -15,7 +15,8 @@ abstract class AbstractTestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-    protected static $schemaIsUpToDate = false; // <-- add this (for this process)
+    /** @deprecated — kept for BC, but no longer used for schema checks */
+    protected static $schemaIsUpToDate = false;
 
     protected $user;
 
@@ -33,9 +34,8 @@ abstract class AbstractTestCase extends BaseTestCase
             array_keys((function () { return class_uses_recursive($this); })->call($this))
         );
 
-        if ( ! $usesRefreshDatabase && ! static::$schemaIsUpToDate) {
+        if ( ! $usesRefreshDatabase && ! Schema::hasTable('users')) {
             Artisan::call('migrate:fresh', ['--seed' => true]);
-            static::$schemaIsUpToDate = true;
         }
 
         // Only create user and run auth setup if the DB is available

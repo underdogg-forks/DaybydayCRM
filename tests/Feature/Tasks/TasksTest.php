@@ -106,7 +106,7 @@ class TasksTest extends AbstractTestCase
         /* Act */
         $response = $this->post(route('tasks.update.project', $task->external_id), [
             'project_external_id' => $project->external_id,
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertOk();
@@ -125,7 +125,7 @@ class TasksTest extends AbstractTestCase
         /* Act */
         $response = $this->patch(route('task.update.assignee', $task->external_id), [
             'user_assigned_id' => $this->user->id,
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertOk();
@@ -146,7 +146,7 @@ class TasksTest extends AbstractTestCase
         /* Act */
         $response = $this->patch(route('task.update.status', $task->external_id), [
             'status_id' => $status->id,
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertOk();
@@ -165,7 +165,7 @@ class TasksTest extends AbstractTestCase
         $response = $this->patch(route('task.update.deadline', $task->external_id), [
             'deadline_date' => '2020-08-06',
             'deadline_time' => '00:00',
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertOk();
@@ -202,7 +202,7 @@ class TasksTest extends AbstractTestCase
         $status = Status::factory()->create(['source_type' => Task::class]);
 
         /* Act */
-        $response = $this->post(route('tasks.store'), $this->validTaskPayload($status->id));
+        $response = $this->post(route('tasks.store'), $this->validTaskPayload($status->id), ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(500);

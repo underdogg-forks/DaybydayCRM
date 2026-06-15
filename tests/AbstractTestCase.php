@@ -25,7 +25,14 @@ abstract class AbstractTestCase extends BaseTestCase
         // Reset Faker's unique state to avoid collisions with seeded data
         fake()->unique(true);
 
-        if ( ! static::$schemaIsUpToDate) {
+        // Skip migrate:fresh when RefreshDatabase is used — that trait handles migrations itself
+        // and calling migrate:fresh inside a transaction (which RefreshDatabase starts) fails on SQLite.
+        $usesRefreshDatabase = in_array(
+            \Illuminate\Foundation\Testing\RefreshDatabase::class,
+            array_keys((function () { return class_uses_recursive($this); })->call($this))
+        );
+
+        if ( ! $usesRefreshDatabase && ! static::$schemaIsUpToDate) {
             Artisan::call('migrate:fresh', ['--seed' => true]);
             static::$schemaIsUpToDate = true;
         }

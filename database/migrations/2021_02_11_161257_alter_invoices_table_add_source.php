@@ -35,7 +35,7 @@ class AlterInvoicesTableAddSource extends Migration
         // On SQLite we leave leads.invoice_id and tasks.invoice_id in place — the extra
         // nullable column is harmless for testing purposes.
 
-        $this->invoiceLines = InvoiceLine::all();
+        $this->invoiceLines = InvoiceLine::query()->pluck('invoice_id', 'id');
 
         if (! $isSqlite) {
             Schema::table('invoice_lines', function (Blueprint $table) {
@@ -72,10 +72,11 @@ class AlterInvoicesTableAddSource extends Migration
             Schema::table('invoice_lines', function (Blueprint $table) {
                 $table->integer('invoice_id')->unsigned()->nullable()->after('price');
                 $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
-                foreach ($this->invoiceLines as $invoiceLine) {
-                    DB::table('invoice_lines')->where('id', $invoiceLine->id)->update(['invoice_id' => $invoiceLine->invoice_id]);
-                }
             });
+
+            foreach ($this->invoiceLines as $id => $invoiceId) {
+                DB::table('invoice_lines')->where('id', $id)->update(['invoice_id' => $invoiceId]);
+            }
         }
     }
 

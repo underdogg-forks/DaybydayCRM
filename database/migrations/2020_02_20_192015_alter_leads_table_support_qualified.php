@@ -33,13 +33,15 @@ class AlterLeadsTableSupportQualified extends Migration
      */
     public function down()
     {
-        Schema::table('leads', static function (Blueprint $table) {
+        $isSqlite = DB::getDriverName() === 'sqlite';
+
+        Schema::table('leads', static function (Blueprint $table) use ($isSqlite) {
             $table->dropColumn('qualified');
             $table->dropColumn('result');
-            if (DB::getDriverName() !== 'sqlite') {
+            if (!$isSqlite) {
                 $table->dropForeign(['invoice_id']);
-                $table->dropColumn('invoice_id');
             }
+            $table->dropColumn('invoice_id');
         });
     }
 }

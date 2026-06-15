@@ -75,7 +75,9 @@ class ProjectsController extends Controller
             ->orderBy('users.name', 'asc');
 
         return Datatables::of($projects)
-            ->addColumn('titlelink', '<a href="{{ route("projects.show",[$external_id]) }}">{{$title}}</a>')
+            ->addColumn('titlelink', function ($projects) {
+                return '<a href="' . route('projects.show', [$projects->external_id]) . '">' . e($projects->title) . '</a>';
+            })
             ->editColumn('client', function ($projects) {
                 return $projects->client->company_name;
             })

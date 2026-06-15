@@ -284,7 +284,7 @@ class LeadsController extends Controller
             ->withLead($lead)
             ->withOffers($offers)
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
-            ->withCompanyname(Setting::first()?->company)
+            ->withCompanyname(Setting::cached()?->company)
             ->withStatuses(Status::typeOfLead()->pluck('title', 'id'));
     }
 

@@ -115,7 +115,7 @@ class TasksController extends Controller
                 }
             })
             ->addColumn('titlelink', function ($task) {
-                return '<a href="' . route('tasks.show', [$task->external_id]) . '">' . $task->title . '</a>';
+                return '<a href="' . route('tasks.show', [$task->external_id]) . '">' . e($task->title) . '</a>';
             })
             ->editColumn('client', function ($task) {
                 return $task->client ? $task->client->company_name : '';
@@ -249,7 +249,7 @@ class TasksController extends Controller
         return view('tasks.show')
             ->withTasks($task)
             ->withUsers(User::with(['department'])->get()->pluck('nameAndDepartmentEagerLoading', 'id'))
-            ->with('company_name', Setting::first()->company ?? '')
+            ->with('company_name', Setting::cached()->company ?? '')
             ->withStatuses(Status::typeOfTask()->get()->unique('title')->pluck('title', 'id'))
             ->withProjects($task->client ? $task->client->projects()->pluck('title', 'external_id') : collect())
             ->withFiles($task->documents)
@@ -396,8 +396,6 @@ class TasksController extends Controller
      */
     public function marked()
     {
-        Notifynder::readAll(Auth::id());
-
         return redirect()->back();
     }
 

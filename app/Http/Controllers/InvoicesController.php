@@ -34,7 +34,9 @@ class InvoicesController extends Controller
     public function __construct(
         private BillingIntegrationRegistry $billing,
         private InvoiceService $invoiceService,
-    ) {}
+    ) {
+        $this->middleware('permission:invoice-see', ['only' => ['index', 'show']]);
+    }
 
     /**
      * Display a listing of the resource.
@@ -92,7 +94,7 @@ class InvoicesController extends Controller
             ->withPaymentSources(PaymentSource::values())
             ->withAmountDue($amountDue)
             ->withSource($invoice->source)
-            ->withCompanyName(Setting::first()->company);
+            ->withCompanyName(Setting::cached()->company);
     }
 
     /**
@@ -175,10 +177,16 @@ class InvoicesController extends Controller
 
     public function newItems($external_id, Request $request)
     {
+        if ( ! auth()->user()->can('modify-invoice-lines')) {
+            return response()->json(['message' => __('You do not have permission to modify invoice lines')], 403);
+        }
+
         foreach ($request->all() as $invoiceLine) {
             $invoiceLine = new AddInvoiceLine($invoiceLine);
             $this->newItem($external_id, $invoiceLine);
         }
+
+        return response()->json(['message' => 'Invoice lines updated'], 200);
     }
 
     public function findByExternalId($external_id)

@@ -9,7 +9,7 @@ use Tests\AbstractTestCase;
 class TaskIndexStatusDuplicatesTest extends AbstractTestCase
 {
     /** @test */
-    public function test_duplicates_are_removed_in_index_controller()
+    public function it_removes_duplicate_statuses_in_index_response()
     {
         // Create duplicate statuses
         Status::factory()->create(['source_type' => Task::class, 'title' => 'Open']);

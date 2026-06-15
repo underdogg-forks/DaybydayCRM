@@ -170,7 +170,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_view_document_attached_to_their_task_as_creator(): void
+    public function it_creator_can_view_their_task_document(): void
     {
         /* Arrange */
         $task = Task::factory()->create([
@@ -196,7 +196,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_view_document_attached_to_their_task_as_assignee(): void
+    public function it_assignee_can_view_their_task_document(): void
     {
         /* Arrange */
         $role = $this->owner->roles()->first() ?? \App\Models\Role::query()->firstOrCreate(['name' => 'owner']);
@@ -232,7 +232,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_view_document_attached_to_task_via_client_ownership(): void
+    public function it_client_owner_can_view_task_document(): void
     {
         /* Arrange */
         $task = Task::factory()->create([
@@ -259,7 +259,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_cannot_view_document_attached_to_another_users_task(): void
+    public function it_unrelated_user_cannot_view_document_from_another_users_task(): void
     {
         /* Arrange */
         $otherClient = Client::factory()->create(['user_id' => $this->otherUser->id]);
@@ -290,7 +290,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_view_document_attached_to_their_project_as_creator()
+    public function it_creator_can_view_their_project_document()
     {
         /* Arrange */
         $project = Project::factory()->create([
@@ -314,7 +314,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_view_document_attached_to_their_project_as_assignee()
+    public function it_assignee_can_view_their_project_document()
     {
         /* Arrange */
         $project = Project::factory()->create([
@@ -338,7 +338,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_cannot_view_document_attached_to_another_users_project()
+    public function it_unrelated_user_cannot_view_document_from_another_users_project()
     {
         /* Arrange */
         $otherClient = Client::factory()->create(['user_id' => $this->otherUser->id]);
@@ -365,7 +365,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_view_document_attached_to_their_lead_as_creator()
+    public function it_creator_can_view_their_lead_document()
     {
         /* Arrange */
         $lead = Lead::factory()->create([
@@ -389,7 +389,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_view_document_attached_to_their_lead_as_assignee()
+    public function it_assignee_can_view_their_lead_document()
     {
         /* Arrange */
         $lead = Lead::factory()->create([
@@ -413,7 +413,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_cannot_view_document_attached_to_another_users_lead()
+    public function it_unrelated_user_cannot_view_document_from_another_users_lead()
     {
         /* Arrange */
         $otherClient = Client::factory()->create(['user_id' => $this->otherUser->id]);
@@ -440,7 +440,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_view_document_attached_to_their_client()
+    public function it_client_owner_can_view_their_client_document()
     {
         /* Arrange */
         $document = Document::factory()->create([
@@ -457,7 +457,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_cannot_view_document_attached_to_another_users_client()
+    public function it_unrelated_user_cannot_view_document_from_another_users_client()
     {
         /* Arrange */
         $otherClient = Client::factory()->create(['user_id' => $this->otherUser->id]);
@@ -574,7 +574,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_can_download_document_attached_to_their_task()
+    public function it_task_owner_can_download_their_task_document()
     {
         /* Arrange */
         $task = Task::factory()->create([
@@ -597,7 +597,7 @@ class DocumentsTest extends AbstractTestCase
     }
 
     #[Test]
-    public function a_user_cannot_download_document_attached_to_another_users_task()
+    public function it_unrelated_user_cannot_download_document_from_another_users_task()
     {
         /* Arrange */
         $otherClient = Client::factory()->create(['user_id' => $this->otherUser->id]);

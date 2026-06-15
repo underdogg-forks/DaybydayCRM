@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 abstract class AbstractTestCase extends BaseTestCase
 {
@@ -37,17 +38,19 @@ abstract class AbstractTestCase extends BaseTestCase
             static::$schemaIsUpToDate = true;
         }
 
-        // Use a guaranteed unique email for the test user
-        $uniqueEmail = 'testuser_' . uniqid('', true) . '@example.org';
-        $this->user  = User::factory()->create([
-            'email' => $uniqueEmail,
-            'name'  => 'Admin',
-        ]);
+        // Only create user and run auth setup if the DB is available
+        if (Schema::hasTable('users')) {
+            $uniqueEmail = 'testuser_' . uniqid('', true) . '@example.org';
+            $this->user  = User::factory()->create([
+                'email' => $uniqueEmail,
+                'name'  => 'Admin',
+            ]);
 
-        // Standardize: Every user starts as an owner to minimize boilerplate 403s
-        $this->asOwner();
+            // Standardize: Every user starts as an owner to minimize boilerplate 403s
+            $this->asOwner();
 
-        $this->actingAs($this->user);
+            $this->actingAs($this->user);
+        }
     }
 
     /**

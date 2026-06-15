@@ -29,6 +29,7 @@ class StorageAdapterIsolationTest extends AbstractTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->defaultHeaders['Accept'] = 'application/json';
         $this->withoutMiddleware([VerifyCsrfToken::class]);
         \App\Models\Setting::factory()->create();
     }

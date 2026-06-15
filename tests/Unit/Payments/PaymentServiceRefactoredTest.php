@@ -45,6 +45,8 @@ class PaymentServiceRefactoredTest extends AbstractTestCase
     {
         parent::setUp();
         Carbon::setTestNow('2024-01-15 12:00:00');
+        // All requests in this test expect JSON — controllers check expectsJson() to decide response format
+        $this->defaultHeaders['Accept'] = 'application/json';
         $this->withoutMiddleware([VerifyCsrfToken::class]);
         \App\Models\Setting::factory()->create(['vat' => 0]);
 

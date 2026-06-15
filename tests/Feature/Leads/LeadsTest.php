@@ -48,30 +48,22 @@ class LeadsTest extends AbstractTestCase
     {
         parent::setUp();
 
+        // Create the main test user with a unique role so permission assignments
+        // don't leak to other users that share the 'employee' role.
+        $this->user = User::factory()->withRole('lead-tester')->create();
+        $this->actingAs($this->user);
         $this->withPermissions([
             PermissionName::LEAD_CREATE,
             PermissionName::LEAD_ASSIGN,
             PermissionName::LEAD_UPDATE_STATUS,
             PermissionName::LEAD_UPDATE_DEADLINE,
+            PermissionName::LEAD_DELETE,
         ]);
 
         $this->client = Client::factory()->create();
 
-        $this->user = User::factory()->create();
-        $role       = Role::query()->firstOrCreate(
-            ['name' => 'employee'],
-            [
-                'display_name' => 'Employee',
-                'description'  => 'Employee role',
-                'external_id'  => Str::uuid()->toString(),
-            ]
-        );
-        $this->user->attachRole($role);
-        $this->withPermissions(PermissionName::LEAD_DELETE);
-
-        /* Arrange */
-        $this->authorizedUser   = User::factory()->create();
-        $this->unauthorizedUser = User::factory()->create();
+        $this->authorizedUser   = User::factory()->withRole('lead-authorized')->create();
+        $this->unauthorizedUser = User::factory()->withRole('lead-unauthorized')->create();
         $this->newAssignee      = User::factory()->create();
 
         $client = Client::factory()->create();
@@ -85,11 +77,6 @@ class LeadsTest extends AbstractTestCase
         $this->userWithoutPermission = User::factory()->create();
 
         $this->lead = Lead::factory()->create();
-
-        $this->user = User::factory()->withRole('employee')->create();
-        $this->actingAs($this->user);
-
-        $this->unauthorizedUser = User::factory()->withRole('employee')->create();
 
         $this->withoutMiddleware(VerifyCsrfToken::class);
     }
@@ -588,16 +575,19 @@ class LeadsTest extends AbstractTestCase
     public function it_authorized_user_can_reassign_lead()
     {
         /* Arrange */
-        $originalAssignee = $this->lead->user_assigned_id;
-        $this->user       = $this->authorizedUser;
+        $this->user = $this->authorizedUser;
         $this->withPermissions(PermissionName::LEAD_ASSIGN);
         $this->user = $this->user->fresh();
         $this->assertTrue($this->user->can('can-assign-new-user-to-lead'));
+
+        // Create a lead specifically assigned to authorizedUser for this test
+        $lead             = Lead::factory()->create(['user_assigned_id' => $this->authorizedUser->id]);
+        $originalAssignee = $lead->user_assigned_id;
         $this->assertEquals($this->user->id, $originalAssignee);
 
         /* Act */
         $response = $this->actingAs($this->user)
-            ->patch(route('leads.updateAssign', $this->lead->external_id), [
+            ->patch(route('leads.updateAssign', $lead->external_id), [
                 'user_assigned_id' => $this->newAssignee->id,
             ]);
 
@@ -605,10 +595,10 @@ class LeadsTest extends AbstractTestCase
         $response->assertRedirect();
         $response->assertSessionHas('flash_message');
         $this->assertDatabaseHas('leads', [
-            'id'               => $this->lead->id,
+            'id'               => $lead->id,
             'user_assigned_id' => $this->newAssignee->id,
         ]);
-        $this->assertEquals($this->newAssignee->id, $this->lead->refresh()->user_assigned_id);
+        $this->assertEquals($this->newAssignee->id, $lead->refresh()->user_assigned_id);
     }
 
     #[Test]

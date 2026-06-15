@@ -93,7 +93,7 @@ class RoleTest extends AbstractTestCase
         $response = $this->post(route('roles.store'), [
             'name'        => 'qa-role',
             'description' => 'QA role',
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(500);

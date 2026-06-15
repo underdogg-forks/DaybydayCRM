@@ -62,7 +62,7 @@ class ProjectsTest extends AbstractTestCase
             'user_created_id'    => $this->user->id,
             'client_external_id' => $this->client->external_id,
             'deadline'           => '2020-01-01',
-        ]);
+        ], ['Accept' => 'application/json']);
 
         /* Assert */
         $projects = Project::where('user_assigned_id', $this->user->id);
@@ -158,7 +158,7 @@ class ProjectsTest extends AbstractTestCase
         $status = Status::factory()->create(['source_type' => Project::class]);
 
         /* Act */
-        $response = $this->post(route('projects.store'), $this->validProjectPayload($status->id));
+        $response = $this->post(route('projects.store'), $this->validProjectPayload($status->id), ['Accept' => 'application/json']);
 
         /* Assert */
         $response->assertStatus(500);

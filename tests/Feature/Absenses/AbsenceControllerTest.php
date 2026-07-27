@@ -55,8 +55,12 @@ class AbsenceControllerTest extends AbstractTestCase
             'comment'             => 'Sick kid',
         ]);
 
-        /* Assert */
-        $response->assertRedirect(route('absence.index')); // Assuming redirect
+        /* Assert: acting user has absence-manage but not absence-view, so the
+         * success redirect must not bounce through the view-gated absence
+         * index (which would immediately flash a conflicting permission
+         * warning and redirect back out). */
+        $response->assertRedirect(route('dashboard'));
+        $response->assertSessionHas('flash_message', __('Absence registered'));
         $absences = $user->fresh()->absences;
         $this->assertCount(1, $absences);
     }
@@ -80,8 +84,9 @@ class AbsenceControllerTest extends AbstractTestCase
             'comment'             => 'Sick kid',
         ]);
 
-        /* Assert */
-        $response->assertRedirect(route('absence.index'));
+        /* Assert: acting user has no permissions at all, so the success
+         * redirect must not bounce through the view-gated absence index. */
+        $response->assertRedirect(route('dashboard'));
         $this->assertCount(0, $absentUser->fresh()->absences);
         $this->assertCount(1, $this->user->fresh()->absences);
     }
@@ -90,7 +95,8 @@ class AbsenceControllerTest extends AbstractTestCase
     #[Group('junie_repaired')]
     public function it_creates_absence_for_authenticated_user_when_user_external_id_not_provided()
     {
-        /* Arrange */
+        /* Arrange: default test user is an Owner (full permissions, including
+         * absence-view), so the success redirect still goes to absence.index. */
 
         /* Act */
         $response = $this->post(route('absence.store'), [
